@@ -130,3 +130,17 @@ try:
 except RuntimeError as e:
     print(f"Error: {e}")
 ```
+
+## Full API Coverage
+
+For complete endpoint parity with the server OpenAPI, use `RoteiroGeneratedApi`:
+
+```python
+from roteiro import RoteiroClient, RoteiroGeneratedApi
+
+client = RoteiroClient("http://localhost:8080")
+api = RoteiroGeneratedApi(client)
+
+health = api.get_health()
+print(health)
+```

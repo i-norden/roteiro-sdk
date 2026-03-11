@@ -159,3 +159,16 @@ const client = new RoteiroClient({
   fetch: fetch as any,
 });
 ```
+
+## Full API Coverage
+
+For complete endpoint parity with the server OpenAPI, use `RoteiroGeneratedApi`:
+
+```typescript
+import { RoteiroClient, RoteiroGeneratedApi } from '@roteiro/sdk';
+
+const client = new RoteiroClient({ baseUrl: 'http://localhost:8080' });
+const api = new RoteiroGeneratedApi(client);
+
+const health = await api.gethealth();
+```

@@ -53,6 +53,7 @@ from .models import (
     ZonalStatsResult,
 )
 from .pipeline import Pipeline
+from .generated import RoteiroGeneratedApi
 
 __version__ = "0.2.0"
 
@@ -65,6 +66,8 @@ __all__ = [
     "RoteiroTimeoutError",
     # Pipeline
     "Pipeline",
+    # Full generated API client
+    "RoteiroGeneratedApi",
     # Models
     "Attachment",
     "Collection",
