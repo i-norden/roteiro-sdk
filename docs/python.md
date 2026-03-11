@@ -177,38 +177,18 @@ print(f"Duration: {result['duration_ms']}ms")
 ### Available operations
 
 ```python
-# Buffer
-client.process("buffer", "dataset", params={"distance": 50})
+catalog = client.list_operations()
+print("Formats:", catalog["formats"])
+print("Operation count:", len(catalog["operations"]))
 
-# Simplify
-client.process("simplify", "dataset", params={"tolerance": 0.001})
+for op in catalog["operations"]:
+    print(op["name"], op["params"])
 
-# Centroid
-client.process("centroid", "dataset")
-
-# Convex hull
-client.process("convex_hull", "dataset")
-
-# Dissolve
-client.process("dissolve", "dataset", params={"field": "category"})
-
-# Clip
-client.process("clip", "dataset", params={"clip_dataset": "boundary"})
-
-# Spatial join
-client.process("sjoin", "points", params={
-    "join_dataset": "polygons",
-    "predicate": "within"
-})
-
-# Reproject
-client.process("reproject", "dataset", params={"target_crs": "EPSG:3857"})
-
-# Validate
-client.process("validate", "dataset", params={"repair": True})
-
-# Voronoi
-client.process("voronoi", "points_dataset")
+# Example param names from current server catalog:
+client.process("dissolve", "dataset", params={"group_by": "category"})
+client.process("clip", "dataset", params={"mask": "boundary"})
+client.process("sjoin", "points", params={"right": "polygons", "predicate": "within"})
+client.process("reproject", "dataset", params={"from_crs": "EPSG:4326", "to_crs": "EPSG:3857"})
 ```
 
 ### Convert formats
@@ -388,14 +368,16 @@ print(f"Changes: +{diff['added']} -{diff['removed']} ~{diff['modified']}")
 
 ## Error Handling
 
-All API errors raise `RuntimeError` with a descriptive message:
+All API errors raise SDK exceptions such as `RoteiroAPIError`:
 
 ```python
+from roteiro import RoteiroAPIError
+
 try:
     client.get_collection("nonexistent")
-except RuntimeError as e:
+except RoteiroAPIError as e:
     print(f"API error: {e}")
     # API error: collection not found
 ```
 
-HTTP error codes are converted to runtime errors with the server's error message when available.
+HTTP error codes are converted to typed SDK errors with the server's message when available.

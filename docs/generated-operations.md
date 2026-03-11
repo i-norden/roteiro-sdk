@@ -1,6 +1,6 @@
 # Generated Operations
 
-Auto-generated from Cairn OpenAPI. Each operation is available in both generated SDK clients.
+Auto-generated from the server OpenAPI spec. Each operation is available in both generated SDK clients.
 
 | Method | Path | TS Method | Python Method |
 |--------|------|-----------|---------------|

@@ -215,7 +215,7 @@ const simplified = await client.process({
 const clipped = await client.process({
   operation: 'clip',
   input: 'buildings',
-  params: { clip_dataset: 'study_area' },
+  params: { mask: 'study_area' },
 });
 
 // Spatial join
@@ -223,7 +223,7 @@ const joined = await client.process({
   operation: 'sjoin',
   input: 'points',
   params: {
-    join_dataset: 'polygons',
+    right: 'polygons',
     predicate: 'within',
   },
 });
@@ -232,7 +232,7 @@ const joined = await client.process({
 const reprojected = await client.process({
   operation: 'reproject',
   input: 'buildings',
-  params: { target_crs: 'EPSG:3857' },
+  params: { from_crs: 'EPSG:4326', to_crs: 'EPSG:3857' },
 });
 ```
 
@@ -428,7 +428,7 @@ import { RoteiroClient } from '@roteiro/sdk';
 async function main() {
   const client = new RoteiroClient({
     baseUrl: 'http://localhost:8080',
-    apiKey: process.env.CAIRN_API_KEY,
+    apiKey: process.env.ROTEIRO_API_KEY,
   });
 
   // 1. Verify connection
