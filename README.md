@@ -13,7 +13,6 @@ documentation.
 - TypeScript guide: [`docs/typescript.md`](./docs/typescript.md)
 - Python guide: [`docs/python.md`](./docs/python.md)
 - Plugin development reference: [`docs/plugins.md`](./docs/plugins.md)
-- SDK coverage map: [`docs/sdk-coverage.md`](./docs/sdk-coverage.md)
 - Generated operations map: [`docs/generated-operations.md`](./docs/generated-operations.md)
 
 ## Quick Start
