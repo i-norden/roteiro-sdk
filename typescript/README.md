@@ -1,6 +1,6 @@
 # @roteiro/sdk
 
-TypeScript client for the Simple GIS API. Zero dependencies, works in Node.js 18+ and modern browsers.
+TypeScript client for the Roteiro GIS API. Zero dependencies, works in Node.js 18+ and modern browsers.
 
 ## Install
 
@@ -85,6 +85,7 @@ await client.createFeature('buildings', {
 | `convert(params)` | `ConvertResult` | Format conversion |
 | `process(params)` | `ProcessResult` | Spatial operations |
 | `diff(params)` | `DiffSummary` | Dataset diff |
+| `listOperations()` | `{ operations, formats }` | Server-supported processing operations |
 
 ### Indoor GIS
 
@@ -120,20 +121,22 @@ See `src/types.ts` for the complete type definitions.
 
 ## Supported Processing Operations
 
-Pass to `process({ operation, ... })`:
+Use `await client.listOperations()` to fetch the live server catalog from `/api/operations`.
 
-- `buffer` - Buffer by distance
-- `clip` - Clip to mask
-- `simplify` - Simplify geometries
-- `sjoin` - Spatial join
-- `reproject` - Change CRS
-- `centroid` - Compute centroids
-- `convex_hull` - Convex hulls
-- `spatial_stats` - Per-feature metrics
-- `morans_i` - Spatial autocorrelation
-- `hotspot` - Getis-Ord Gi* analysis
-- `kernel_density` - KDE
-- `validate` - Geometry validation
+Current operation names exposed by the server:
+
+- `buffer`, `clip`, `simplify`, `sjoin`, `reproject`
+- `union`, `intersect`, `difference`, `dissolve`, `merge`
+- `voronoi`, `delaunay`, `minimum_bounding_geometry`, `fishnet`, `tile_extract`
+- `centroid`, `convex_hull`, `multipart_to_singlepart`, `singlepart_to_multipart`
+- `feature_to_point`, `feature_to_line`, `points_to_line`, `points_to_polygon`
+- `vertices_to_points`, `add_xy_coordinates`, `spatial_stats`
+- `add_field`, `calculate_field`, `delete_field`, `rename_field`
+- `morans_i`, `hotspot`, `kernel_density`, `summary_statistics`, `frequency`
+- `interpolate_idw`, `ordinary_kriging`, `rbf_interpolation`
+- `validate`, `make_valid`, `validate_topology`, `crack_and_cluster`
+- `buffer_with_options`, `append`, `simple_kriging`, `universal_kriging`
+- `solve_vrp`, `p_median`, `mclp`
 
 ## Error Handling
 

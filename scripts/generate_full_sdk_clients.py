@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Generate full-surface TS/Python API clients from Cairn OpenAPI."""
+"""Generate full-surface TS/Python API clients from an OpenAPI spec."""
 
 from __future__ import annotations
 
@@ -237,7 +237,7 @@ def write_ops_doc(operations: list[dict[str, Any]], ts_names: list[str], py_name
     lines = [
         "# Generated Operations",
         "",
-        "Auto-generated from Cairn OpenAPI. Each operation is available in both generated SDK clients.",
+        "Auto-generated from the server OpenAPI spec. Each operation is available in both generated SDK clients.",
         "",
         "| Method | Path | TS Method | Python Method |",
         "|--------|------|-----------|---------------|",
@@ -250,7 +250,7 @@ def write_ops_doc(operations: list[dict[str, Any]], ts_names: list[str], py_name
 
 def main() -> None:
     parser = argparse.ArgumentParser()
-    parser.add_argument("--openapi", default="../cairn/go/server/openapi.yaml")
+    parser.add_argument("--openapi", required=True)
     parser.add_argument("--repo-root", default=".")
     args = parser.parse_args()
 

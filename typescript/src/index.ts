@@ -31,6 +31,8 @@ export type {
   // Processing
   ConvertResult,
   ProcessResult,
+  ProcessingOperation,
+  ProcessingOperationsResponse,
   DiffSummary,
   // VCS
   Repo,

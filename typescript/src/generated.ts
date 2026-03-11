@@ -9126,7 +9126,7 @@ export class RoteiroGeneratedApi {
   }
 
   /** Update a feature */
-  async updatefeature(pathParams: { fid: string }, options: GeneratedRequestOptions = {}): Promise<unknown> {
+  async updatefeature(pathParams: { id: string, fid: string }, options: GeneratedRequestOptions = {}): Promise<unknown> {
     const path = withQuery(`/collections/${encodeURIComponent(String(pathParams.id))}/items/${encodeURIComponent(String(pathParams.fid))}`, options.query);
     const headers: Record<string, string> = { ...(options.headers ?? {}) };
     let body: BodyInit | undefined;
@@ -9142,7 +9142,7 @@ export class RoteiroGeneratedApi {
   }
 
   /** Delete a feature */
-  async deletefeature(pathParams: { fid: string }, options: GeneratedRequestOptions = {}): Promise<unknown> {
+  async deletefeature(pathParams: { id: string, fid: string }, options: GeneratedRequestOptions = {}): Promise<unknown> {
     const path = withQuery(`/collections/${encodeURIComponent(String(pathParams.id))}/items/${encodeURIComponent(String(pathParams.fid))}`, options.query);
     const headers: Record<string, string> = { ...(options.headers ?? {}) };
     let body: BodyInit | undefined;
@@ -9350,7 +9350,7 @@ export class RoteiroGeneratedApi {
   }
 
   /** Get a tile from a PMTiles archive */
-  async getpmtile(pathParams: { archive: string }, options: GeneratedRequestOptions = {}): Promise<unknown> {
+  async getpmtile(pathParams: { archive: string, z: string, x: string, y: string }, options: GeneratedRequestOptions = {}): Promise<unknown> {
     const path = withQuery(`/pmtiles/${encodeURIComponent(String(pathParams.archive))}/${encodeURIComponent(String(pathParams.z))}/${encodeURIComponent(String(pathParams.x))}/${encodeURIComponent(String(pathParams.y))}`, options.query);
     const headers: Record<string, string> = { ...(options.headers ?? {}) };
     let body: BodyInit | undefined;
@@ -9574,7 +9574,7 @@ export class RoteiroGeneratedApi {
   }
 
   /** Get a raster tile */
-  async getrastertile(pathParams: { name: string }, options: GeneratedRequestOptions = {}): Promise<unknown> {
+  async getrastertile(pathParams: { name: string, z: string, x: string, y: string }, options: GeneratedRequestOptions = {}): Promise<unknown> {
     const path = withQuery(`/raster/${encodeURIComponent(String(pathParams.name))}/tiles/${encodeURIComponent(String(pathParams.z))}/${encodeURIComponent(String(pathParams.x))}/${encodeURIComponent(String(pathParams.y))}`, options.query);
     const headers: Record<string, string> = { ...(options.headers ?? {}) };
     let body: BodyInit | undefined;
@@ -9958,7 +9958,7 @@ export class RoteiroGeneratedApi {
   }
 
   /** Get a vector tile */
-  async getvectortile(pathParams: { tileset: string }, options: GeneratedRequestOptions = {}): Promise<unknown> {
+  async getvectortile(pathParams: { tileset: string, z: string, x: string, y: string }, options: GeneratedRequestOptions = {}): Promise<unknown> {
     const path = withQuery(`/tiles/${encodeURIComponent(String(pathParams.tileset))}/${encodeURIComponent(String(pathParams.z))}/${encodeURIComponent(String(pathParams.x))}/${encodeURIComponent(String(pathParams.y))}`, options.query);
     const headers: Record<string, string> = { ...(options.headers ?? {}) };
     let body: BodyInit | undefined;

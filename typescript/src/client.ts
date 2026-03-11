@@ -7,6 +7,7 @@ import type {
   Feature,
   FeatureCollection,
   HealthStatus,
+  ProcessingOperationsResponse,
   ProcessResult,
   QueryParams,
 } from './types';
@@ -335,6 +336,11 @@ export class RoteiroClient {
     match_field?: string;
   }): Promise<DiffSummary> {
     return this.post<DiffSummary>('/api/diff', params);
+  }
+
+  /** List available processing operations and output formats. */
+  async listOperations(): Promise<ProcessingOperationsResponse> {
+    return this.request<ProcessingOperationsResponse>('/api/operations');
   }
 
   // -----------------------------------------------------------------------

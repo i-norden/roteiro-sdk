@@ -1,0 +1,4 @@
+typescript/node_modules/
+typescript/dist/
+python/roteiro/__pycache__/
+*.pyc

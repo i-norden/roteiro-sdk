@@ -1,6 +1,6 @@
 # Roteiro Python SDK
 
-Python client for the Simple GIS API. Zero dependencies, works with Python 3.9+.
+Python client for the Roteiro GIS API. Zero dependencies, works with Python 3.9+.
 
 ## Install
 
@@ -80,9 +80,10 @@ Create a client instance.
 
 | Method | Description |
 |--------|-------------|
-| `convert(input_path, output_path, output_format)` | Convert between formats |
+| `convert(input_path, output_format, output_name=None, register=True)` | Convert between formats |
 | `process(operation, input_path, params)` | Run spatial operations (buffer, clip, simplify, etc.) |
 | `diff(left, right, match_field)` | Diff two datasets |
+| `list_operations()` | Fetch live processing operations/formats from `/api/operations` |
 
 ### Indoor GIS
 
@@ -105,29 +106,33 @@ Create a client instance.
 
 ## Supported Operations
 
-The `process()` method supports these operations:
+Use `client.list_operations()` to fetch the live server catalog from `/api/operations`.
 
-- `buffer` - Buffer geometries by distance
-- `clip` - Clip to mask geometry
-- `simplify` - Simplify with tolerance
-- `sjoin` - Spatial join
-- `reproject` - Change CRS
-- `centroid` - Compute centroids
-- `convex_hull` - Compute convex hulls
-- `spatial_stats` - Area, length, perimeter per feature
-- `morans_i` - Moran's I spatial autocorrelation
-- `hotspot` - Getis-Ord Gi* hot/cold spot analysis
-- `kernel_density` - Gaussian kernel density estimation
-- `validate` - Validate/fix geometries
+Current operation names exposed by the server:
+
+- `buffer`, `clip`, `simplify`, `sjoin`, `reproject`
+- `union`, `intersect`, `difference`, `dissolve`, `merge`
+- `voronoi`, `delaunay`, `minimum_bounding_geometry`, `fishnet`, `tile_extract`
+- `centroid`, `convex_hull`, `multipart_to_singlepart`, `singlepart_to_multipart`
+- `feature_to_point`, `feature_to_line`, `points_to_line`, `points_to_polygon`
+- `vertices_to_points`, `add_xy_coordinates`, `spatial_stats`
+- `add_field`, `calculate_field`, `delete_field`, `rename_field`
+- `morans_i`, `hotspot`, `kernel_density`, `summary_statistics`, `frequency`
+- `interpolate_idw`, `ordinary_kriging`, `rbf_interpolation`
+- `validate`, `make_valid`, `validate_topology`, `crack_and_cluster`
+- `buffer_with_options`, `append`, `simple_kriging`, `universal_kriging`
+- `solve_vrp`, `p_median`, `mclp`
 
 ## Error Handling
 
-All API errors raise `RuntimeError` with the server's error message:
+API errors raise SDK exceptions like `RoteiroAPIError`, `RoteiroConnectionError`, and `RoteiroTimeoutError`:
 
 ```python
+from roteiro import RoteiroAPIError
+
 try:
     client.get_collection("nonexistent")
-except RuntimeError as e:
+except RoteiroAPIError as e:
     print(f"Error: {e}")
 ```
 
