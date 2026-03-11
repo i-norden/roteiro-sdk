@@ -103,6 +103,56 @@ class RoteiroClientTests(unittest.TestCase):
         self.assertEqual(catalog["operations"][0]["name"], "buffer")
         self.assertEqual(catalog["formats"], ["geojson"])
 
+    def test_preflight_process_posts_expected_body(self):
+        client = RoteiroClient("https://example.com")
+        captured = {}
+
+        def fake_post(path, body=None):
+            captured["path"] = path
+            captured["body"] = body
+            return {"valid": True, "resolved_params": {"mask_path": "/tmp/mask.geojson"}}
+
+        client._post = fake_post  # type: ignore[method-assign]
+        result = client.preflight_process(
+            "clip",
+            input_path="buildings",
+            params={"mask": "study_area"},
+        )
+
+        self.assertEqual(captured["path"], "/api/process/preflight")
+        self.assertEqual(
+            captured["body"],
+            {
+                "operation": "clip",
+                "input": "buildings",
+                "params": {"mask": "study_area"},
+            },
+        )
+        self.assertTrue(result.valid)
+        self.assertEqual(result.resolved_params["mask_path"], "/tmp/mask.geojson")
+
+    def test_list_process_jobs_builds_expected_query_params(self):
+        client = RoteiroClient("https://example.com")
+        captured = {}
+
+        def fake_get(path):
+            captured["path"] = path
+            return []
+
+        client._get = fake_get  # type: ignore[method-assign]
+        jobs = client.list_process_jobs(
+            status="queued",
+            search="buffer",
+            limit=25,
+            offset=10,
+        )
+
+        self.assertEqual(
+            captured["path"],
+            "/api/process/jobs?status=queued&search=buffer&limit=25&offset=10",
+        )
+        self.assertEqual(jobs, [])
+
 
 if __name__ == "__main__":
     unittest.main()

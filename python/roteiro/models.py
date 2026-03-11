@@ -152,14 +152,258 @@ class ProcessResult:
     input_features: int = 0
     output_features: int = 0
     duration_ms: int = 0
+    warning: Optional[str] = None
+    suggestions: List["WarningSuggestion"] = field(default_factory=list)
+    dataset: Optional[Dataset] = None
 
     @classmethod
     def from_dict(cls, data: Dict[str, Any]) -> "ProcessResult":
+        suggestions = [
+            WarningSuggestion.from_dict(item)
+            for item in data.get("suggestions", [])
+            if isinstance(item, dict)
+        ]
+        dataset = None
+        if isinstance(data.get("dataset"), dict):
+            dataset = Dataset.from_dict(data["dataset"])
         return cls(
             operation=data.get("operation", ""),
             input_features=data.get("input_features", 0),
             output_features=data.get("output_features", 0),
             duration_ms=data.get("duration_ms", 0),
+            warning=data.get("warning"),
+            suggestions=suggestions,
+            dataset=dataset,
+        )
+
+
+@dataclass
+class WarningSuggestion:
+    """Suggested follow-up action for a processing warning."""
+
+    label: str = ""
+    operation: str = ""
+    description: str = ""
+
+    @classmethod
+    def from_dict(cls, data: Dict[str, Any]) -> "WarningSuggestion":
+        return cls(
+            label=data.get("label", ""),
+            operation=data.get("operation", ""),
+            description=data.get("description", ""),
+        )
+
+
+@dataclass
+class ProcessParamOption:
+    """Allowed option for an enum processing parameter."""
+
+    value: str = ""
+    label: str = ""
+
+    @classmethod
+    def from_dict(cls, data: Dict[str, Any]) -> "ProcessParamOption":
+        return cls(
+            value=data.get("value", ""),
+            label=data.get("label", ""),
+        )
+
+
+@dataclass
+class ProcessingOperationParam:
+    """Parameter metadata for a processing operation."""
+
+    name: str = ""
+    label: Optional[str] = None
+    description: Optional[str] = None
+    kind: str = ""
+    required: bool = False
+    default: Any = None
+    options: List[ProcessParamOption] = field(default_factory=list)
+
+    @classmethod
+    def from_dict(cls, data: Dict[str, Any]) -> "ProcessingOperationParam":
+        options = [
+            ProcessParamOption.from_dict(item)
+            for item in data.get("options", [])
+            if isinstance(item, dict)
+        ]
+        return cls(
+            name=data.get("name", ""),
+            label=data.get("label"),
+            description=data.get("description"),
+            kind=data.get("kind", ""),
+            required=data.get("required", False),
+            default=data.get("default"),
+            options=options,
+        )
+
+
+@dataclass
+class ProcessingOperation:
+    """Rich processing operation metadata returned by the server catalog."""
+
+    name: str = ""
+    description: str = ""
+    label: Optional[str] = None
+    category: Optional[str] = None
+    advanced: bool = False
+    ui_available: Optional[bool] = None
+    requires_projected_crs: bool = False
+    params: List[ProcessingOperationParam] = field(default_factory=list)
+
+    @classmethod
+    def from_dict(cls, data: Dict[str, Any]) -> "ProcessingOperation":
+        raw_params = data.get("params", [])
+        params = [
+            ProcessingOperationParam.from_dict(item)
+            for item in raw_params
+            if isinstance(item, dict)
+        ]
+        return cls(
+            name=data.get("name", ""),
+            description=data.get("description", ""),
+            label=data.get("label"),
+            category=data.get("category"),
+            advanced=data.get("advanced", False),
+            ui_available=data.get("ui_available"),
+            requires_projected_crs=data.get("requires_projected_crs", False),
+            params=params,
+        )
+
+
+@dataclass
+class ProcessPreflightResult:
+    """Validation output for a processing request."""
+
+    valid: bool = False
+    errors: List[str] = field(default_factory=list)
+    warnings: List[str] = field(default_factory=list)
+    input_crs: Optional[str] = None
+    resolved_params: Dict[str, Any] = field(default_factory=dict)
+    recommend_async: bool = False
+
+    @classmethod
+    def from_dict(cls, data: Dict[str, Any]) -> "ProcessPreflightResult":
+        return cls(
+            valid=data.get("valid", False),
+            errors=list(data.get("errors", []) or []),
+            warnings=list(data.get("warnings", []) or []),
+            input_crs=data.get("input_crs"),
+            resolved_params=dict(data.get("resolved_params", {}) or {}),
+            recommend_async=data.get("recommend_async", False),
+        )
+
+
+@dataclass
+class ProcessJobArtifact:
+    """Downloadable artifact produced by an async processing job."""
+
+    format: str = ""
+    url: str = ""
+    label: Optional[str] = None
+
+    @classmethod
+    def from_dict(cls, data: Dict[str, Any]) -> "ProcessJobArtifact":
+        return cls(
+            format=data.get("format", ""),
+            url=data.get("url", ""),
+            label=data.get("label"),
+        )
+
+
+@dataclass
+class ProcessJobRecord:
+    """Async processing job state."""
+
+    id: str = ""
+    type: str = ""
+    status: str = ""
+    progress: float = 0.0
+    phase: Optional[str] = None
+    operation: Optional[str] = None
+    tenant_id: Optional[int] = None
+    dependencies: List[str] = field(default_factory=list)
+    cancellation_requested: bool = False
+    cancellation_state: Optional[str] = None
+    result: Optional[ProcessResult] = None
+    error: Optional[str] = None
+    failure_class: Optional[str] = None
+    artifacts: List[ProcessJobArtifact] = field(default_factory=list)
+    submitted_by: Optional[int] = None
+    created_at: str = ""
+    started_at: Optional[str] = None
+    done_at: Optional[str] = None
+    queue_ms: Optional[int] = None
+    run_ms: Optional[int] = None
+
+    @classmethod
+    def from_dict(cls, data: Dict[str, Any]) -> "ProcessJobRecord":
+        result = None
+        if isinstance(data.get("result"), dict):
+            result = ProcessResult.from_dict(data["result"])
+        artifacts = [
+            ProcessJobArtifact.from_dict(item)
+            for item in data.get("artifacts", [])
+            if isinstance(item, dict)
+        ]
+        return cls(
+            id=data.get("id", ""),
+            type=data.get("type", ""),
+            status=data.get("status", ""),
+            progress=data.get("progress", 0.0),
+            phase=data.get("phase"),
+            operation=data.get("operation"),
+            tenant_id=data.get("tenant_id"),
+            dependencies=list(data.get("dependencies", []) or []),
+            cancellation_requested=data.get("cancellation_requested", False),
+            cancellation_state=data.get("cancellation_state"),
+            result=result,
+            error=data.get("error"),
+            failure_class=data.get("failure_class"),
+            artifacts=artifacts,
+            submitted_by=data.get("submitted_by"),
+            created_at=data.get("created_at", ""),
+            started_at=data.get("started_at"),
+            done_at=data.get("done_at"),
+            queue_ms=data.get("queue_ms"),
+            run_ms=data.get("run_ms"),
+        )
+
+
+@dataclass
+class ProcessBatchSubmittedJob:
+    """Submitted async processing job within a batch."""
+
+    client_id: str = ""
+    job: ProcessJobRecord = field(default_factory=ProcessJobRecord)
+
+    @classmethod
+    def from_dict(cls, data: Dict[str, Any]) -> "ProcessBatchSubmittedJob":
+        job_data = data.get("job", {})
+        return cls(
+            client_id=data.get("client_id", ""),
+            job=ProcessJobRecord.from_dict(job_data if isinstance(job_data, dict) else {}),
+        )
+
+
+@dataclass
+class ProcessBatchSubmitResponse:
+    """Batch async processing submission response."""
+
+    batch_id: str = ""
+    jobs: List[ProcessBatchSubmittedJob] = field(default_factory=list)
+
+    @classmethod
+    def from_dict(cls, data: Dict[str, Any]) -> "ProcessBatchSubmitResponse":
+        jobs = [
+            ProcessBatchSubmittedJob.from_dict(item)
+            for item in data.get("jobs", [])
+            if isinstance(item, dict)
+        ]
+        return cls(
+            batch_id=data.get("batch_id", ""),
+            jobs=jobs,
         )
 
 

@@ -48,8 +48,12 @@ from .models import (
     IndoorTransition,
     NavigationResult,
     NavigationStep,
+    ProcessBatchSubmitResponse,
+    ProcessJobRecord,
+    ProcessPreflightResult,
     ProcessResult,
     Repo,
+    WarningSuggestion,
     ZonalStatsResult,
 )
 from .pipeline import Pipeline
@@ -88,8 +92,12 @@ __all__ = [
     "IndoorTransition",
     "NavigationResult",
     "NavigationStep",
+    "ProcessBatchSubmitResponse",
+    "ProcessJobRecord",
+    "ProcessPreflightResult",
     "ProcessResult",
     "Repo",
+    "WarningSuggestion",
     "ZonalStatsResult",
     # Sub-modules (importable for standalone function usage)
     "collections",

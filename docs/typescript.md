@@ -236,6 +236,30 @@ const reprojected = await client.process({
 });
 ```
 
+### Validate before submitting an async job
+
+```typescript
+const preflight = await client.preflightProcess({
+  operation: 'clip',
+  input: 'buildings',
+  params: { mask: 'study_area' },
+});
+
+if (!preflight.valid) {
+  console.error(preflight.errors);
+}
+
+const job = await client.submitProcessJob({
+  operation: 'clip',
+  input: 'buildings',
+  params: { mask: 'study_area' },
+  output_name: 'buildings_clipped',
+});
+
+const queued = await client.getProcessJob(job.id);
+console.log(queued.status, queued.phase);
+```
+
 ### Compare datasets
 
 ```typescript

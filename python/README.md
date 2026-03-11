@@ -82,6 +82,13 @@ Create a client instance.
 |--------|-------------|
 | `convert(input_path, output_format, output_name=None, register=True)` | Convert between formats |
 | `process(operation, input_path, params)` | Run spatial operations (buffer, clip, simplify, etc.) |
+| `preflight_process(operation, input_path=None, params=None, ...)` | Validate/normalize a processing request |
+| `submit_process_job(operation, input_path=None, params=None, ...)` | Queue an async processing job |
+| `list_process_jobs(status=None, search=None, limit=None, offset=None)` | List async processing jobs |
+| `get_process_job(job_id)` | Fetch async processing job state |
+| `cancel_process_job(job_id)` | Cancel an async processing job |
+| `rerun_process_job(job_id)` | Re-submit a previous async job |
+| `submit_process_batch(jobs)` | Queue a dependent batch of async jobs |
 | `diff(left, right, match_field)` | Diff two datasets |
 | `list_operations()` | Fetch live processing operations/formats from `/api/operations` |
 
@@ -108,9 +115,11 @@ Create a client instance.
 
 Use `client.list_operations()` to fetch the live server catalog from `/api/operations`.
 
+The processing catalog now includes rich metadata per operation, including category, UI availability, projected-CRS requirements, and typed parameter definitions.
+
 Current operation names exposed by the server:
 
-- `buffer`, `clip`, `simplify`, `sjoin`, `reproject`
+- `geodesic_buffer`, `buffer`, `clip`, `simplify`, `sjoin`, `reproject`
 - `union`, `intersect`, `difference`, `dissolve`, `merge`
 - `voronoi`, `delaunay`, `minimum_bounding_geometry`, `fishnet`, `tile_extract`
 - `centroid`, `convex_hull`, `multipart_to_singlepart`, `singlepart_to_multipart`
@@ -122,6 +131,8 @@ Current operation names exposed by the server:
 - `validate`, `make_valid`, `validate_topology`, `crack_and_cluster`
 - `buffer_with_options`, `append`, `simple_kriging`, `universal_kriging`
 - `solve_vrp`, `p_median`, `mclp`
+
+Async processing helpers are available on the main client; the generated client is no longer required just to submit or inspect background processing jobs.
 
 ## Error Handling
 

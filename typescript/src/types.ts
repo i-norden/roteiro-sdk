@@ -103,22 +103,159 @@ export interface ConvertResult {
   dataset?: Dataset;
 }
 
+export interface DatasetBrief {
+  name: string;
+  path: string;
+  format: string;
+}
+
+export interface WarningSuggestion {
+  label: string;
+  operation: string;
+  description: string;
+}
+
 export interface ProcessResult {
   operation: string;
   input_features: number;
   output_features: number;
   duration_ms: number;
+  warning?: string;
+  suggestions?: WarningSuggestion[];
+  dataset?: DatasetBrief;
+}
+
+export type ProcessParamKind =
+  | 'string'
+  | 'number'
+  | 'integer'
+  | 'boolean'
+  | 'dataset'
+  | 'dataset_list'
+  | 'crs'
+  | 'enum'
+  | 'string_list'
+  | 'number_list'
+  | 'distance_metric'
+  | 'distance_crs'
+  | 'json';
+
+export interface ProcessParamOption {
+  value: string;
+  label: string;
+}
+
+export interface ProcessingOperationParam {
+  name: string;
+  label?: string;
+  description?: string;
+  kind: ProcessParamKind;
+  required?: boolean;
+  default?: unknown;
+  options?: ProcessParamOption[];
 }
 
 export interface ProcessingOperation {
   name: string;
   description: string;
-  params: string[];
+  label?: string;
+  category?: string;
+  advanced?: boolean;
+  ui_available?: boolean;
+  requires_projected_crs?: boolean;
+  params: Array<string | ProcessingOperationParam>;
 }
 
 export interface ProcessingOperationsResponse {
   operations: ProcessingOperation[];
   formats: string[];
+}
+
+export interface ProcessRequest {
+  operation: string;
+  input?: string;
+  input_geojson?: unknown;
+  params?: Record<string, unknown>;
+  output_format?: string;
+  register?: boolean;
+  output_name?: string;
+}
+
+export type ProcessJobStatus =
+  | 'queued'
+  | 'processing'
+  | 'completed'
+  | 'failed'
+  | 'cancelled';
+
+export type ProcessJobPhase =
+  | 'queued'
+  | 'validating'
+  | 'executing'
+  | 'registering'
+  | 'done';
+
+export type ProcessCancellationState = 'none' | 'requested' | 'confirmed';
+
+export interface ProcessJobArtifact {
+  format: string;
+  url: string;
+  label?: string;
+}
+
+export interface ProcessJobRecord {
+  id: string;
+  type: string;
+  status: ProcessJobStatus;
+  progress: number;
+  phase?: ProcessJobPhase;
+  operation?: string;
+  tenant_id?: number;
+  dependencies?: string[];
+  cancellation_requested?: boolean;
+  cancellation_state?: ProcessCancellationState;
+  result?: ProcessResult;
+  error?: string;
+  failure_class?: string;
+  artifacts?: ProcessJobArtifact[];
+  submitted_by?: number;
+  created_at: string;
+  started_at?: string;
+  done_at?: string;
+  queue_ms?: number;
+  run_ms?: number;
+}
+
+export interface ProcessPreflightResult {
+  valid: boolean;
+  errors?: string[];
+  warnings?: string[];
+  input_crs?: string;
+  resolved_params?: Record<string, unknown>;
+  recommend_async?: boolean;
+}
+
+export interface ProcessBatchJobRequest {
+  client_id?: string;
+  request: ProcessRequest;
+  depends_on?: string[];
+}
+
+export interface ProcessBatchJobResult {
+  client_id: string;
+  job: ProcessJobRecord;
+}
+
+export interface ProcessBatchSubmitResponse {
+  batch_id: string;
+  jobs: ProcessBatchJobResult[];
+}
+
+export interface ListProcessJobsParams {
+  status?: ProcessJobStatus;
+  search?: string;
+  limit?: number;
+  offset?: number;
 }
 
 export interface DiffSummary {
