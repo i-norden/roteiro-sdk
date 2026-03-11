@@ -27,12 +27,17 @@ type LayerListResponse = {
  */
 export async function uploadLayer(
   client: RoteiroClient,
-  file: Blob | ArrayBuffer | Uint8Array,
+  file: ArrayBuffer | Uint8Array | unknown,
   filename: string,
   metadata?: { name?: string; description?: string; tags?: string[]; style?: unknown },
 ): Promise<HostedLayer> {
-  const form = new FormData();
-  const blob = file instanceof Blob ? file : new Blob([file]);
+  const FormDataCtor = (globalThis as any).FormData;
+  const BlobCtor = (globalThis as any).Blob;
+  if (!FormDataCtor || !BlobCtor) {
+    throw new Error('FormData/Blob not available in this runtime');
+  }
+  const form = new FormDataCtor();
+  const blob = file instanceof BlobCtor ? file : new BlobCtor([file as any]);
   form.append('file', blob, filename);
   if (metadata?.name) form.append('name', metadata.name);
   if (metadata?.description) form.append('description', metadata.description);
@@ -148,11 +153,16 @@ export async function archiveLayer(
 export async function uploadLayerData(
   client: RoteiroClient,
   layerId: string,
-  file: Blob | ArrayBuffer | Uint8Array,
+  file: ArrayBuffer | Uint8Array | unknown,
   filename: string,
 ): Promise<HostedLayer> {
-  const form = new FormData();
-  const blob = file instanceof Blob ? file : new Blob([file]);
+  const FormDataCtor = (globalThis as any).FormData;
+  const BlobCtor = (globalThis as any).Blob;
+  if (!FormDataCtor || !BlobCtor) {
+    throw new Error('FormData/Blob not available in this runtime');
+  }
+  const form = new FormDataCtor();
+  const blob = file instanceof BlobCtor ? file : new BlobCtor([file as any]);
   form.append('file', blob, filename);
   return client.request<HostedLayer>(
     `/api/layers/${encodeURIComponent(layerId)}/upload`,

@@ -11,6 +11,8 @@ export * as indoor from './indoor';
 
 // Pipeline builder
 export { Pipeline } from './pipeline';
+// Full generated API surface
+export { RoteiroGeneratedApi } from './generated';
 
 // All types
 export type {

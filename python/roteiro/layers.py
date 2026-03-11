@@ -22,8 +22,7 @@ def upload_layer(
 ) -> HostedLayer:
     """Upload a geospatial file and register it as a hosted layer.
 
-    The file is sent as a multipart/form-data upload to ``POST /upload``.
-    The resulting dataset is returned as a HostedLayer with status ``uploaded``.
+    The file is sent as a multipart/form-data upload to ``POST /api/layers``.
 
     Args:
         client: An initialised RoteiroClient instance.
@@ -32,57 +31,59 @@ def upload_layer(
         description: Optional description for the layer.
 
     Returns:
-        A HostedLayer representing the uploaded dataset.
+        A HostedLayer representing the uploaded layer.
     """
     extra_fields: Dict[str, str] = {"name": name}
     if description:
         extra_fields["description"] = description
-    data = client._upload_file("/upload", file_path, extra_fields=extra_fields)
-    layer = HostedLayer.from_dict(data)
-    layer.status = "uploaded"
-    return layer
+    data = client._upload_file("/api/layers", file_path, extra_fields=extra_fields)
+    return HostedLayer.from_dict(data)
 
 
 def publish_layer(client: RoteiroClient, layer_id: str) -> HostedLayer:
     """Publish a hosted layer, making it available via tile endpoints.
 
-    This registers the layer as a dataset (if not already registered) and
-    marks it as published.
-
     Args:
         client: An initialised RoteiroClient instance.
-        layer_id: The identifier (name) of the layer to publish.
+        layer_id: The identifier of the layer to publish.
 
     Returns:
-        The updated HostedLayer with status ``published``.
+        The updated HostedLayer.
     """
-    data = client._post(
-        "/datasets",
-        {"name": layer_id, "path": layer_id, "format": "auto"},
-    )
-    layer = HostedLayer.from_dict(data)
-    layer.status = "published"
-    return layer
+    data = client._post(f"/api/layers/{layer_id}/publish", {})
+    return HostedLayer.from_dict(data)
 
 
 def list_layers(
     client: RoteiroClient,
     status: Optional[str] = None,
+    limit: Optional[int] = None,
+    offset: Optional[int] = None,
 ) -> List[HostedLayer]:
     """List hosted layers, optionally filtered by status.
 
     Args:
         client: An initialised RoteiroClient instance.
-        status: Optional status filter (``uploaded``, ``published``, ``archived``).
+        status: Optional status filter.
+        limit: Optional page size.
+        offset: Optional page offset.
 
     Returns:
         A list of HostedLayer objects.
     """
-    data = client._get("/datasets")
-    layers = [HostedLayer.from_dict(d) for d in data]
+    params: List[str] = []
     if status:
-        layers = [l for l in layers if l.status == status]
-    return layers
+        params.append(f"status={status}")
+    if limit is not None:
+        params.append(f"limit={limit}")
+    if offset is not None:
+        params.append(f"offset={offset}")
+    path = "/api/layers"
+    if params:
+        path += "?" + "&".join(params)
+    data = client._get(path)
+    layers = data.get("layers", data if isinstance(data, list) else [])
+    return [HostedLayer.from_dict(d) for d in layers]
 
 
 def get_layer(client: RoteiroClient, layer_id: str) -> HostedLayer:
@@ -90,19 +91,13 @@ def get_layer(client: RoteiroClient, layer_id: str) -> HostedLayer:
 
     Args:
         client: An initialised RoteiroClient instance.
-        layer_id: The identifier (name) of the layer.
+        layer_id: The identifier of the layer.
 
     Returns:
         A HostedLayer object.
     """
-    # Layers are backed by the datasets endpoint.
-    data = client._get("/datasets")
-    for d in data:
-        if d.get("name") == layer_id:
-            return HostedLayer.from_dict(d)
-    from .client import RoteiroAPIError
-
-    raise RoteiroAPIError(f"Layer '{layer_id}' not found", status_code=404)
+    data = client._get(f"/api/layers/{layer_id}")
+    return HostedLayer.from_dict(data)
 
 
 def update_layer(
@@ -112,44 +107,44 @@ def update_layer(
 ) -> HostedLayer:
     """Update a hosted layer's metadata.
 
-    Currently supports re-registering the dataset with updated properties.
-
     Args:
         client: An initialised RoteiroClient instance.
-        layer_id: The identifier (name) of the layer to update.
-        **kwargs: Fields to update (e.g. ``name``, ``format``, ``crs``).
+        layer_id: The identifier of the layer to update.
+        **kwargs: Metadata fields to update.
 
     Returns:
         The updated HostedLayer.
     """
-    body: Dict[str, Any] = {"name": layer_id}
-    body.update(kwargs)
-    if "path" not in body:
-        body["path"] = layer_id
-    data = client._post("/datasets", body)
+    data = client._put(f"/api/layers/{layer_id}", kwargs)
     return HostedLayer.from_dict(data)
 
 
-def archive_layer(client: RoteiroClient, layer_id: str) -> None:
+def archive_layer(client: RoteiroClient, layer_id: str) -> HostedLayer:
     """Archive a hosted layer.
-
-    Removes the layer from the active dataset registry.  The underlying
-    files are not deleted.
 
     Args:
         client: An initialised RoteiroClient instance.
-        layer_id: The identifier (name) of the layer to archive.
+        layer_id: The identifier of the layer to archive.
     """
-    client._delete(f"/datasets/{layer_id}")
+    data = client._post(f"/api/layers/{layer_id}/archive", {})
+    return HostedLayer.from_dict(data)
+
+
+def upload_layer_data(
+    client: RoteiroClient,
+    layer_id: str,
+    file_path: str,
+) -> HostedLayer:
+    """Upload replacement data for an existing layer."""
+    data = client._upload_file(f"/api/layers/{layer_id}/upload", file_path)
+    return HostedLayer.from_dict(data)
 
 
 def delete_layer(client: RoteiroClient, layer_id: str) -> None:
     """Delete a hosted layer permanently.
 
-    Removes the layer from the dataset registry.
-
     Args:
         client: An initialised RoteiroClient instance.
-        layer_id: The identifier (name) of the layer to delete.
+        layer_id: The identifier of the layer to delete.
     """
-    client._delete(f"/datasets/{layer_id}")
+    client._delete(f"/api/layers/{layer_id}")
