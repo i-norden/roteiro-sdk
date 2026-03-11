@@ -7,6 +7,11 @@ import type {
   Feature,
   FeatureCollection,
   HealthStatus,
+  ListProcessJobsParams,
+  ProcessBatchSubmitResponse,
+  ProcessJobRecord,
+  ProcessPreflightResult,
+  ProcessRequest,
   ProcessingOperationsResponse,
   ProcessResult,
   QueryParams,
@@ -319,14 +324,11 @@ export class RoteiroClient {
   }
 
   /** Run a spatial processing operation. */
-  async process(params: {
-    operation: string;
-    input?: string;
-    input_geojson?: unknown;
-    params: Record<string, unknown>;
-    output_format?: string;
-  }): Promise<ProcessResult> {
-    return this.post<ProcessResult>('/api/process', params);
+  async process(params: ProcessRequest): Promise<ProcessResult> {
+    return this.post<ProcessResult>('/api/process', {
+      ...params,
+      params: params.params ?? {},
+    });
   }
 
   /** Compare two datasets. */
@@ -341,6 +343,83 @@ export class RoteiroClient {
   /** List available processing operations and output formats. */
   async listOperations(): Promise<ProcessingOperationsResponse> {
     return this.request<ProcessingOperationsResponse>('/api/operations');
+  }
+
+  /** Validate and normalize a processing request without executing it. */
+  async preflightProcess(params: ProcessRequest): Promise<ProcessPreflightResult> {
+    return this.post<ProcessPreflightResult>('/api/process/preflight', {
+      ...params,
+      params: params.params ?? {},
+    });
+  }
+
+  /** Submit an asynchronous processing job. */
+  async submitProcessJob(params: ProcessRequest): Promise<ProcessJobRecord> {
+    return this.request<ProcessJobRecord>('/api/process/jobs', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        ...params,
+        params: params.params ?? {},
+      }),
+    });
+  }
+
+  /** Submit a batch of asynchronous processing jobs. */
+  async submitProcessBatch(params: {
+    jobs: Array<{
+      client_id?: string;
+      request: ProcessRequest;
+      depends_on?: string[];
+    }>;
+  }): Promise<ProcessBatchSubmitResponse> {
+    return this.request<ProcessBatchSubmitResponse>('/api/process/jobs/batch', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        jobs: params.jobs.map((job) => ({
+          ...job,
+          request: {
+            ...job.request,
+            params: job.request.params ?? {},
+          },
+        })),
+      }),
+    });
+  }
+
+  /** List asynchronous processing jobs for the current tenant. */
+  async listProcessJobs(params: ListProcessJobsParams = {}): Promise<ProcessJobRecord[]> {
+    const sp = new URLSearchParams();
+    if (params.status) sp.set('status', params.status);
+    if (params.search) sp.set('search', params.search);
+    if (params.limit !== undefined) sp.set('limit', String(params.limit));
+    if (params.offset !== undefined) sp.set('offset', String(params.offset));
+    const q = sp.toString();
+    return this.request<ProcessJobRecord[]>(`/api/process/jobs${q ? `?${q}` : ''}`);
+  }
+
+  /** Get a single asynchronous processing job by ID. */
+  async getProcessJob(id: string): Promise<ProcessJobRecord> {
+    return this.request<ProcessJobRecord>(
+      `/api/process/jobs/${encodeURIComponent(id)}`,
+    );
+  }
+
+  /** Cancel an asynchronous processing job. */
+  async cancelProcessJob(id: string): Promise<void> {
+    await this.del(`/api/process/jobs/${encodeURIComponent(id)}`);
+  }
+
+  /** Re-run a previously submitted asynchronous processing job. */
+  async rerunProcessJob(id: string): Promise<ProcessJobRecord> {
+    return this.request<ProcessJobRecord>(
+      `/api/process/jobs/${encodeURIComponent(id)}/rerun`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+      },
+    );
   }
 
   // -----------------------------------------------------------------------

@@ -191,6 +191,26 @@ client.process("sjoin", "points", params={"right": "polygons", "predicate": "wit
 client.process("reproject", "dataset", params={"from_crs": "EPSG:4326", "to_crs": "EPSG:3857"})
 ```
 
+### Validate before submitting an async job
+
+```python
+preflight = client.preflight_process(
+    "clip",
+    input_path="buildings",
+    params={"mask": "study_area"},
+)
+if not preflight.valid:
+    print(preflight.errors)
+
+job = client.submit_process_job(
+    "clip",
+    input_path="buildings",
+    params={"mask": "study_area"},
+    output_name="buildings_clipped",
+)
+print(job.id, job.status, job.phase)
+```
+
 ### Convert formats
 
 ```python

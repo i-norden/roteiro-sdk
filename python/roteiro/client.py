@@ -32,6 +32,9 @@ from .models import (
     IndoorFloor,
     IndoorModel,
     IndoorSpace,
+    ProcessBatchSubmitResponse,
+    ProcessJobRecord,
+    ProcessPreflightResult,
     NavigationResult,
     ProcessResult,
     Repo,
@@ -571,28 +574,42 @@ class RoteiroClient:
     def process(
         self,
         operation: str,
-        input_path: str,
+        input_path: Optional[str] = None,
         params: Optional[Dict[str, Any]] = None,
         output_format: Optional[str] = None,
+        *,
+        input_geojson: Any = None,
+        register: Optional[bool] = None,
+        output_name: Optional[str] = None,
     ) -> ProcessResult:
         """Run a spatial processing operation.
 
         Args:
             operation: Operation name (e.g. ``buffer``, ``clip``, ``simplify``).
-            input_path: Name of the input dataset.
+            input_path: Optional input dataset name.
             params: Operation-specific parameters.
+            input_geojson: Optional inline GeoJSON input instead of a dataset reference.
             output_format: Optional output format (``geojson`` for inline results).
+            register: Whether the output should be registered as a dataset.
+            output_name: Optional output dataset name.
 
         Returns:
             A ProcessResult with operation statistics.
         """
         body: Dict[str, Any] = {
             "operation": operation,
-            "input": input_path,
             "params": params or {},
         }
+        if input_path is not None:
+            body["input"] = input_path
+        if input_geojson is not None:
+            body["input_geojson"] = input_geojson
         if output_format:
             body["output_format"] = output_format
+        if register is not None:
+            body["register"] = register
+        if output_name:
+            body["output_name"] = output_name
         data = self._post("/api/process", body)
         return ProcessResult.from_dict(data)
 
@@ -621,6 +638,116 @@ class RoteiroClient:
     def list_operations(self) -> Dict[str, Any]:
         """List available processing operations and output formats."""
         return self._get("/api/operations")
+
+    def preflight_process(
+        self,
+        operation: str,
+        input_path: Optional[str] = None,
+        params: Optional[Dict[str, Any]] = None,
+        *,
+        input_geojson: Any = None,
+        output_format: Optional[str] = None,
+        register: Optional[bool] = None,
+        output_name: Optional[str] = None,
+    ) -> ProcessPreflightResult:
+        """Validate and normalize a processing request without executing it."""
+        body: Dict[str, Any] = {
+            "operation": operation,
+            "params": params or {},
+        }
+        if input_path is not None:
+            body["input"] = input_path
+        if input_geojson is not None:
+            body["input_geojson"] = input_geojson
+        if output_format:
+            body["output_format"] = output_format
+        if register is not None:
+            body["register"] = register
+        if output_name:
+            body["output_name"] = output_name
+        data = self._post("/api/process/preflight", body)
+        return ProcessPreflightResult.from_dict(data)
+
+    def submit_process_job(
+        self,
+        operation: str,
+        input_path: Optional[str] = None,
+        params: Optional[Dict[str, Any]] = None,
+        *,
+        input_geojson: Any = None,
+        output_format: Optional[str] = None,
+        register: Optional[bool] = None,
+        output_name: Optional[str] = None,
+    ) -> ProcessJobRecord:
+        """Submit an asynchronous processing job."""
+        body: Dict[str, Any] = {
+            "operation": operation,
+            "params": params or {},
+        }
+        if input_path is not None:
+            body["input"] = input_path
+        if input_geojson is not None:
+            body["input_geojson"] = input_geojson
+        if output_format:
+            body["output_format"] = output_format
+        if register is not None:
+            body["register"] = register
+        if output_name:
+            body["output_name"] = output_name
+        data = self._request("POST", "/api/process/jobs", body)
+        return ProcessJobRecord.from_dict(data)
+
+    def list_process_jobs(
+        self,
+        status: Optional[str] = None,
+        search: Optional[str] = None,
+        limit: Optional[int] = None,
+        offset: Optional[int] = None,
+    ) -> List[ProcessJobRecord]:
+        """List asynchronous processing jobs for the current tenant."""
+        query: Dict[str, Any] = {}
+        if status:
+            query["status"] = status
+        if search:
+            query["search"] = search
+        if limit is not None:
+            query["limit"] = limit
+        if offset is not None:
+            query["offset"] = offset
+        path = "/api/process/jobs"
+        if query:
+            path = f"{path}?{urlencode(query)}"
+        data = self._get(path)
+        return [ProcessJobRecord.from_dict(item) for item in data or []]
+
+    def get_process_job(self, job_id: str) -> ProcessJobRecord:
+        """Get an asynchronous processing job by ID."""
+        data = self._get(f"/api/process/jobs/{job_id}")
+        return ProcessJobRecord.from_dict(data)
+
+    def cancel_process_job(self, job_id: str) -> None:
+        """Cancel an asynchronous processing job."""
+        self._delete(f"/api/process/jobs/{job_id}")
+
+    def rerun_process_job(self, job_id: str) -> ProcessJobRecord:
+        """Re-submit a completed or failed processing job."""
+        data = self._request("POST", f"/api/process/jobs/{job_id}/rerun")
+        return ProcessJobRecord.from_dict(data)
+
+    def submit_process_batch(
+        self,
+        jobs: List[Dict[str, Any]],
+    ) -> ProcessBatchSubmitResponse:
+        """Submit a batch of asynchronous processing jobs."""
+        normalized_jobs: List[Dict[str, Any]] = []
+        for job in jobs:
+            request = dict(job.get("request", {}))
+            request["params"] = request.get("params") or {}
+            item = dict(job)
+            item["request"] = request
+            normalized_jobs.append(item)
+        data = self._request("POST", "/api/process/jobs/batch", {"jobs": normalized_jobs})
+        return ProcessBatchSubmitResponse.from_dict(data)
 
     # ------------------------------------------------------------------
     # Upload

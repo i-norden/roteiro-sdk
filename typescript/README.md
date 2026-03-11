@@ -84,6 +84,13 @@ await client.createFeature('buildings', {
 |--------|---------|-------------|
 | `convert(params)` | `ConvertResult` | Format conversion |
 | `process(params)` | `ProcessResult` | Spatial operations |
+| `preflightProcess(params)` | `ProcessPreflightResult` | Validate/normalize a processing request |
+| `submitProcessJob(params)` | `ProcessJobRecord` | Queue an async processing job |
+| `listProcessJobs(params?)` | `ProcessJobRecord[]` | List async processing jobs |
+| `getProcessJob(id)` | `ProcessJobRecord` | Fetch async processing job state |
+| `cancelProcessJob(id)` | `void` | Cancel an async processing job |
+| `rerunProcessJob(id)` | `ProcessJobRecord` | Re-submit a previous async job |
+| `submitProcessBatch({ jobs })` | `ProcessBatchSubmitResponse` | Queue a dependent batch of async jobs |
 | `diff(params)` | `DiffSummary` | Dataset diff |
 | `listOperations()` | `{ operations, formats }` | Server-supported processing operations |
 
@@ -123,9 +130,11 @@ See `src/types.ts` for the complete type definitions.
 
 Use `await client.listOperations()` to fetch the live server catalog from `/api/operations`.
 
+The catalog now includes rich metadata per operation, including category, UI availability, projected-CRS requirements, and typed parameter definitions.
+
 Current operation names exposed by the server:
 
-- `buffer`, `clip`, `simplify`, `sjoin`, `reproject`
+- `geodesic_buffer`, `buffer`, `clip`, `simplify`, `sjoin`, `reproject`
 - `union`, `intersect`, `difference`, `dissolve`, `merge`
 - `voronoi`, `delaunay`, `minimum_bounding_geometry`, `fishnet`, `tile_extract`
 - `centroid`, `convex_hull`, `multipart_to_singlepart`, `singlepart_to_multipart`
@@ -137,6 +146,8 @@ Current operation names exposed by the server:
 - `validate`, `make_valid`, `validate_topology`, `crack_and_cluster`
 - `buffer_with_options`, `append`, `simple_kriging`, `universal_kriging`
 - `solve_vrp`, `p_median`, `mclp`
+
+Async processing endpoints are also available from the main client for preflight validation and background job execution.
 
 ## Error Handling
 
