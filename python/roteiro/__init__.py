@@ -1,0 +1,102 @@
+"""Roteiro Python SDK -- a full-featured client for the Roteiro GIS API.
+
+Quick start::
+
+    from roteiro import RoteiroClient, Pipeline
+
+    client = RoteiroClient("http://localhost:8080", api_key="...")
+
+    # List collections
+    collections = client.list_collections()
+
+    # Query features
+    features = client.get_items("buildings", bbox="-73.99,40.74,-73.97,40.76", limit=50)
+
+    # Run a processing pipeline
+    result = (
+        Pipeline(client)
+        .buffer(distance=100)
+        .simplify(tolerance=10)
+        .execute("parcels")
+    )
+"""
+
+from .client import (
+    RoteiroAPIError,
+    RoteiroClient,
+    RoteiroConnectionError,
+    RoteiroError,
+    RoteiroTimeoutError,
+)
+from .models import (
+    Attachment,
+    Collection,
+    Commit,
+    ConvertResult,
+    Dataset,
+    DiffResult,
+    DiffSummary,
+    Feature,
+    FeatureCollection,
+    HealthStatus,
+    HostedLayer,
+    IndoorAsset,
+    IndoorBuilding,
+    IndoorFloor,
+    IndoorModel,
+    IndoorSpace,
+    IndoorTransition,
+    NavigationResult,
+    NavigationStep,
+    ProcessResult,
+    Repo,
+    ZonalStatsResult,
+)
+from .pipeline import Pipeline
+
+__version__ = "0.2.0"
+
+__all__ = [
+    # Client
+    "RoteiroClient",
+    "RoteiroError",
+    "RoteiroAPIError",
+    "RoteiroConnectionError",
+    "RoteiroTimeoutError",
+    # Pipeline
+    "Pipeline",
+    # Models
+    "Attachment",
+    "Collection",
+    "Commit",
+    "ConvertResult",
+    "Dataset",
+    "DiffResult",
+    "DiffSummary",
+    "Feature",
+    "FeatureCollection",
+    "HealthStatus",
+    "HostedLayer",
+    "IndoorAsset",
+    "IndoorBuilding",
+    "IndoorFloor",
+    "IndoorModel",
+    "IndoorSpace",
+    "IndoorTransition",
+    "NavigationResult",
+    "NavigationStep",
+    "ProcessResult",
+    "Repo",
+    "ZonalStatsResult",
+    # Sub-modules (importable for standalone function usage)
+    "collections",
+    "layers",
+    "vcs",
+    "pipeline",
+    "attachments",
+    "raster",
+    "indoor",
+]
+
+# Make sub-modules importable as roteiro.collections, roteiro.vcs, etc.
+from . import attachments, collections, indoor, layers, raster, vcs

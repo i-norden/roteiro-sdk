@@ -1,0 +1,37 @@
+[build-system]
+requires = ["setuptools>=68.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "roteiro"
+version = "0.2.0"
+description = "Python SDK for the Roteiro GIS API"
+readme = "README.md"
+license = {text = "MIT"}
+requires-python = ">=3.9"
+authors = [
+    {name = "roteiro contributors"}
+]
+keywords = ["gis", "geospatial", "ogc", "maps", "indoor"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Scientific/Engineering :: GIS",
+    "Typing :: Typed",
+]
+
+[project.urls]
+Homepage = "https://github.com/i-norden/roteiro-sdk"
+Documentation = "https://github.com/i-norden/roteiro-sdk/tree/main/python"
+Repository = "https://github.com/i-norden/roteiro-sdk"
+Issues = "https://github.com/i-norden/roteiro-sdk/issues"
+
+[tool.setuptools.packages.find]
+include = ["roteiro*"]
