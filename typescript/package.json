@@ -1,0 +1,23 @@
+{
+  "name": "@roteiro/sdk",
+  "version": "0.2.0",
+  "description": "TypeScript SDK for the Roteiro GIS API",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": ["dist"],
+  "scripts": {
+    "build": "tsc",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/i-norden/roteiro-sdk"
+  },
+  "devDependencies": {
+    "typescript": "^5.5",
+    "vitest": "^2.0"
+  }
+}
