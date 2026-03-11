@@ -110,6 +110,17 @@ export interface ProcessResult {
   duration_ms: number;
 }
 
+export interface ProcessingOperation {
+  name: string;
+  description: string;
+  params: string[];
+}
+
+export interface ProcessingOperationsResponse {
+  operations: ProcessingOperation[];
+  formats: string[];
+}
+
 export interface DiffSummary {
   added: number;
   removed: number;

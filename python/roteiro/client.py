@@ -618,6 +618,10 @@ class RoteiroClient:
         data = self._post("/api/diff", body)
         return DiffSummary.from_dict(data)
 
+    def list_operations(self) -> Dict[str, Any]:
+        """List available processing operations and output formats."""
+        return self._get("/api/operations")
+
     # ------------------------------------------------------------------
     # Upload
     # ------------------------------------------------------------------
