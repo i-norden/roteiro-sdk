@@ -102,11 +102,35 @@ def ts_path_expr(path: str) -> str:
 
 
 def py_path_expr(path: str) -> str:
-    out = path
-    for raw in re.findall(r"\{([^}]+)\}", path):
+    pieces: list[str] = []
+    i = 0
+    for match in re.finditer(r"\{([^}]+)\}", path):
+        if match.start() > i:
+            pieces.append(path[i : match.start()])
+        name = sanitize_identifier(match.group(1))
+        pieces.append("{_quote_path_value(" + name + ")}")
+        i = match.end()
+    if i < len(path):
+        pieces.append(path[i:])
+    return "".join(pieces)
+
+
+def path_param_names(op: dict[str, Any]) -> list[str]:
+    names: list[str] = []
+    for raw in re.findall(r"\{([^}]+)\}", op["path"]):
         name = sanitize_identifier(raw)
-        out = out.replace("{" + raw + "}", "{" + name + "}")
-    return out
+        if name not in names:
+            names.append(name)
+
+    for param in op.get("parameters", []):
+        if not isinstance(param, dict):
+            continue
+        if param.get("in") != "path" or not param.get("name"):
+            continue
+        name = sanitize_identifier(param["name"])
+        if name not in names:
+            names.append(name)
+    return names
 
 
 def write_ts(operations: list[dict[str, Any]], names: list[str], out_path: Path) -> None:
@@ -139,11 +163,7 @@ def write_ts(operations: list[dict[str, Any]], names: list[str], out_path: Path)
         path = op["path"]
         method = op["method"]
         summary = (op.get("summary") or "").replace("*/", "")
-        path_params = [
-            sanitize_identifier(p["name"])
-            for p in op.get("parameters", [])
-            if isinstance(p, dict) and p.get("in") == "path" and p.get("name")
-        ]
+        path_params = path_param_names(op)
         if path_params:
             lines.append(f"  /** {summary or method + ' ' + path} */")
             lines.append(
@@ -181,10 +201,13 @@ def write_py(operations: list[dict[str, Any]], names: list[str], out_path: Path)
     lines.append("from __future__ import annotations")
     lines.append("")
     lines.append("from typing import Any, Dict, Optional")
-    lines.append("from urllib.parse import urlencode")
+    lines.append("from urllib.parse import quote, urlencode")
     lines.append("")
     lines.append("from .client import RoteiroClient")
     lines.append("")
+    lines.append("")
+    lines.append("def _quote_path_value(value: Any) -> str:")
+    lines.append('    return quote(str(value), safe="")')
     lines.append("")
     lines.append("class RoteiroGeneratedApi:")
     lines.append("    def __init__(self, client: RoteiroClient) -> None:")
@@ -195,11 +218,7 @@ def write_py(operations: list[dict[str, Any]], names: list[str], out_path: Path)
         path = op["path"]
         method = op["method"]
         summary = (op.get("summary") or f"{method} {path}").replace('"""', "")
-        path_params = [
-            sanitize_identifier(p["name"])
-            for p in op.get("parameters", [])
-            if isinstance(p, dict) and p.get("in") == "path" and p.get("name")
-        ]
+        path_params = path_param_names(op)
         args = []
         for p in path_params:
             args.append(f"{p}: str")

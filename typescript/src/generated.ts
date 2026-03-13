@@ -7349,6 +7349,22 @@ export class RoteiroGeneratedApi {
     });
   }
 
+  /** [auto] POST /api/raster/kde */
+  async autoPostApiRasterKde(options: GeneratedRequestOptions = {}): Promise<unknown> {
+    const path = withQuery('/api/raster/kde', options.query);
+    const headers: Record<string, string> = { ...(options.headers ?? {}) };
+    let body: BodyInit | undefined;
+    if (options.body !== undefined) {
+      body = JSON.stringify(options.body);
+      if (!headers['Content-Type']) headers['Content-Type'] = 'application/json';
+    }
+    return this.client.request(path, {
+      method: 'POST',
+      headers,
+      body,
+    });
+  }
+
   /** [auto] POST /api/raster/mosaic */
   async autoPostApiRasterMosaic(options: GeneratedRequestOptions = {}): Promise<unknown> {
     const path = withQuery('/api/raster/mosaic', options.query);
@@ -9062,8 +9078,8 @@ export class RoteiroGeneratedApi {
   }
 
   /** Get a single collection */
-  async getcollection(options: GeneratedRequestOptions = {}): Promise<unknown> {
-    const path = withQuery('/collections/{id}', options.query);
+  async getcollection(pathParams: { id: string }, options: GeneratedRequestOptions = {}): Promise<unknown> {
+    const path = withQuery(`/collections/${encodeURIComponent(String(pathParams.id))}`, options.query);
     const headers: Record<string, string> = { ...(options.headers ?? {}) };
     let body: BodyInit | undefined;
     if (options.body !== undefined) {
@@ -9078,8 +9094,8 @@ export class RoteiroGeneratedApi {
   }
 
   /** Get features from a collection */
-  async getfeatures(options: GeneratedRequestOptions = {}): Promise<unknown> {
-    const path = withQuery('/collections/{id}/items', options.query);
+  async getfeatures(pathParams: { id: string }, options: GeneratedRequestOptions = {}): Promise<unknown> {
+    const path = withQuery(`/collections/${encodeURIComponent(String(pathParams.id))}/items`, options.query);
     const headers: Record<string, string> = { ...(options.headers ?? {}) };
     let body: BodyInit | undefined;
     if (options.body !== undefined) {
@@ -9158,8 +9174,8 @@ export class RoteiroGeneratedApi {
   }
 
   /** Get queryable properties for a collection */
-  async getqueryables(options: GeneratedRequestOptions = {}): Promise<unknown> {
-    const path = withQuery('/collections/{id}/queryables', options.query);
+  async getqueryables(pathParams: { id: string }, options: GeneratedRequestOptions = {}): Promise<unknown> {
+    const path = withQuery(`/collections/${encodeURIComponent(String(pathParams.id))}/queryables`, options.query);
     const headers: Record<string, string> = { ...(options.headers ?? {}) };
     let body: BodyInit | undefined;
     if (options.body !== undefined) {
@@ -9461,6 +9477,22 @@ export class RoteiroGeneratedApi {
     });
   }
 
+  /** [auto] POST /raster/{name}/contour */
+  async autoPostRasterNameContour(pathParams: { name: string }, options: GeneratedRequestOptions = {}): Promise<unknown> {
+    const path = withQuery(`/raster/${encodeURIComponent(String(pathParams.name))}/contour`, options.query);
+    const headers: Record<string, string> = { ...(options.headers ?? {}) };
+    let body: BodyInit | undefined;
+    if (options.body !== undefined) {
+      body = JSON.stringify(options.body);
+      if (!headers['Content-Type']) headers['Content-Type'] = 'application/json';
+    }
+    return this.client.request(path, {
+      method: 'POST',
+      headers,
+      body,
+    });
+  }
+
   /** Get raster multidimensional coordinate metadata */
   async getrasterdimensions(pathParams: { name: string }, options: GeneratedRequestOptions = {}): Promise<unknown> {
     const path = withQuery(`/raster/${encodeURIComponent(String(pathParams.name))}/dimensions`, options.query);
@@ -9557,6 +9589,22 @@ export class RoteiroGeneratedApi {
     });
   }
 
+  /** [auto] POST /raster/{name}/profile */
+  async autoPostRasterNameProfile(pathParams: { name: string }, options: GeneratedRequestOptions = {}): Promise<unknown> {
+    const path = withQuery(`/raster/${encodeURIComponent(String(pathParams.name))}/profile`, options.query);
+    const headers: Record<string, string> = { ...(options.headers ?? {}) };
+    let body: BodyInit | undefined;
+    if (options.body !== undefined) {
+      body = JSON.stringify(options.body);
+      if (!headers['Content-Type']) headers['Content-Type'] = 'application/json';
+    }
+    return this.client.request(path, {
+      method: 'POST',
+      headers,
+      body,
+    });
+  }
+
   /** Get raster band statistics */
   async getrasterstats(pathParams: { name: string }, options: GeneratedRequestOptions = {}): Promise<unknown> {
     const path = withQuery(`/raster/${encodeURIComponent(String(pathParams.name))}/stats`, options.query);
@@ -9600,6 +9648,22 @@ export class RoteiroGeneratedApi {
     }
     return this.client.request(path, {
       method: 'GET',
+      headers,
+      body,
+    });
+  }
+
+  /** [auto] POST /raster/{name}/viewshed */
+  async autoPostRasterNameViewshed(pathParams: { name: string }, options: GeneratedRequestOptions = {}): Promise<unknown> {
+    const path = withQuery(`/raster/${encodeURIComponent(String(pathParams.name))}/viewshed`, options.query);
+    const headers: Record<string, string> = { ...(options.headers ?? {}) };
+    let body: BodyInit | undefined;
+    if (options.body !== undefined) {
+      body = JSON.stringify(options.body);
+      if (!headers['Content-Type']) headers['Content-Type'] = 'application/json';
+    }
+    return this.client.request(path, {
+      method: 'POST',
       headers,
       body,
     });
