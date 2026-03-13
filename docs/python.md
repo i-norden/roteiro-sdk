@@ -211,6 +211,38 @@ job = client.submit_process_job(
 print(job.id, job.status, job.phase)
 ```
 
+### Run raster processing
+
+```python
+from roteiro import raster
+
+terrain = client.raster_process(
+    "slope",
+    input_path="/data/dem.tif",
+)
+print(terrain["width"], terrain["height"])
+
+ndvi_png = raster.ndvi(client, "landsat_scene", nir_band=4, red_band=3)
+print(len(ndvi_png))
+
+zonal = raster.zonal_stats(client, "dem", "watersheds", band=0)
+print(len(zonal.zones))
+
+exported = raster.export_raster(client, "dem", "analysis/dem_band1.tif", band=0)
+print(exported.message)
+
+contours = raster.contour(client, "dem", interval=5)
+view = raster.viewshed(client, "dem", observer_x=-122.4, observer_y=37.8)
+profile = raster.elevation_profile(
+    client,
+    "dem",
+    [[-122.4, 37.7], [-122.3, 37.8]],
+)
+density = raster.kde(client, "points", bandwidth=50)
+```
+
+The generic raster process endpoint currently supports terrain (`slope`, `aspect`, `profile_curvature`, `plan_curvature`, `general_curvature`), hydrology (`fill`, `flow_direction`, `flow_accumulation`, `watershed`, `stream_order`, `snap_pour_point`, `basin_labels`), distance/cost, spectral/change, classification, and raster-vector conversion operations. Dedicated JSON routes are also available for `contour`, `viewshed`, `profile`, and `kde`.
+
 ### Convert formats
 
 ```python

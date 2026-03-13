@@ -787,6 +787,255 @@ class ZonalStatsResult:
         return cls(zones=data.get("zones", data if isinstance(data, list) else []))
 
 
+@dataclass
+class RasterBounds:
+    """Raster bounds in projected or geographic coordinates."""
+
+    min_x: float = 0.0
+    min_y: float = 0.0
+    max_x: float = 0.0
+    max_y: float = 0.0
+
+    @classmethod
+    def from_dict(cls, data: Dict[str, Any]) -> "RasterBounds":
+        return cls(
+            min_x=data.get("min_x", 0.0),
+            min_y=data.get("min_y", 0.0),
+            max_x=data.get("max_x", 0.0),
+            max_y=data.get("max_y", 0.0),
+        )
+
+
+@dataclass
+class RasterInfo:
+    """Raster dataset metadata."""
+
+    width: int = 0
+    height: int = 0
+    num_bands: int = 0
+    crs: Optional[str] = None
+    bounds: Optional[RasterBounds] = None
+
+    @classmethod
+    def from_dict(cls, data: Dict[str, Any]) -> "RasterInfo":
+        bounds = None
+        if isinstance(data.get("bounds"), dict):
+            bounds = RasterBounds.from_dict(data["bounds"])
+        return cls(
+            width=data.get("width", 0),
+            height=data.get("height", 0),
+            num_bands=data.get("num_bands", 0),
+            crs=data.get("crs"),
+            bounds=bounds,
+        )
+
+
+@dataclass
+class RasterStats:
+    """Statistics for a raster band."""
+
+    min: float = 0.0
+    max: float = 0.0
+    mean: float = 0.0
+    stddev: float = 0.0
+
+    @classmethod
+    def from_dict(cls, data: Dict[str, Any]) -> "RasterStats":
+        return cls(
+            min=data.get("min", 0.0),
+            max=data.get("max", 0.0),
+            mean=data.get("mean", 0.0),
+            stddev=data.get("stddev", 0.0),
+        )
+
+
+@dataclass
+class RasterHistogram:
+    """Histogram and percentile summary for a raster band."""
+
+    band: int = 0
+    sample_count: int = 0
+    min: float = 0.0
+    max: float = 0.0
+    mean: float = 0.0
+    stddev: float = 0.0
+    p1: float = 0.0
+    p2: float = 0.0
+    p98: float = 0.0
+    p99: float = 0.0
+    histogram: List[int] = field(default_factory=list)
+
+    @classmethod
+    def from_dict(cls, data: Dict[str, Any]) -> "RasterHistogram":
+        return cls(
+            band=data.get("band", 0),
+            sample_count=data.get("sample_count", 0),
+            min=data.get("min", 0.0),
+            max=data.get("max", 0.0),
+            mean=data.get("mean", 0.0),
+            stddev=data.get("stddev", 0.0),
+            p1=data.get("p1", 0.0),
+            p2=data.get("p2", 0.0),
+            p98=data.get("p98", 0.0),
+            p99=data.get("p99", 0.0),
+            histogram=list(data.get("histogram", []) or []),
+        )
+
+
+@dataclass
+class RasterDimensions:
+    """Band and temporal metadata for a raster dataset."""
+
+    temporal: bool = False
+    times: List[str] = field(default_factory=list)
+    min_band: int = 0
+    max_band: int = 0
+
+    @classmethod
+    def from_dict(cls, data: Dict[str, Any]) -> "RasterDimensions":
+        return cls(
+            temporal=data.get("temporal", False),
+            times=list(data.get("times", []) or []),
+            min_band=data.get("min_band", 0),
+            max_band=data.get("max_band", 0),
+        )
+
+
+@dataclass
+class RasterBandValues:
+    """Downsampled raster band values for inspection."""
+
+    dem: List[List[float]] = field(default_factory=list)
+    cell_size: float = 0.0
+    width: int = 0
+    height: int = 0
+    bounds: Optional[List[float]] = None
+
+    @classmethod
+    def from_dict(cls, data: Dict[str, Any]) -> "RasterBandValues":
+        return cls(
+            dem=list(data.get("dem", []) or []),
+            cell_size=data.get("cell_size", 0.0),
+            width=data.get("width", 0),
+            height=data.get("height", 0),
+            bounds=data.get("bounds"),
+        )
+
+
+@dataclass
+class RasterExportResult:
+    """Result of exporting a raster band."""
+
+    message: str = ""
+
+    @classmethod
+    def from_dict(cls, data: Dict[str, Any]) -> "RasterExportResult":
+        return cls(message=data.get("message", ""))
+
+
+@dataclass
+class RasterMosaicEntry:
+    """Single raster entry in a mosaic metadata response."""
+
+    name: str = ""
+    width: int = 0
+    height: int = 0
+    num_bands: int = 0
+    crs: Optional[str] = None
+    bounds: Optional[RasterBounds] = None
+
+    @classmethod
+    def from_dict(cls, data: Dict[str, Any]) -> "RasterMosaicEntry":
+        bounds = None
+        if isinstance(data.get("bounds"), dict):
+            bounds = RasterBounds.from_dict(data["bounds"])
+        return cls(
+            name=data.get("name", ""),
+            width=data.get("width", 0),
+            height=data.get("height", 0),
+            num_bands=data.get("num_bands", 0),
+            crs=data.get("crs"),
+            bounds=bounds,
+        )
+
+
+@dataclass
+class RasterMosaicInfo:
+    """Combined metadata for a raster mosaic request."""
+
+    rasters: List[RasterMosaicEntry] = field(default_factory=list)
+    combined_bounds: Optional[RasterBounds] = None
+    count: int = 0
+
+    @classmethod
+    def from_dict(cls, data: Dict[str, Any]) -> "RasterMosaicInfo":
+        combined_bounds = None
+        if isinstance(data.get("combined_bounds"), dict):
+            combined_bounds = RasterBounds.from_dict(data["combined_bounds"])
+        return cls(
+            rasters=[
+                RasterMosaicEntry.from_dict(item)
+                for item in data.get("rasters", [])
+                if isinstance(item, dict)
+            ],
+            combined_bounds=combined_bounds,
+            count=data.get("count", 0),
+        )
+
+
+@dataclass
+class RasterGridResult:
+    """Raster grid result returned as width/height/data arrays."""
+
+    width: int = 0
+    height: int = 0
+    data: List[float] = field(default_factory=list)
+
+    @classmethod
+    def from_dict(cls, data: Dict[str, Any]) -> "RasterGridResult":
+        return cls(
+            width=data.get("width", 0),
+            height=data.get("height", 0),
+            data=list(data.get("data", []) or []),
+        )
+
+
+@dataclass
+class ElevationProfileSample:
+    """Single elevation profile sample."""
+
+    distance: float = 0.0
+    elevation: float = 0.0
+    x: float = 0.0
+    y: float = 0.0
+
+    @classmethod
+    def from_dict(cls, data: Dict[str, Any]) -> "ElevationProfileSample":
+        return cls(
+            distance=data.get("distance", 0.0),
+            elevation=data.get("elevation", 0.0),
+            x=data.get("x", 0.0),
+            y=data.get("y", 0.0),
+        )
+
+
+@dataclass
+class ElevationProfileResult:
+    """Collection of elevation profile samples."""
+
+    samples: List[ElevationProfileSample] = field(default_factory=list)
+
+    @classmethod
+    def from_dict(cls, data: Dict[str, Any]) -> "ElevationProfileResult":
+        return cls(
+            samples=[
+                ElevationProfileSample.from_dict(item)
+                for item in data.get("samples", [])
+                if isinstance(item, dict)
+            ]
+        )
+
+
 # ---------------------------------------------------------------------------
 # Health types
 # ---------------------------------------------------------------------------
