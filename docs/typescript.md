@@ -260,6 +260,38 @@ const queued = await client.getProcessJob(job.id);
 console.log(queued.status, queued.phase);
 ```
 
+### Run raster processing
+
+```typescript
+import { raster } from '@roteiro/sdk';
+
+const terrain = await client.rasterProcess({
+  operation: 'slope',
+  input_path: '/data/dem.tif',
+});
+
+const ndvi = await raster.ndvi(client, 'landsat_scene', 4, 3);
+console.log(ndvi.type); // image/png
+
+const zonal = await raster.zonalStats(client, 'dem', 'watersheds', 0);
+console.log(zonal.zones.length);
+
+const exported = await raster.exportRaster(client, 'dem', 'analysis/dem_band1.tif', 0);
+console.log(exported.message);
+
+const contours = await raster.contour(client, 'dem', { interval: 5 });
+const view = await raster.viewshed(client, 'dem', {
+  observer_x: -122.4,
+  observer_y: 37.8,
+});
+const profile = await raster.elevationProfile(client, 'dem', {
+  polyline: [[-122.4, 37.7], [-122.3, 37.8]],
+});
+const density = await raster.kde(client, { dataset: 'points', bandwidth: 50 });
+```
+
+The generic raster process endpoint currently supports terrain (`slope`, `aspect`, `profile_curvature`, `plan_curvature`, `general_curvature`), hydrology (`fill`, `flow_direction`, `flow_accumulation`, `watershed`, `stream_order`, `snap_pour_point`, `basin_labels`), distance/cost, spectral/change, classification, and raster-vector conversion operations. Dedicated JSON routes are also available for `contour`, `viewshed`, `profile`, and `kde`.
+
 ### Compare datasets
 
 ```typescript

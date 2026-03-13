@@ -91,6 +91,25 @@ Create a client instance.
 | `submit_process_batch(jobs)` | Queue a dependent batch of async jobs |
 | `diff(left, right, match_field)` | Diff two datasets |
 | `list_operations()` | Fetch live processing operations/formats from `/api/operations` |
+| `raster_process(operation, input_path=None, params=None, ...)` | Run generic `/api/raster/process` operations |
+| `raster_mosaic(names, ...)` | Render a PNG mosaic from registered rasters |
+| `get_raster_mosaic_info(names)` | Fetch combined mosaic metadata |
+
+### Raster Module
+
+Import `roteiro.raster` for per-dataset raster helpers and generic raster workflows:
+
+```python
+from roteiro import raster
+```
+
+Available helpers include:
+
+- `raster.get_raster_info`, `raster.get_raster_stats`, `raster.get_raster_histogram`
+- `raster.get_raster_dimensions`, `raster.get_raster_band_values`
+- `raster.hillshade`, `raster.ndvi`, `raster.band_math`
+- `raster.zonal_stats`, `raster.export_raster`, `raster.contour`, `raster.viewshed`, `raster.elevation_profile`, `raster.kde`
+- `raster.process`, `raster.mosaic`, `raster.get_mosaic_info`
 
 ### Indoor GIS
 
@@ -119,18 +138,25 @@ The processing catalog now includes rich metadata per operation, including categ
 
 Current operation names exposed by the server:
 
-- `geodesic_buffer`, `buffer`, `clip`, `simplify`, `sjoin`, `reproject`
-- `union`, `intersect`, `difference`, `dissolve`, `merge`
-- `voronoi`, `delaunay`, `minimum_bounding_geometry`, `fishnet`, `tile_extract`
-- `centroid`, `convex_hull`, `multipart_to_singlepart`, `singlepart_to_multipart`
-- `feature_to_point`, `feature_to_line`, `points_to_line`, `points_to_polygon`
-- `vertices_to_points`, `add_xy_coordinates`, `spatial_stats`
-- `add_field`, `calculate_field`, `delete_field`, `rename_field`
-- `morans_i`, `hotspot`, `kernel_density`, `summary_statistics`, `frequency`
-- `interpolate_idw`, `ordinary_kriging`, `rbf_interpolation`
-- `validate`, `make_valid`, `validate_topology`, `crack_and_cluster`
-- `buffer_with_options`, `append`, `simple_kriging`, `universal_kriging`
-- `solve_vrp`, `p_median`, `mclp`
+- Vector and overlay: `geodesic_buffer`, `buffer`, `buffer_with_options`, `clip`, `simplify`, `sjoin`, `reproject`, `union`, `intersect`, `difference`, `dissolve`, `merge`, `append`
+- Geometry generation/conversion: `voronoi`, `delaunay`, `concave_hull`, `minimum_bounding_geometry`, `fishnet`, `tile_extract`, `centroid`, `convex_hull`, `multipart_to_singlepart`, `singlepart_to_multipart`, `feature_to_point`, `feature_to_line`, `points_to_line`, `points_to_polygon`, `vertices_to_points`, `add_xy_coordinates`
+- Measurement and schema: `spatial_stats`, `add_field`, `calculate_field`, `delete_field`, `rename_field`
+- Statistics and clustering: `morans_i`, `gearys_c`, `hotspot`, `local_morans_i`, `kernel_density`, `dbscan`, `st_dbscan`, `summary_statistics`, `frequency`
+- Interpolation: `interpolate_idw`, `ordinary_kriging`, `simple_kriging`, `universal_kriging`, `rbf_interpolation`, `interpolate_tin`
+- Topology and optimization: `validate`, `make_valid`, `validate_topology`, `crack_and_cluster`, `solve_vrp`, `p_median`, `mclp`
+
+Raster processing is available through `client.raster_process(...)` and `roteiro.raster.process(...)`.
+
+Current raster operation families on the backend include:
+
+- Terrain: `slope`, `aspect`, `profile_curvature`, `plan_curvature`, `general_curvature`
+- Hydrology: `fill`, `flow_direction`, `flow_accumulation`, `watershed`, `stream_order`, `snap_pour_point`, `basin_labels`
+- Distance/cost: `euclidean_distance`, `euclidean_allocation`, `euclidean_direction`, `cost_distance`, `cost_path`, `cost_allocation`
+- Overlay and neighborhood: `weighted_sum`, `reclassify`, `extract_by_mask`, `focal_statistics`
+- Spectral and change: `spectral_index`, `image_difference`, `normalized_difference_change`, `change_vector_analysis`
+- Classification and conversion: `kmeans`, `isodata`, `maximum_likelihood`, `random_forest`, `raster_to_polygons`, `rasterize`
+
+Dedicated JSON raster endpoints are also available for `contour`, `viewshed`, `profile`, and `kde`.
 
 Async processing helpers are available on the main client; the generated client is no longer required just to submit or inspect background processing jobs.
 

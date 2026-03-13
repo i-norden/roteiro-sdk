@@ -12,6 +12,10 @@ import type {
   ProcessJobRecord,
   ProcessPreflightResult,
   ProcessRequest,
+  RasterMosaicInfo,
+  RasterMosaicRequest,
+  RasterProcessRequest,
+  RasterProcessResult,
   ProcessingOperationsResponse,
   ProcessResult,
   QueryParams,
@@ -85,7 +89,7 @@ export class RoteiroClient {
    *
    * @internal
    */
-  async request<T>(path: string, init?: RequestInit): Promise<T> {
+  private async requestResponse(path: string, init?: RequestInit): Promise<Response> {
     let lastError: Error | undefined;
 
     for (let attempt = 0; attempt <= this.maxRetries; attempt++) {
@@ -128,12 +132,7 @@ export class RoteiroClient {
           throw new RoteiroAPIError(message, response.status);
         }
 
-        // 204 No Content
-        if (response.status === 204) {
-          return undefined as unknown as T;
-        }
-
-        return (await response.json()) as T;
+        return response;
       } catch (err) {
         clearTimeout(timeoutId);
         if (err instanceof RoteiroAPIError) {
@@ -150,6 +149,19 @@ export class RoteiroClient {
     }
 
     throw lastError ?? new RoteiroAPIError('Request failed after retries');
+  }
+
+  async request<T>(path: string, init?: RequestInit): Promise<T> {
+    const response = await this.requestResponse(path, init);
+    if (response.status === 204) {
+      return undefined as unknown as T;
+    }
+    return (await response.json()) as T;
+  }
+
+  async requestBlob(path: string, init?: RequestInit): Promise<Blob> {
+    const response = await this.requestResponse(path, init);
+    return response.blob();
   }
 
   /** Perform a POST request with a JSON body. */
@@ -419,6 +431,35 @@ export class RoteiroClient {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
       },
+    );
+  }
+
+  /** Run a generic raster processing operation. */
+  async rasterProcess(params: RasterProcessRequest): Promise<RasterProcessResult> {
+    return this.post<RasterProcessResult>('/api/raster/process', {
+      ...params,
+      params: params.params ?? {},
+    });
+  }
+
+  /** Render a PNG mosaic from two or more registered raster datasets. */
+  async rasterMosaic(params: RasterMosaicRequest): Promise<Blob> {
+    return this.requestBlob('/api/raster/mosaic', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(params),
+    });
+  }
+
+  /** Fetch combined metadata for a raster mosaic request. */
+  async getRasterMosaicInfo(names: string[]): Promise<RasterMosaicInfo> {
+    const sp = new URLSearchParams();
+    for (const name of names) {
+      sp.append('name', name);
+    }
+    const q = sp.toString();
+    return this.request<RasterMosaicInfo>(
+      `/api/raster/mosaic/info${q ? `?${q}` : ''}`,
     );
   }
 

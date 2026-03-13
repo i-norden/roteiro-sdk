@@ -32,11 +32,18 @@ from .models import (
     IndoorFloor,
     IndoorModel,
     IndoorSpace,
+    RasterMosaicInfo,
     ProcessBatchSubmitResponse,
     ProcessJobRecord,
     ProcessPreflightResult,
     NavigationResult,
     ProcessResult,
+    RasterExportResult,
+    RasterBandValues,
+    RasterDimensions,
+    RasterHistogram,
+    RasterInfo,
+    RasterStats,
     Repo,
     ZonalStatsResult,
 )
@@ -309,6 +316,36 @@ class RoteiroClient:
             raise RoteiroAPIError(
                 f"Download failed: {exc.code}", status_code=exc.code
             ) from exc
+
+    def _request_bytes(
+        self,
+        method: str,
+        path: str,
+        body: Any = None,
+        extra_headers: Optional[Dict[str, str]] = None,
+    ) -> bytes:
+        """Execute an HTTP request and return the raw response bytes."""
+        url = f"{self.base_url}{path}"
+        data: Optional[bytes] = None
+        headers = self._build_headers(extra_headers)
+
+        if body is not None:
+            data = json.dumps(body).encode("utf-8")
+            headers.setdefault("Content-Type", "application/json")
+
+        req = Request(url, data=data, headers=headers, method=method)
+        try:
+            with urlopen(req, timeout=self.timeout) as resp:
+                return resp.read()
+        except HTTPError as exc:
+            body_text = exc.read().decode(errors="replace")
+            msg = f"API error: {exc.code}"
+            try:
+                err = json.loads(body_text)
+                msg = err.get("error") or err.get("message") or msg
+            except (json.JSONDecodeError, ValueError):
+                pass
+            raise RoteiroAPIError(msg, status_code=exc.code) from exc
 
     # ------------------------------------------------------------------
     # Health & Info
@@ -733,6 +770,54 @@ class RoteiroClient:
         """Re-submit a completed or failed processing job."""
         data = self._request("POST", f"/api/process/jobs/{job_id}/rerun")
         return ProcessJobRecord.from_dict(data)
+
+    def raster_process(
+        self,
+        operation: str,
+        input_path: Optional[str] = None,
+        params: Optional[Dict[str, Any]] = None,
+        *,
+        output_path: Optional[str] = None,
+        band: Optional[int] = None,
+    ) -> Dict[str, Any]:
+        """Run a generic raster processing operation via ``/api/raster/process``."""
+        body: Dict[str, Any] = {
+            "operation": operation,
+            "params": params or {},
+        }
+        if input_path is not None:
+            body["input_path"] = input_path
+        if output_path is not None:
+            body["output_path"] = output_path
+        if band is not None:
+            body["band"] = band
+        return self._post("/api/raster/process", body)
+
+    def raster_mosaic(
+        self,
+        names: List[str],
+        *,
+        band: int = 0,
+        operation: str = "first",
+        colormap: str = "greyscale",
+    ) -> bytes:
+        """Render a PNG mosaic from registered raster datasets."""
+        return self._request_bytes(
+            "POST",
+            "/api/raster/mosaic",
+            {
+                "names": names,
+                "band": band,
+                "operation": operation,
+                "colormap": colormap,
+            },
+        )
+
+    def get_raster_mosaic_info(self, names: List[str]) -> RasterMosaicInfo:
+        """Fetch combined metadata for a raster mosaic request."""
+        query = urlencode([("name", name) for name in names])
+        data = self._get(f"/api/raster/mosaic/info?{query}")
+        return RasterMosaicInfo.from_dict(data)
 
     def submit_process_batch(
         self,

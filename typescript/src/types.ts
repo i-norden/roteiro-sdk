@@ -428,6 +428,132 @@ export interface ZonalStatsResult {
   [key: string]: unknown;
 }
 
+export interface RasterBounds {
+  min_x: number;
+  min_y: number;
+  max_x: number;
+  max_y: number;
+}
+
+export interface RasterInfo {
+  width: number;
+  height: number;
+  num_bands: number;
+  crs?: string;
+  bounds?: RasterBounds;
+}
+
+export interface RasterStats {
+  min: number;
+  max: number;
+  mean: number;
+  stddev: number;
+}
+
+export interface RasterHistogram {
+  band: number;
+  sample_count: number;
+  min: number;
+  max: number;
+  mean: number;
+  stddev: number;
+  p1: number;
+  p2: number;
+  p98: number;
+  p99: number;
+  histogram: number[];
+}
+
+export interface RasterDimensions {
+  temporal: boolean;
+  times?: string[];
+  min_band: number;
+  max_band: number;
+}
+
+export interface RasterBandValues {
+  dem: number[][];
+  cell_size: number;
+  width: number;
+  height: number;
+  bounds?: [number, number, number, number];
+}
+
+export interface RasterExportResult {
+  message: string;
+}
+
+export interface RasterProcessRequest {
+  operation: string;
+  input_path?: string;
+  output_path?: string;
+  band?: number;
+  params?: Record<string, unknown>;
+}
+
+export interface RasterProcessArrayResult {
+  width: number;
+  height: number;
+  data: number[];
+}
+
+export interface RasterProcessOutputResult {
+  status: string;
+  output_path: string;
+}
+
+export type RasterProcessResult =
+  | RasterProcessArrayResult
+  | RasterProcessOutputResult
+  | Record<string, unknown>;
+
+export interface RasterMosaicRequest {
+  names: string[];
+  band?: number;
+  operation?: 'first' | 'last' | 'mean' | 'max' | 'min';
+  colormap?: string;
+}
+
+export interface RasterMosaicEntry {
+  name: string;
+  width: number;
+  height: number;
+  num_bands: number;
+  crs?: string;
+  bounds?: RasterBounds;
+}
+
+export interface RasterMosaicInfo {
+  rasters: RasterMosaicEntry[];
+  combined_bounds?: RasterBounds;
+  count: number;
+}
+
+export interface RasterGridResult {
+  width: number;
+  height: number;
+  data: number[];
+}
+
+export interface ElevationProfileSample {
+  distance: number;
+  elevation: number;
+  x: number;
+  y: number;
+}
+
+export interface ElevationProfileResult {
+  samples: ElevationProfileSample[];
+}
+
+export interface RasterKDERequest {
+  dataset: string;
+  bandwidth?: number;
+  kernel?: string;
+  bounds?: [number, number, number, number];
+  resolution?: [number, number];
+}
+
 // ---------------------------------------------------------------------------
 // Pipeline
 // ---------------------------------------------------------------------------

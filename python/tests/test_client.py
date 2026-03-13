@@ -153,6 +153,46 @@ class RoteiroClientTests(unittest.TestCase):
         )
         self.assertEqual(jobs, [])
 
+    def test_raster_process_posts_expected_body(self):
+        client = RoteiroClient("https://example.com")
+        captured = {}
+
+        def fake_post(path, body=None):
+            captured["path"] = path
+            captured["body"] = body
+            return {"width": 2, "height": 2, "data": [1, 2, 3, 4]}
+
+        client._post = fake_post  # type: ignore[method-assign]
+        result = client.raster_process("slope", input_path="/data/dem.tif")
+
+        self.assertEqual(captured["path"], "/api/raster/process")
+        self.assertEqual(
+            captured["body"],
+            {
+                "operation": "slope",
+                "input_path": "/data/dem.tif",
+                "params": {},
+            },
+        )
+        self.assertEqual(result["width"], 2)
+
+    def test_get_raster_mosaic_info_builds_repeated_name_query(self):
+        client = RoteiroClient("https://example.com")
+        captured = {}
+
+        def fake_get(path):
+            captured["path"] = path
+            return {"rasters": [], "count": 2}
+
+        client._get = fake_get  # type: ignore[method-assign]
+        result = client.get_raster_mosaic_info(["a", "b"])
+
+        self.assertEqual(
+            captured["path"],
+            "/api/raster/mosaic/info?name=a&name=b",
+        )
+        self.assertEqual(result.count, 2)
+
 
 if __name__ == "__main__":
     unittest.main()

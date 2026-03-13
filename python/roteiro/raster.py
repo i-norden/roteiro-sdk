@@ -1,15 +1,21 @@
-"""Raster analysis operations.
-
-Provides functions for common raster analysis tasks including band math,
-NDVI computation, hillshade generation, and zonal statistics.  These
-operations call the server-side raster processing endpoints.
-"""
+"""Raster analysis operations."""
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, Dict, Optional
+from typing import TYPE_CHECKING, Any, Dict, List, Optional
 
-from .models import ZonalStatsResult
+from .models import (
+    ElevationProfileResult,
+    RasterBandValues,
+    RasterDimensions,
+    RasterExportResult,
+    RasterGridResult,
+    RasterHistogram,
+    RasterInfo,
+    RasterMosaicInfo,
+    RasterStats,
+    ZonalStatsResult,
+)
 
 if TYPE_CHECKING:
     from .client import RoteiroClient
@@ -37,28 +43,12 @@ def band_math(
     Returns:
         PNG image bytes of the computed raster.
     """
-    import json as _json
-    from urllib.error import HTTPError
-    from urllib.request import Request, urlopen
-
-    url = f"{client.base_url}/raster/{input_name}/band-math"
-    body = _json.dumps(
-        {"expression": expression, "colormap": colormap}
-    ).encode("utf-8")
-    headers = client._build_headers({"Content-Type": "application/json"})
-    # Override Accept since we expect image/png.
-    headers["Accept"] = "image/png"
-
-    req = Request(url, data=body, headers=headers, method="POST")
-    try:
-        with urlopen(req, timeout=client.timeout) as resp:
-            return resp.read()
-    except HTTPError as exc:
-        from .client import RoteiroAPIError
-
-        raise RoteiroAPIError(
-            f"Band math failed: {exc.code}", status_code=exc.code
-        ) from exc
+    return client._request_bytes(
+        "POST",
+        f"/raster/{input_name}/band-math",
+        {"expression": expression, "colormap": colormap},
+        {"Accept": "image/png"},
+    )
 
 
 def ndvi(
@@ -82,32 +72,18 @@ def ndvi(
     Returns:
         PNG image bytes of the NDVI result.
     """
-    import json as _json
-    from urllib.error import HTTPError
-    from urllib.request import Request, urlopen
-
-    url = f"{client.base_url}/raster/{input_name}/ndvi"
-    body = _json.dumps(
-        {"nir_band": nir_band, "red_band": red_band, "colormap": colormap}
-    ).encode("utf-8")
-    headers = client._build_headers({"Content-Type": "application/json"})
-    headers["Accept"] = "image/png"
-
-    req = Request(url, data=body, headers=headers, method="POST")
-    try:
-        with urlopen(req, timeout=client.timeout) as resp:
-            return resp.read()
-    except HTTPError as exc:
-        from .client import RoteiroAPIError
-
-        raise RoteiroAPIError(
-            f"NDVI failed: {exc.code}", status_code=exc.code
-        ) from exc
+    return client._request_bytes(
+        "POST",
+        f"/raster/{input_name}/ndvi",
+        {"nir_band": nir_band, "red_band": red_band, "colormap": colormap},
+        {"Accept": "image/png"},
+    )
 
 
 def hillshade(
     client: RoteiroClient,
     input_name: str,
+    band: int = 0,
     azimuth: float = 315.0,
     altitude: float = 45.0,
     colormap: str = "greyscale",
@@ -126,49 +102,238 @@ def hillshade(
     Returns:
         PNG image bytes of the hillshade.
     """
-    import json as _json
-    from urllib.error import HTTPError
-    from urllib.request import Request, urlopen
-
-    url = f"{client.base_url}/raster/{input_name}/hillshade"
-    body = _json.dumps(
-        {"azimuth": azimuth, "altitude": altitude, "colormap": colormap}
-    ).encode("utf-8")
-    headers = client._build_headers({"Content-Type": "application/json"})
-    headers["Accept"] = "image/png"
-
-    req = Request(url, data=body, headers=headers, method="POST")
-    try:
-        with urlopen(req, timeout=client.timeout) as resp:
-            return resp.read()
-    except HTTPError as exc:
-        from .client import RoteiroAPIError
-
-        raise RoteiroAPIError(
-            f"Hillshade failed: {exc.code}", status_code=exc.code
-        ) from exc
+    return client._request_bytes(
+        "POST",
+        f"/raster/{input_name}/hillshade",
+        {
+            "band": band,
+            "azimuth": azimuth,
+            "altitude": altitude,
+            "colormap": colormap,
+        },
+        {"Accept": "image/png"},
+    )
 
 
 def zonal_stats(
     client: RoteiroClient,
     raster_name: str,
-    zones_geojson: Dict[str, Any],
-) -> Dict[str, Any]:
+    zones_dataset: str,
+    band: int = 0,
+) -> ZonalStatsResult:
     """Compute zonal statistics for a raster dataset.
 
     Calculates statistics (min, max, mean, count, sum) for each zone
-    defined in the zones GeoJSON.
+    defined in another registered dataset.
 
     Args:
         client: An initialised RoteiroClient instance.
         raster_name: Name of the raster dataset.
-        zones_geojson: A GeoJSON FeatureCollection defining the analysis zones.
+        zones_dataset: Registered dataset name defining the analysis zones.
+        band: Raster band index.
 
     Returns:
-        A dictionary with zonal statistics results.
+        A zonal statistics result object.
     """
     data = client._post(
         f"/raster/{raster_name}/zonal-stats",
-        {"zones": zones_geojson},
+        {"zones": zones_dataset, "band": band},
     )
-    return data
+    return ZonalStatsResult.from_dict(data)
+
+
+def export_raster(
+    client: RoteiroClient,
+    raster_name: str,
+    output_path: str,
+    band: int = 0,
+) -> RasterExportResult:
+    """Export a raster band as a GeoTIFF file under the server export root."""
+    data = client._post(
+        f"/raster/{raster_name}/export",
+        {"output_path": output_path, "band": band},
+    )
+    return RasterExportResult.from_dict(data)
+
+
+def get_raster_info(client: RoteiroClient, raster_name: str) -> RasterInfo:
+    """Get raster dataset metadata."""
+    data = client._get(f"/raster/{raster_name}/info")
+    return RasterInfo.from_dict(data)
+
+
+def get_raster_stats(
+    client: RoteiroClient,
+    raster_name: str,
+    band: int = 0,
+) -> RasterStats:
+    """Get per-band statistics for a raster dataset."""
+    data = client._get(f"/raster/{raster_name}/stats?band={band}")
+    return RasterStats.from_dict(data)
+
+
+def get_raster_histogram(
+    client: RoteiroClient,
+    raster_name: str,
+    band: int = 0,
+) -> RasterHistogram:
+    """Get sampled histogram metadata for a raster band."""
+    data = client._get(f"/raster/{raster_name}/histogram?band={band}")
+    return RasterHistogram.from_dict(data)
+
+
+def get_raster_dimensions(
+    client: RoteiroClient,
+    raster_name: str,
+) -> RasterDimensions:
+    """Get multidimensional raster metadata."""
+    data = client._get(f"/raster/{raster_name}/dimensions")
+    return RasterDimensions.from_dict(data)
+
+
+def get_raster_band_values(
+    client: RoteiroClient,
+    raster_name: str,
+    band: int = 0,
+    max_size: int = 256,
+) -> RasterBandValues:
+    """Get downsampled band values for raster inspection."""
+    data = client._get(
+        f"/raster/{raster_name}/values?band={band}&max_size={max_size}"
+    )
+    return RasterBandValues.from_dict(data)
+
+
+def process(
+    client: RoteiroClient,
+    operation: str,
+    input_path: Optional[str] = None,
+    params: Optional[Dict[str, Any]] = None,
+    *,
+    output_path: Optional[str] = None,
+    band: Optional[int] = None,
+) -> Dict[str, Any]:
+    """Run a generic raster processing operation."""
+    return client.raster_process(
+        operation,
+        input_path=input_path,
+        params=params,
+        output_path=output_path,
+        band=band,
+    )
+
+
+def mosaic(
+    client: RoteiroClient,
+    names: List[str],
+    *,
+    band: int = 0,
+    operation: str = "first",
+    colormap: str = "greyscale",
+) -> bytes:
+    """Render a PNG mosaic from registered raster datasets."""
+    return client.raster_mosaic(
+        names,
+        band=band,
+        operation=operation,
+        colormap=colormap,
+    )
+
+
+def get_mosaic_info(client: RoteiroClient, names: List[str]) -> RasterMosaicInfo:
+    """Fetch combined metadata for a raster mosaic request."""
+    return client.get_raster_mosaic_info(names)
+
+
+def contour(
+    client: RoteiroClient,
+    raster_name: str,
+    *,
+    band: int = 0,
+    interval: float = 10.0,
+    base: float = 0.0,
+    min_value: Optional[float] = None,
+    max_value: Optional[float] = None,
+) -> Dict[str, Any]:
+    """Generate contour lines as a GeoJSON FeatureCollection."""
+    body: Dict[str, Any] = {
+        "band": band,
+        "interval": interval,
+        "base": base,
+    }
+    if min_value is not None:
+        body["min_value"] = min_value
+    if max_value is not None:
+        body["max_value"] = max_value
+    return client._post(f"/raster/{raster_name}/contour", body)
+
+
+def viewshed(
+    client: RoteiroClient,
+    raster_name: str,
+    *,
+    observer_x: float,
+    observer_y: float,
+    band: int = 0,
+    observer_height: float = 2.0,
+    target_height: float = 0.0,
+    max_distance: float = 0.0,
+    refraction_coeff: float = 0.13,
+) -> RasterGridResult:
+    """Compute a viewshed visibility grid."""
+    data = client._post(
+        f"/raster/{raster_name}/viewshed",
+        {
+            "band": band,
+            "observer_x": observer_x,
+            "observer_y": observer_y,
+            "observer_height": observer_height,
+            "target_height": target_height,
+            "max_distance": max_distance,
+            "refraction_coeff": refraction_coeff,
+        },
+    )
+    return RasterGridResult.from_dict(data)
+
+
+def elevation_profile(
+    client: RoteiroClient,
+    raster_name: str,
+    polyline: List[List[float]],
+    *,
+    band: int = 0,
+    sample_interval: float = 0.0,
+) -> ElevationProfileResult:
+    """Sample elevations along a polyline."""
+    data = client._post(
+        f"/raster/{raster_name}/profile",
+        {
+            "band": band,
+            "polyline": polyline,
+            "sample_interval": sample_interval,
+        },
+    )
+    return ElevationProfileResult.from_dict(data)
+
+
+def kde(
+    client: RoteiroClient,
+    dataset: str,
+    *,
+    bandwidth: float = 1.0,
+    kernel: str = "gaussian",
+    bounds: Optional[List[float]] = None,
+    resolution: Optional[List[int]] = None,
+) -> RasterGridResult:
+    """Compute kernel density from a vector dataset via ``/api/raster/kde``."""
+    body: Dict[str, Any] = {
+        "dataset": dataset,
+        "bandwidth": bandwidth,
+        "kernel": kernel,
+    }
+    if bounds is not None:
+        body["bounds"] = bounds
+    if resolution is not None:
+        body["resolution"] = resolution
+    data = client._post("/api/raster/kde", body)
+    return RasterGridResult.from_dict(data)
