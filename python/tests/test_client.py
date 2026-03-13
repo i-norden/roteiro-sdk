@@ -1,3 +1,4 @@
+import io
 import json
 import unittest
 from urllib.parse import parse_qs, urlsplit
@@ -71,7 +72,7 @@ class RoteiroClientTests(unittest.TestCase):
             code=503,
             msg="Service Unavailable",
             hdrs=None,
-            fp=None,
+            fp=io.BytesIO(b"temporary"),
         )
         self.addCleanup(retryable.close)
 
@@ -88,10 +89,9 @@ class RoteiroClientTests(unittest.TestCase):
             code=400,
             msg="Bad Request",
             hdrs=None,
-            fp=None,
+            fp=io.BytesIO(b'{"error":"invalid request"}'),
         )
         self.addCleanup(bad_request.close)
-        bad_request.read = lambda: b'{"error":"invalid request"}'  # type: ignore[attr-defined]
 
         with patch("roteiro.client.urlopen", side_effect=bad_request):
             with self.assertRaises(RoteiroAPIError) as ctx:
