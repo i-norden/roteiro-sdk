@@ -1,5 +1,7 @@
+import io
 import json
 import unittest
+from urllib.parse import parse_qs, urlsplit
 from unittest.mock import patch
 from urllib.error import HTTPError
 
@@ -40,7 +42,7 @@ class RoteiroClientTests(unittest.TestCase):
         client._get = fake_get  # type: ignore[method-assign]
 
         fc = client.get_items(
-            "roads",
+            "roads/primary",
             bbox="1,2,3,4",
             limit=5,
             where="kind='road'",
@@ -48,9 +50,17 @@ class RoteiroClientTests(unittest.TestCase):
             offset=10,
         )
 
+        parsed = urlsplit(captured["path"])
+        self.assertEqual(parsed.path, "/collections/roads%2Fprimary/items")
         self.assertEqual(
-            captured["path"],
-            "/collections/roads/items?bbox=1,2,3,4&limit=5&filter=kind='road'&datetime=2024-01-01T00:00:00Z&offset=10",
+            parse_qs(parsed.query),
+            {
+                "bbox": ["1,2,3,4"],
+                "limit": ["5"],
+                "filter": ["kind='road'"],
+                "datetime": ["2024-01-01T00:00:00Z"],
+                "offset": ["10"],
+            },
         )
         self.assertEqual(fc.type, "FeatureCollection")
         self.assertEqual(len(fc.features), 0)
@@ -62,7 +72,7 @@ class RoteiroClientTests(unittest.TestCase):
             code=503,
             msg="Service Unavailable",
             hdrs=None,
-            fp=None,
+            fp=io.BytesIO(b"temporary"),
         )
         self.addCleanup(retryable.close)
 
@@ -79,10 +89,9 @@ class RoteiroClientTests(unittest.TestCase):
             code=400,
             msg="Bad Request",
             hdrs=None,
-            fp=None,
+            fp=io.BytesIO(b'{"error":"invalid request"}'),
         )
         self.addCleanup(bad_request.close)
-        bad_request.read = lambda: b'{"error":"invalid request"}'  # type: ignore[attr-defined]
 
         with patch("roteiro.client.urlopen", side_effect=bad_request):
             with self.assertRaises(RoteiroAPIError) as ctx:
@@ -192,6 +201,27 @@ class RoteiroClientTests(unittest.TestCase):
             "/api/raster/mosaic/info?name=a&name=b",
         )
         self.assertEqual(result.count, 2)
+
+    def test_get_item_and_tile_urls_encode_path_segments(self):
+        client = RoteiroClient("https://example.com")
+        captured = {}
+
+        def fake_get(path):
+            captured["path"] = path
+            return {"type": "Feature", "id": "feature/1", "properties": {}}
+
+        client._get = fake_get  # type: ignore[method-assign]
+        feature = client.get_item("roads/2024", "feature 1")
+
+        self.assertEqual(
+            captured["path"],
+            "/collections/roads%2F2024/items/feature%201",
+        )
+        self.assertEqual(feature.id, "feature/1")
+        self.assertEqual(
+            client.vector_tiles_url("city basemap/2024"),
+            "https://example.com/tiles/city%20basemap%2F2024/{z}/{x}/{y}",
+        )
 
 
 if __name__ == "__main__":

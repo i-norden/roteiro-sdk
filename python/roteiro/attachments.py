@@ -8,6 +8,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, List
 
+from .client import _encode_path_value
 from .models import Attachment
 
 if TYPE_CHECKING:
@@ -31,9 +32,7 @@ def upload_attachment(
     Returns:
         An Attachment object describing the uploaded file.
     """
-    path = (
-        f"/collections/{collection_id}/items/{feature_id}/attachments"
-    )
+    path = f"/collections/{_encode_path_value(collection_id)}/items/{_encode_path_value(feature_id)}/attachments"
     data = client._upload_file(path, file_path)
     attachment = Attachment.from_dict(data)
     attachment.collection_id = collection_id
@@ -56,9 +55,7 @@ def list_attachments(
     Returns:
         A list of Attachment objects.
     """
-    path = (
-        f"/collections/{collection_id}/items/{feature_id}/attachments"
-    )
+    path = f"/collections/{_encode_path_value(collection_id)}/items/{_encode_path_value(feature_id)}/attachments"
     data = client._get(path)
     if isinstance(data, list):
         return [Attachment.from_dict(a) for a in data]
@@ -77,7 +74,7 @@ def download_attachment(
         attachment_id: The attachment identifier.
         output_path: Local path where the file should be saved.
     """
-    client._download(f"/api/attachments/{attachment_id}", output_path)
+    client._download(f"/api/attachments/{_encode_path_value(attachment_id)}", output_path)
 
 
 def delete_attachment(
@@ -90,4 +87,4 @@ def delete_attachment(
         client: An initialised RoteiroClient instance.
         attachment_id: The attachment identifier to delete.
     """
-    client._delete(f"/api/attachments/{attachment_id}")
+    client._delete(f"/api/attachments/{_encode_path_value(attachment_id)}")

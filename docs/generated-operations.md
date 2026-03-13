@@ -462,6 +462,7 @@ Auto-generated from the server OpenAPI spec. Each operation is available in both
 | POST | `/api/quizzes/{id}/questions` | `autoPostApiQuizzesIdQuestions` | `auto_post_api_quizzes_id_questions` |
 | PUT | `/api/quizzes/{id}/questions/{qid}` | `autoPutApiQuizzesIdQuestionsQid` | `auto_put_api_quizzes_id_questions_qid` |
 | DELETE | `/api/quizzes/{id}/questions/{qid}` | `autoDeleteApiQuizzesIdQuestionsQid` | `auto_delete_api_quizzes_id_questions_qid` |
+| POST | `/api/raster/kde` | `autoPostApiRasterKde` | `auto_post_api_raster_kde` |
 | POST | `/api/raster/mosaic` | `autoPostApiRasterMosaic` | `auto_post_api_raster_mosaic` |
 | GET | `/api/raster/mosaic/info` | `autoGetApiRasterMosaicInfo` | `auto_get_api_raster_mosaic_info` |
 | POST | `/api/raster/process` | `autoPostApiRasterProcess` | `auto_post_api_raster_process` |
@@ -594,15 +595,18 @@ Auto-generated from the server OpenAPI spec. Each operation is available in both
 | GET | `/raster/{name}/cog` | `autoGetRasterNameCog` | `auto_get_raster_name_cog` |
 | GET | `/raster/{name}/cog/info` | `autoGetRasterNameCogInfo` | `auto_get_raster_name_cog_info` |
 | GET | `/raster/{name}/cog/tile/{z}/{x}/{y}` | `autoGetRasterNameCogTileZXY` | `auto_get_raster_name_cog_tile_z_x_y` |
+| POST | `/raster/{name}/contour` | `autoPostRasterNameContour` | `auto_post_raster_name_contour` |
 | GET | `/raster/{name}/dimensions` | `getrasterdimensions` | `get_raster_dimensions` |
 | POST | `/raster/{name}/export` | `exportrasterband` | `export_raster_band` |
 | POST | `/raster/{name}/hillshade` | `rasterhillshade` | `raster_hillshade` |
 | GET | `/raster/{name}/histogram` | `getrasterhistogram` | `get_raster_histogram` |
 | GET | `/raster/{name}/info` | `getrasterinfo` | `get_raster_info` |
 | POST | `/raster/{name}/ndvi` | `rasterndvi` | `raster_ndvi` |
+| POST | `/raster/{name}/profile` | `autoPostRasterNameProfile` | `auto_post_raster_name_profile` |
 | GET | `/raster/{name}/stats` | `getrasterstats` | `get_raster_stats` |
 | GET | `/raster/{name}/tiles/{z}/{x}/{y}` | `getrastertile` | `get_raster_tile` |
 | GET | `/raster/{name}/values` | `autoGetRasterNameValues` | `auto_get_raster_name_values` |
+| POST | `/raster/{name}/viewshed` | `autoPostRasterNameViewshed` | `auto_post_raster_name_viewshed` |
 | POST | `/raster/{name}/zonal-stats` | `autoPostRasterNameZonalStats` | `auto_post_raster_name_zonal_stats` |
 | GET | `/s/{token}` | `autoGetSToken` | `auto_get_s_token` |
 | POST | `/saml/acs` | `autoPostSamlAcs` | `auto_post_saml_acs` |

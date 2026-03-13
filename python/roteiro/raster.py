@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any, Dict, List, Optional
 
+from .client import _encode_path_value, _with_query
 from .models import (
     ElevationProfileResult,
     RasterBandValues,
@@ -45,7 +46,7 @@ def band_math(
     """
     return client._request_bytes(
         "POST",
-        f"/raster/{input_name}/band-math",
+        f"/raster/{_encode_path_value(input_name)}/band-math",
         {"expression": expression, "colormap": colormap},
         {"Accept": "image/png"},
     )
@@ -74,7 +75,7 @@ def ndvi(
     """
     return client._request_bytes(
         "POST",
-        f"/raster/{input_name}/ndvi",
+        f"/raster/{_encode_path_value(input_name)}/ndvi",
         {"nir_band": nir_band, "red_band": red_band, "colormap": colormap},
         {"Accept": "image/png"},
     )
@@ -104,7 +105,7 @@ def hillshade(
     """
     return client._request_bytes(
         "POST",
-        f"/raster/{input_name}/hillshade",
+        f"/raster/{_encode_path_value(input_name)}/hillshade",
         {
             "band": band,
             "azimuth": azimuth,
@@ -136,7 +137,7 @@ def zonal_stats(
         A zonal statistics result object.
     """
     data = client._post(
-        f"/raster/{raster_name}/zonal-stats",
+        f"/raster/{_encode_path_value(raster_name)}/zonal-stats",
         {"zones": zones_dataset, "band": band},
     )
     return ZonalStatsResult.from_dict(data)
@@ -150,7 +151,7 @@ def export_raster(
 ) -> RasterExportResult:
     """Export a raster band as a GeoTIFF file under the server export root."""
     data = client._post(
-        f"/raster/{raster_name}/export",
+        f"/raster/{_encode_path_value(raster_name)}/export",
         {"output_path": output_path, "band": band},
     )
     return RasterExportResult.from_dict(data)
@@ -158,7 +159,7 @@ def export_raster(
 
 def get_raster_info(client: RoteiroClient, raster_name: str) -> RasterInfo:
     """Get raster dataset metadata."""
-    data = client._get(f"/raster/{raster_name}/info")
+    data = client._get(f"/raster/{_encode_path_value(raster_name)}/info")
     return RasterInfo.from_dict(data)
 
 
@@ -168,7 +169,12 @@ def get_raster_stats(
     band: int = 0,
 ) -> RasterStats:
     """Get per-band statistics for a raster dataset."""
-    data = client._get(f"/raster/{raster_name}/stats?band={band}")
+    data = client._get(
+        _with_query(
+            f"/raster/{_encode_path_value(raster_name)}/stats",
+            {"band": band},
+        )
+    )
     return RasterStats.from_dict(data)
 
 
@@ -178,7 +184,12 @@ def get_raster_histogram(
     band: int = 0,
 ) -> RasterHistogram:
     """Get sampled histogram metadata for a raster band."""
-    data = client._get(f"/raster/{raster_name}/histogram?band={band}")
+    data = client._get(
+        _with_query(
+            f"/raster/{_encode_path_value(raster_name)}/histogram",
+            {"band": band},
+        )
+    )
     return RasterHistogram.from_dict(data)
 
 
@@ -187,7 +198,7 @@ def get_raster_dimensions(
     raster_name: str,
 ) -> RasterDimensions:
     """Get multidimensional raster metadata."""
-    data = client._get(f"/raster/{raster_name}/dimensions")
+    data = client._get(f"/raster/{_encode_path_value(raster_name)}/dimensions")
     return RasterDimensions.from_dict(data)
 
 
@@ -199,7 +210,10 @@ def get_raster_band_values(
 ) -> RasterBandValues:
     """Get downsampled band values for raster inspection."""
     data = client._get(
-        f"/raster/{raster_name}/values?band={band}&max_size={max_size}"
+        _with_query(
+            f"/raster/{_encode_path_value(raster_name)}/values",
+            {"band": band, "max_size": max_size},
+        )
     )
     return RasterBandValues.from_dict(data)
 
@@ -265,7 +279,7 @@ def contour(
         body["min_value"] = min_value
     if max_value is not None:
         body["max_value"] = max_value
-    return client._post(f"/raster/{raster_name}/contour", body)
+    return client._post(f"/raster/{_encode_path_value(raster_name)}/contour", body)
 
 
 def viewshed(
@@ -282,7 +296,7 @@ def viewshed(
 ) -> RasterGridResult:
     """Compute a viewshed visibility grid."""
     data = client._post(
-        f"/raster/{raster_name}/viewshed",
+        f"/raster/{_encode_path_value(raster_name)}/viewshed",
         {
             "band": band,
             "observer_x": observer_x,
@@ -306,7 +320,7 @@ def elevation_profile(
 ) -> ElevationProfileResult:
     """Sample elevations along a polyline."""
     data = client._post(
-        f"/raster/{raster_name}/profile",
+        f"/raster/{_encode_path_value(raster_name)}/profile",
         {
             "band": band,
             "polyline": polyline,
