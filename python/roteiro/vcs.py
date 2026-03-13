@@ -8,6 +8,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, List, Optional
 
+from .client import _with_query
 from .models import Commit, DiffResult, Repo
 
 if TYPE_CHECKING:
@@ -70,7 +71,7 @@ def log(client: RoteiroClient, repo_path: str) -> List[Commit]:
     Returns:
         A list of Commit objects.
     """
-    data = client._get(f"/api/vcs/log?path={repo_path}")
+    data = client._get(_with_query("/api/vcs/log", {"path": repo_path}))
     return [Commit.from_dict(c) for c in data]
 
 
@@ -95,7 +96,10 @@ def diff(
         A DiffResult with added, removed, modified features and stats.
     """
     data = client._get(
-        f"/api/vcs/diff?path={repo_path}&from={commit_a}&to={commit_b}"
+        _with_query(
+            "/api/vcs/diff",
+            {"path": repo_path, "from": commit_a, "to": commit_b},
+        )
     )
     return DiffResult.from_dict(data)
 

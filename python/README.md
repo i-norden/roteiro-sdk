@@ -27,7 +27,7 @@ print(client.health())
 
 # List datasets
 for ds in client.list_datasets():
-    print(ds["name"], ds["format"])
+    print(ds.name, ds.format)
 
 # Query features with bbox filter
 features = client.query_features(
@@ -35,7 +35,7 @@ features = client.query_features(
     bbox="-74.0,40.7,-73.9,40.8",
     limit=50,
 )
-print(f"Got {len(features['features'])} features")
+print(f"Got {len(features.features)} features")
 
 # Create a new feature
 client.create_feature("buildings", {

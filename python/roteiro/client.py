@@ -11,9 +11,9 @@ from __future__ import annotations
 
 import json
 import time
-from typing import Any, BinaryIO, Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Optional, Tuple, Union
 from urllib.error import HTTPError, URLError
-from urllib.parse import urlencode
+from urllib.parse import quote, urlencode
 from urllib.request import Request, urlopen
 
 from .models import (
@@ -52,6 +52,26 @@ from .models import (
 # ---------------------------------------------------------------------------
 # Exceptions
 # ---------------------------------------------------------------------------
+
+
+def _encode_path_value(value: Any) -> str:
+    """Encode a value for safe use within a single URL path segment."""
+    return quote(str(value), safe="")
+
+
+def _with_query(
+    path: str,
+    params: Union[Dict[str, Any], List[Tuple[str, Any]]],
+) -> str:
+    """Append a URL-encoded query string, omitting ``None`` values."""
+    if isinstance(params, dict):
+        items = [(key, value) for key, value in params.items() if value is not None]
+    else:
+        items = [(key, value) for key, value in params if value is not None]
+
+    if not items:
+        return path
+    return f"{path}?{urlencode(items, doseq=True)}"
 
 
 class RoteiroError(Exception):
@@ -403,7 +423,7 @@ class RoteiroClient:
         Args:
             name: Dataset name to remove.
         """
-        self._delete(f"/datasets/{name}")
+        self._delete(f"/datasets/{_encode_path_value(name)}")
 
     # ------------------------------------------------------------------
     # Collections (OGC API Features)
@@ -427,7 +447,7 @@ class RoteiroClient:
         Returns:
             A Collection object.
         """
-        data = self._get(f"/collections/{collection_id}")
+        data = self._get(f"/collections/{_encode_path_value(collection_id)}")
         return Collection.from_dict(data)
 
     def get_items(
@@ -453,21 +473,16 @@ class RoteiroClient:
         Returns:
             A FeatureCollection with matching features.
         """
-        params: List[str] = []
-        if bbox:
-            params.append(f"bbox={bbox}")
-        if limit is not None:
-            params.append(f"limit={limit}")
-        if where:
-            params.append(f"filter={where}")
-        if datetime:
-            params.append(f"datetime={datetime}")
-        if offset is not None:
-            params.append(f"offset={offset}")
-        query = "&".join(params)
-        path = f"/collections/{collection_id}/items"
-        if query:
-            path += f"?{query}"
+        path = _with_query(
+            f"/collections/{_encode_path_value(collection_id)}/items",
+            [
+                ("bbox", bbox),
+                ("limit", limit),
+                ("filter", where),
+                ("datetime", datetime),
+                ("offset", offset),
+            ],
+        )
         data = self._get(path)
         return FeatureCollection.from_dict(data)
 
@@ -501,7 +516,9 @@ class RoteiroClient:
         Returns:
             A Feature object.
         """
-        data = self._get(f"/collections/{collection_id}/items/{feature_id}")
+        data = self._get(
+            f"/collections/{_encode_path_value(collection_id)}/items/{_encode_path_value(feature_id)}"
+        )
         return Feature.from_dict(data)
 
     def get_feature(self, collection_id: str, feature_id: str) -> Feature:
@@ -520,7 +537,7 @@ class RoteiroClient:
         """
         data = self._request(
             "POST",
-            f"/collections/{collection_id}/items",
+            f"/collections/{_encode_path_value(collection_id)}/items",
             body=feature,
             extra_headers={"Content-Type": "application/geo+json"},
         )
@@ -548,7 +565,7 @@ class RoteiroClient:
         """
         data = self._request(
             "PUT",
-            f"/collections/{collection_id}/items/{feature_id}",
+            f"/collections/{_encode_path_value(collection_id)}/items/{_encode_path_value(feature_id)}",
             body=feature,
             extra_headers={"Content-Type": "application/geo+json"},
         )
@@ -570,7 +587,9 @@ class RoteiroClient:
             collection_id: The collection identifier.
             feature_id: The feature identifier to delete.
         """
-        self._delete(f"/collections/{collection_id}/items/{feature_id}")
+        self._delete(
+            f"/collections/{_encode_path_value(collection_id)}/items/{_encode_path_value(feature_id)}"
+        )
 
     def delete_feature(self, collection_id: str, feature_id: str) -> None:
         """Alias of ``delete_item``."""
@@ -759,16 +778,19 @@ class RoteiroClient:
 
     def get_process_job(self, job_id: str) -> ProcessJobRecord:
         """Get an asynchronous processing job by ID."""
-        data = self._get(f"/api/process/jobs/{job_id}")
+        data = self._get(f"/api/process/jobs/{_encode_path_value(job_id)}")
         return ProcessJobRecord.from_dict(data)
 
     def cancel_process_job(self, job_id: str) -> None:
         """Cancel an asynchronous processing job."""
-        self._delete(f"/api/process/jobs/{job_id}")
+        self._delete(f"/api/process/jobs/{_encode_path_value(job_id)}")
 
     def rerun_process_job(self, job_id: str) -> ProcessJobRecord:
         """Re-submit a completed or failed processing job."""
-        data = self._request("POST", f"/api/process/jobs/{job_id}/rerun")
+        data = self._request(
+            "POST",
+            f"/api/process/jobs/{_encode_path_value(job_id)}/rerun",
+        )
         return ProcessJobRecord.from_dict(data)
 
     def raster_process(
@@ -815,8 +837,9 @@ class RoteiroClient:
 
     def get_raster_mosaic_info(self, names: List[str]) -> RasterMosaicInfo:
         """Fetch combined metadata for a raster mosaic request."""
-        query = urlencode([("name", name) for name in names])
-        data = self._get(f"/api/raster/mosaic/info?{query}")
+        data = self._get(
+            _with_query("/api/raster/mosaic/info", [("name", name) for name in names])
+        )
         return RasterMosaicInfo.from_dict(data)
 
     def submit_process_batch(
@@ -867,7 +890,7 @@ class RoteiroClient:
         Returns:
             URL template with ``{z}/{x}/{y}`` placeholders.
         """
-        return f"{self.base_url}/tiles/{tileset}/{{z}}/{{x}}/{{y}}"
+        return f"{self.base_url}/tiles/{_encode_path_value(tileset)}/{{z}}/{{x}}/{{y}}"
 
     def raster_tiles_url(self, name: str) -> str:
         """Get the raster tiles URL template.
@@ -878,7 +901,7 @@ class RoteiroClient:
         Returns:
             URL template with ``{z}/{x}/{y}`` placeholders.
         """
-        return f"{self.base_url}/raster/{name}/tiles/{{z}}/{{x}}/{{y}}"
+        return f"{self.base_url}/raster/{_encode_path_value(name)}/tiles/{{z}}/{{x}}/{{y}}"
 
     def pmtiles_url(self, archive: str) -> str:
         """Get the PMTiles URL template for an archive.
@@ -889,4 +912,4 @@ class RoteiroClient:
         Returns:
             URL template with ``{z}/{x}/{y}`` placeholders.
         """
-        return f"{self.base_url}/pmtiles/{archive}/{{z}}/{{x}}/{{y}}"
+        return f"{self.base_url}/pmtiles/{_encode_path_value(archive)}/{{z}}/{{x}}/{{y}}"

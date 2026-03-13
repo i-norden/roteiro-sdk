@@ -8,6 +8,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any, Dict, List, Optional
 
+from .client import _encode_path_value, _with_query
 from .models import HostedLayer
 
 if TYPE_CHECKING:
@@ -50,7 +51,7 @@ def publish_layer(client: RoteiroClient, layer_id: str) -> HostedLayer:
     Returns:
         The updated HostedLayer.
     """
-    data = client._post(f"/api/layers/{layer_id}/publish", {})
+    data = client._post(f"/api/layers/{_encode_path_value(layer_id)}/publish", {})
     return HostedLayer.from_dict(data)
 
 
@@ -71,16 +72,10 @@ def list_layers(
     Returns:
         A list of HostedLayer objects.
     """
-    params: List[str] = []
-    if status:
-        params.append(f"status={status}")
-    if limit is not None:
-        params.append(f"limit={limit}")
-    if offset is not None:
-        params.append(f"offset={offset}")
-    path = "/api/layers"
-    if params:
-        path += "?" + "&".join(params)
+    path = _with_query(
+        "/api/layers",
+        [("status", status), ("limit", limit), ("offset", offset)],
+    )
     data = client._get(path)
     layers = data.get("layers", data if isinstance(data, list) else [])
     return [HostedLayer.from_dict(d) for d in layers]
@@ -96,7 +91,7 @@ def get_layer(client: RoteiroClient, layer_id: str) -> HostedLayer:
     Returns:
         A HostedLayer object.
     """
-    data = client._get(f"/api/layers/{layer_id}")
+    data = client._get(f"/api/layers/{_encode_path_value(layer_id)}")
     return HostedLayer.from_dict(data)
 
 
@@ -115,7 +110,7 @@ def update_layer(
     Returns:
         The updated HostedLayer.
     """
-    data = client._put(f"/api/layers/{layer_id}", kwargs)
+    data = client._put(f"/api/layers/{_encode_path_value(layer_id)}", kwargs)
     return HostedLayer.from_dict(data)
 
 
@@ -126,7 +121,7 @@ def archive_layer(client: RoteiroClient, layer_id: str) -> HostedLayer:
         client: An initialised RoteiroClient instance.
         layer_id: The identifier of the layer to archive.
     """
-    data = client._post(f"/api/layers/{layer_id}/archive", {})
+    data = client._post(f"/api/layers/{_encode_path_value(layer_id)}/archive", {})
     return HostedLayer.from_dict(data)
 
 
@@ -136,7 +131,9 @@ def upload_layer_data(
     file_path: str,
 ) -> HostedLayer:
     """Upload replacement data for an existing layer."""
-    data = client._upload_file(f"/api/layers/{layer_id}/upload", file_path)
+    data = client._upload_file(
+        f"/api/layers/{_encode_path_value(layer_id)}/upload", file_path
+    )
     return HostedLayer.from_dict(data)
 
 
@@ -147,4 +144,4 @@ def delete_layer(client: RoteiroClient, layer_id: str) -> None:
         client: An initialised RoteiroClient instance.
         layer_id: The identifier of the layer to delete.
     """
-    client._delete(f"/api/layers/{layer_id}")
+    client._delete(f"/api/layers/{_encode_path_value(layer_id)}")

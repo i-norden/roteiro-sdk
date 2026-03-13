@@ -8,6 +8,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any, Dict, List, Optional
 
+from .client import _encode_path_value, _with_query
 from .models import (
     IndoorAsset,
     IndoorBuilding,
@@ -49,7 +50,7 @@ def get_building(client: RoteiroClient, building_id: str) -> IndoorBuilding:
     Returns:
         An IndoorBuilding object with nested floors and transitions.
     """
-    data = client._get(f"/api/indoor/buildings/{building_id}")
+    data = client._get(f"/api/indoor/buildings/{_encode_path_value(building_id)}")
     return IndoorBuilding.from_dict(data)
 
 
@@ -83,7 +84,10 @@ def update_building(
     Returns:
         The updated IndoorBuilding.
     """
-    resp = client._put(f"/api/indoor/buildings/{building_id}", data)
+    resp = client._put(
+        f"/api/indoor/buildings/{_encode_path_value(building_id)}",
+        data,
+    )
     return IndoorBuilding.from_dict(resp)
 
 
@@ -94,7 +98,7 @@ def delete_building(client: RoteiroClient, building_id: str) -> None:
         client: An initialised RoteiroClient instance.
         building_id: The building identifier.
     """
-    client._delete(f"/api/indoor/buildings/{building_id}")
+    client._delete(f"/api/indoor/buildings/{_encode_path_value(building_id)}")
 
 
 # ---------------------------------------------------------------------------
@@ -112,7 +116,9 @@ def list_floors(client: RoteiroClient, building_id: str) -> List[IndoorFloor]:
     Returns:
         A list of IndoorFloor objects.
     """
-    data = client._get(f"/api/indoor/buildings/{building_id}/floors")
+    data = client._get(
+        f"/api/indoor/buildings/{_encode_path_value(building_id)}/floors"
+    )
     return [IndoorFloor.from_dict(f) for f in data]
 
 
@@ -131,7 +137,10 @@ def create_floor(
     Returns:
         The created IndoorFloor.
     """
-    resp = client._post(f"/api/indoor/buildings/{building_id}/floors", floor_data)
+    resp = client._post(
+        f"/api/indoor/buildings/{_encode_path_value(building_id)}/floors",
+        floor_data,
+    )
     return IndoorFloor.from_dict(resp)
 
 
@@ -156,7 +165,7 @@ def list_spaces(
         A list of IndoorSpace objects.
     """
     data = client._get(
-        f"/api/indoor/buildings/{building_id}/floors/{level}/spaces"
+        f"/api/indoor/buildings/{_encode_path_value(building_id)}/floors/{_encode_path_value(level)}/spaces"
     )
     return [IndoorSpace.from_dict(s) for s in data]
 
@@ -176,7 +185,10 @@ def create_space(
     Returns:
         The created IndoorSpace.
     """
-    resp = client._post(f"/api/indoor/buildings/{building_id}/spaces", space_data)
+    resp = client._post(
+        f"/api/indoor/buildings/{_encode_path_value(building_id)}/spaces",
+        space_data,
+    )
     return IndoorSpace.from_dict(resp)
 
 
@@ -195,7 +207,9 @@ def get_space(
     Returns:
         An IndoorSpace object.
     """
-    data = client._get(f"/api/indoor/buildings/{building_id}/spaces/{space_id}")
+    data = client._get(
+        f"/api/indoor/buildings/{_encode_path_value(building_id)}/spaces/{_encode_path_value(space_id)}"
+    )
     return IndoorSpace.from_dict(data)
 
 
@@ -221,15 +235,10 @@ def list_assets(
     Returns:
         A list of IndoorAsset objects.
     """
-    params: List[str] = []
-    if floor_id:
-        params.append(f"floor={floor_id}")
-    if space_id:
-        params.append(f"space={space_id}")
-    query = "&".join(params)
-    path = f"/api/indoor/buildings/{building_id}/assets"
-    if query:
-        path += f"?{query}"
+    path = _with_query(
+        f"/api/indoor/buildings/{_encode_path_value(building_id)}/assets",
+        [("floor", floor_id), ("space", space_id)],
+    )
     data = client._get(path)
     return [IndoorAsset.from_dict(a) for a in data]
 
@@ -250,7 +259,10 @@ def create_asset(
     Returns:
         The created IndoorAsset.
     """
-    resp = client._post(f"/api/indoor/buildings/{building_id}/assets", asset_data)
+    resp = client._post(
+        f"/api/indoor/buildings/{_encode_path_value(building_id)}/assets",
+        asset_data,
+    )
     return IndoorAsset.from_dict(resp)
 
 
@@ -344,7 +356,9 @@ def get_occupancy(client: RoteiroClient, building_id: str) -> Dict[str, Any]:
     Returns:
         A dictionary with occupancy data per floor and space.
     """
-    return client._get(f"/api/indoor/buildings/{building_id}/occupancy")
+    return client._get(
+        f"/api/indoor/buildings/{_encode_path_value(building_id)}/occupancy"
+    )
 
 
 def get_evacuation_routes(
@@ -363,6 +377,6 @@ def get_evacuation_routes(
         A dictionary with evacuation route data.
     """
     return client._post(
-        f"/api/indoor/buildings/{building_id}/evacuation",
+        f"/api/indoor/buildings/{_encode_path_value(building_id)}/evacuation",
         params or {},
     )

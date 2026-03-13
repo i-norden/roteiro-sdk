@@ -15,9 +15,12 @@ class RasterModuleTests(unittest.TestCase):
             return {"type": "FeatureCollection", "features": []}
 
         client._post = fake_post  # type: ignore[method-assign]
-        result = raster.contour(client, "elevation", interval=5.0)
+        result = raster.contour(client, "elevation tiles/2024", interval=5.0)
 
-        self.assertEqual(captured["path"], "/raster/elevation/contour")
+        self.assertEqual(
+            captured["path"],
+            "/raster/elevation%20tiles%2F2024/contour",
+        )
         self.assertEqual(captured["body"], {"band": 0, "interval": 5.0, "base": 0.0})
         self.assertEqual(result["type"], "FeatureCollection")
 

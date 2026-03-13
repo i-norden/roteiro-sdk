@@ -9,6 +9,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, List, Optional
 
+from .client import _encode_path_value, _with_query
 from .models import Collection, Feature, FeatureCollection
 
 if TYPE_CHECKING:
@@ -38,7 +39,7 @@ def get_collection(client: RoteiroClient, collection_id: str) -> Collection:
     Returns:
         A Collection object.
     """
-    data = client._get(f"/collections/{collection_id}")
+    data = client._get(f"/collections/{_encode_path_value(collection_id)}")
     return Collection.from_dict(data)
 
 
@@ -62,17 +63,10 @@ def get_items(
     Returns:
         A FeatureCollection with matching features.
     """
-    params: list[str] = []
-    if bbox:
-        params.append(f"bbox={bbox}")
-    if limit is not None:
-        params.append(f"limit={limit}")
-    if where:
-        params.append(f"filter={where}")
-    query = "&".join(params)
-    path = f"/collections/{collection_id}/items"
-    if query:
-        path += f"?{query}"
+    path = _with_query(
+        f"/collections/{_encode_path_value(collection_id)}/items",
+        [("bbox", bbox), ("limit", limit), ("filter", where)],
+    )
     data = client._get(path)
     return FeatureCollection.from_dict(data)
 
@@ -92,7 +86,9 @@ def get_item(
     Returns:
         A Feature object.
     """
-    data = client._get(f"/collections/{collection_id}/items/{feature_id}")
+    data = client._get(
+        f"/collections/{_encode_path_value(collection_id)}/items/{_encode_path_value(feature_id)}"
+    )
     return Feature.from_dict(data)
 
 
@@ -113,7 +109,7 @@ def create_item(
     """
     data = client._request(
         "POST",
-        f"/collections/{collection_id}/items",
+        f"/collections/{_encode_path_value(collection_id)}/items",
         body=feature,
         extra_headers={"Content-Type": "application/geo+json"},
     )
@@ -139,7 +135,7 @@ def update_item(
     """
     data = client._request(
         "PUT",
-        f"/collections/{collection_id}/items/{feature_id}",
+        f"/collections/{_encode_path_value(collection_id)}/items/{_encode_path_value(feature_id)}",
         body=feature,
         extra_headers={"Content-Type": "application/geo+json"},
     )
@@ -158,4 +154,6 @@ def delete_item(
         collection_id: The collection identifier.
         feature_id: The feature identifier.
     """
-    client._delete(f"/collections/{collection_id}/items/{feature_id}")
+    client._delete(
+        f"/collections/{_encode_path_value(collection_id)}/items/{_encode_path_value(feature_id)}"
+    )
