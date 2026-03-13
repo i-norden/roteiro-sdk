@@ -464,6 +464,41 @@ export class RoteiroClient {
   }
 
   // -----------------------------------------------------------------------
+  // Upload
+  // -----------------------------------------------------------------------
+
+  /** Upload a geospatial file and register it as a dataset. */
+  async upload(
+    file: Blob | ArrayBuffer | ArrayBufferView,
+    filename: string,
+    name?: string,
+  ): Promise<Dataset> {
+    const FormDataCtor = (globalThis as { FormData?: typeof FormData }).FormData;
+    const BlobCtor = (globalThis as { Blob?: typeof Blob }).Blob;
+    if (!FormDataCtor || !BlobCtor) {
+      throw new Error('FormData/Blob not available in this runtime');
+    }
+
+    const form = new FormDataCtor();
+    const blobPart =
+      file instanceof BlobCtor
+        ? file
+        : ArrayBuffer.isView(file)
+          ? new Uint8Array(file.buffer, file.byteOffset, file.byteLength).slice()
+          : file;
+    const blob = blobPart instanceof BlobCtor ? blobPart : new BlobCtor([blobPart]);
+    form.append('file', blob, filename);
+    if (name) {
+      form.append('name', name);
+    }
+
+    return this.request<Dataset>('/upload', {
+      method: 'POST',
+      body: form,
+    });
+  }
+
+  // -----------------------------------------------------------------------
   // Tile URL helpers (for MapLibre / Leaflet integration)
   // -----------------------------------------------------------------------
 
