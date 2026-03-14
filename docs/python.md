@@ -43,6 +43,7 @@ from roteiro import RoteiroClient
 client = RoteiroClient(
     base_url="http://localhost:8080",
     api_key="sk_your_api_key_here",
+    project_id=42,
     timeout=30,
     max_retries=3,
     backoff_factor=0.5,
@@ -51,12 +52,15 @@ client = RoteiroClient(
 
 `base_url` should be the server origin, not `/api`.
 
+Set `project_id` when you want the client to scope requests to a workspace project. The handwritten and generated clients will send `X-Project-ID` automatically, and tile URL helpers append `project_id` for you.
+
 ### Client options
 
 | Option | Type | Description | Default |
 |--------|------|-------------|---------|
 | `base_url` | `str` | Server origin | required |
 | `api_key` | `str | None` | Sent as `X-API-Key` | `None` |
+| `project_id` | `int | None` | Sent as `X-Project-ID`; also used in tile URL helpers and default request bodies that accept `project_id` | `None` |
 | `timeout` | `int` | Request timeout in seconds | `30` |
 | `max_retries` | `int` | Retries for `429`, `502`, `503`, `504`, and transport failures | `3` |
 | `backoff_factor` | `float` | Exponential backoff base in seconds | `0.5` |
@@ -92,6 +96,8 @@ uploaded = client.upload("./data/empty.geojson", name="empty")
 buildings = client.query_features(
     "buildings",
     bbox="-74.01,40.70,-73.97,40.73",
+    bbox_crs="EPSG:4326",
+    crs="EPSG:3857",
     filter_expr="height > 100",
     limit=50,
 )
@@ -254,7 +260,7 @@ Supported fluent helpers are:
 
 ## Full OpenAPI Coverage
 
-Use `RoteiroGeneratedApi` when you need endpoints that are not wrapped by the handwritten client or domain helpers.
+Use `RoteiroGeneratedApi` when you need endpoints that are not wrapped by the handwritten client or domain helpers, such as preferences, saved queries, project workspace endpoints, or newer API surfaces that have not been elevated into handwritten helpers yet.
 
 ```python
 from roteiro import RoteiroClient, RoteiroGeneratedApi

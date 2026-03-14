@@ -47,8 +47,12 @@ def get_items(
     collection_id: str,
     *,
     bbox: Optional[str] = None,
+    bbox_crs: Optional[str] = None,
+    crs: Optional[str] = None,
     limit: Optional[int] = None,
     where: Optional[str] = None,
+    datetime: Optional[str] = None,
+    offset: Optional[int] = None,
 ) -> FeatureCollection:
     """Query features from a collection with optional filters.
 
@@ -56,15 +60,27 @@ def get_items(
         client: An initialised RoteiroClient instance.
         collection_id: The collection identifier.
         bbox: Bounding box filter as ``"minx,miny,maxx,maxy"``.
+        bbox_crs: CRS identifier for the bbox coordinates.
+        crs: CRS identifier for the response geometries.
         limit: Maximum number of features to return.
         where: CQL2 filter expression.
+        datetime: RFC3339 instant or interval temporal filter.
+        offset: Number of matching features to skip.
 
     Returns:
         A FeatureCollection with matching features.
     """
     path = _with_query(
         f"/collections/{_encode_path_value(collection_id)}/items",
-        [("bbox", bbox), ("limit", limit), ("filter", where)],
+        [
+            ("bbox", bbox),
+            ("bbox-crs", bbox_crs),
+            ("crs", crs),
+            ("limit", limit),
+            ("filter", where),
+            ("datetime", datetime),
+            ("offset", offset),
+        ],
     )
     data = client._get(path)
     return FeatureCollection.from_dict(data)

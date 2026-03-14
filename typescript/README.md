@@ -4,6 +4,8 @@ TypeScript SDK for the Cairn/Roteiro API. It mirrors the Python SDK in structure
 
 Full guide: [`../docs/typescript.md`](../docs/typescript.md)
 
+Set `projectId` on `RoteiroClient` when you want requests and tile helpers scoped to a specific Cairn project.
+
 ## Install
 
 ```bash
@@ -22,6 +24,7 @@ import { RoteiroClient, analysis, raster } from '@roteiro/sdk';
 const client = new RoteiroClient({
   baseUrl: 'http://localhost:8080',
   apiKey: 'your-key',
+  projectId: 42,
 });
 
 const health = await client.health();
@@ -29,6 +32,8 @@ const collections = await client.listCollections();
 
 const features = await client.queryFeatures('buildings', {
   bbox: '-74.0,40.7,-73.9,40.8',
+  bboxCRS: 'EPSG:4326',
+  crs: 'EPSG:3857',
   limit: 50,
 });
 

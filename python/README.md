@@ -4,6 +4,8 @@ Python SDK for the Cairn/Roteiro API. It mirrors the TypeScript SDK in structure
 
 Full guide: [`../docs/python.md`](../docs/python.md)
 
+Set `project_id` on `RoteiroClient` when you want requests and tile helpers scoped to a specific Cairn project.
+
 ## Install
 
 ```bash
@@ -19,7 +21,7 @@ The Python SDK uses `snake_case` names such as `list_datasets`, `query_features`
 ```python
 from roteiro import RoteiroClient, analysis, raster
 
-client = RoteiroClient("http://localhost:8080", api_key="your-key")
+client = RoteiroClient("http://localhost:8080", api_key="your-key", project_id=42)
 
 health = client.health()
 collections = client.list_collections()
@@ -27,6 +29,8 @@ collections = client.list_collections()
 features = client.query_features(
     "buildings",
     bbox="-74.0,40.7,-73.9,40.8",
+    bbox_crs="EPSG:4326",
+    crs="EPSG:3857",
     limit=50,
 )
 

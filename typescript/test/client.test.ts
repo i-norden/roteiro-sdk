@@ -7,6 +7,8 @@ describe('RoteiroClient', () => {
       const parsed = new URL(url);
       expect(parsed.pathname).toBe('/collections/roads/items');
       expect(parsed.searchParams.get('bbox')).toBe('1,2,3,4');
+      expect(parsed.searchParams.get('bbox-crs')).toBe('EPSG:4326');
+      expect(parsed.searchParams.get('crs')).toBe('EPSG:3857');
       expect(parsed.searchParams.get('limit')).toBe('5');
       expect(parsed.searchParams.get('filter')).toBe("kind='road'");
       expect(parsed.searchParams.get('datetime')).toBe('2024-01-01T00:00:00Z');
@@ -27,6 +29,8 @@ describe('RoteiroClient', () => {
 
     const result = await client.getItems('roads', {
       bbox: '1,2,3,4',
+      bboxCRS: 'EPSG:4326',
+      crs: 'EPSG:3857',
       limit: 5,
       filter: "kind='road'",
       datetime: '2024-01-01T00:00:00Z',
@@ -131,9 +135,11 @@ describe('RoteiroClient', () => {
     const fetchMock = vi.fn(async (url: string, init?: RequestInit) => {
       expect(new URL(url).pathname).toBe('/upload');
       expect(init?.method).toBe('POST');
+      expect(new Headers(init?.headers).get('X-Project-ID')).toBe('42');
       expect(init?.body).toBeInstanceOf(FormData);
       const form = init?.body as FormData;
       expect(form.get('name')).toBe('roads');
+      expect(form.get('project_id')).toBe('42');
       expect(form.get('file')).toBeInstanceOf(File);
       return new Response(
         JSON.stringify({
@@ -147,6 +153,7 @@ describe('RoteiroClient', () => {
 
     const client = new RoteiroClient({
       baseUrl: 'https://example.com',
+      projectId: 42,
       fetch: fetchMock as typeof globalThis.fetch,
     });
 
@@ -157,6 +164,50 @@ describe('RoteiroClient', () => {
     );
 
     expect(result.name).toBe('roads');
+  });
+
+  it('applies the configured project scope to JSON bodies and tile URLs', async () => {
+    const fetchMock = vi.fn(async (url: string, init?: RequestInit) => {
+      expect(new URL(url).pathname).toBe('/api/process');
+      expect(new Headers(init?.headers).get('X-Project-ID')).toBe('42');
+      expect(JSON.parse(String(init?.body))).toEqual({
+        operation: 'buffer',
+        input: 'roads',
+        params: {},
+        project_id: 42,
+      });
+      return new Response(
+        JSON.stringify({
+          operation: 'buffer',
+          input_features: 1,
+          output_features: 1,
+          duration_ms: 1,
+        }),
+        { status: 200 },
+      );
+    });
+
+    const client = new RoteiroClient({
+      baseUrl: 'https://example.com',
+      projectId: 42,
+      fetch: fetchMock as typeof globalThis.fetch,
+    });
+
+    const result = await client.process({
+      operation: 'buffer',
+      input: 'roads',
+    });
+
+    expect(result.operation).toBe('buffer');
+    expect(client.vectorTilesUrl('city basemap')).toBe(
+      'https://example.com/tiles/city%20basemap/{z}/{x}/{y}?project_id=42',
+    );
+    expect(client.rasterTilesUrl('dem')).toBe(
+      'https://example.com/raster/dem/tiles/{z}/{x}/{y}?project_id=42',
+    );
+    expect(client.pmtilesUrl('archive.pmtiles')).toBe(
+      'https://example.com/pmtiles/archive.pmtiles/{z}/{x}/{y}?project_id=42',
+    );
   });
 
   it('retries retryable responses and then succeeds', async () => {
