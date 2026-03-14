@@ -613,15 +613,6 @@ Auto-generated from the server OpenAPI spec. Each operation is available in both
 | GET | `/saml/login` | `autoGetSamlLogin` | `auto_get_saml_login` |
 | GET | `/saml/logout` | `autoGetSamlLogout` | `auto_get_saml_logout` |
 | GET | `/saml/metadata` | `autoGetSamlMetadata` | `auto_get_saml_metadata` |
-| GET | `/scim/v2/ResourceTypes` | `autoGetScimV2ResourceTypes` | `auto_get_scim_v2_resource_types` |
-| GET | `/scim/v2/Schemas` | `autoGetScimV2Schemas` | `auto_get_scim_v2_schemas` |
-| GET | `/scim/v2/ServiceProviderConfig` | `autoGetScimV2ServiceProviderConfig` | `auto_get_scim_v2_service_provider_config` |
-| GET | `/scim/v2/Users` | `autoGetScimV2Users` | `auto_get_scim_v2_users` |
-| POST | `/scim/v2/Users` | `autoPostScimV2Users` | `auto_post_scim_v2_users` |
-| GET | `/scim/v2/Users/{id}` | `autoGetScimV2UsersId` | `auto_get_scim_v2_users_id` |
-| PUT | `/scim/v2/Users/{id}` | `autoPutScimV2UsersId` | `auto_put_scim_v2_users_id` |
-| PATCH | `/scim/v2/Users/{id}` | `autoPatchScimV2UsersId` | `auto_patch_scim_v2_users_id` |
-| DELETE | `/scim/v2/Users/{id}` | `autoDeleteScimV2UsersId` | `auto_delete_scim_v2_users_id` |
 | GET | `/stac` | `stacroot` | `stac_root` |
 | GET | `/stac/collections` | `staclistcollections` | `stac_list_collections` |
 | GET | `/stac/collections/{id}` | `stacgetcollection` | `stac_get_collection` |
