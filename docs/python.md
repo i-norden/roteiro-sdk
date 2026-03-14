@@ -1,10 +1,18 @@
 # Python SDK Guide
 
-The Python SDK provides three layers for the Cairn/Roteiro API:
+The Python SDK exposes the Cairn/Roteiro API through the same three layers used by the TypeScript SDK:
 
 1. `RoteiroClient` for the handwritten, high-traffic workflows.
-2. Module helpers such as `raster`, `indoor`, `attachments`, `layers`, and `vcs`.
+2. Domain modules such as `analysis`, `attachments`, `collections`, `indoor`, `layers`, `raster`, and `vcs`.
 3. `RoteiroGeneratedApi` for full parity with the server OpenAPI spec and the generated operation map in [`generated-operations.md`](./generated-operations.md).
+
+## SDK Shape
+
+| Layer | Export | Use it for |
+|------|--------|------------|
+| Handwritten client | `RoteiroClient` | Health, datasets, collections, processing jobs, uploads, raster workflow helpers, and tile URL helpers |
+| Domain helpers | `analysis`, `collections`, `attachments`, `layers`, `vcs`, `raster`, `indoor`, `Pipeline` | Focused helpers grouped by domain; these are standalone modules, not instance methods on `RoteiroClient` |
+| Full API coverage | `RoteiroGeneratedApi` | Endpoints that are only available in the generated OpenAPI client |
 
 ## Installation
 
@@ -18,6 +26,14 @@ From source:
 cd python
 pip install -e .
 ```
+
+## Naming Convention
+
+The Python SDK uses `snake_case` for methods and options:
+
+- `list_datasets`
+- `query_features`
+- `auto_get_api_docs_public_manifest`
 
 ## Create a Client
 
@@ -57,7 +73,7 @@ client = RoteiroClient(
 | Raster workflow helpers | `raster_process`, `raster_mosaic`, `get_raster_mosaic_info` |
 | Tile URL helpers | `vector_tiles_url`, `raster_tiles_url`, `pmtiles_url` |
 
-### Common usage
+### Common workflow
 
 ```python
 health = client.health()
@@ -125,22 +141,58 @@ catalog = client.list_operations()
 print([op["name"] for op in catalog["operations"]])
 ```
 
-## Domain Modules
+## Domain Helpers
 
 Domain helpers are standalone modules, not `RoteiroClient` instance methods.
 
 ```python
-from roteiro import attachments, indoor, layers, raster, vcs
+from roteiro import analysis, attachments, collections, indoor, layers, raster, vcs
 ```
 
 | Module | Key helpers |
 |--------|-------------|
+| `analysis` | `geodesic_area`, `geodesic_length`, `classify_kmeans`, `classify_isodata`, `classify_ml`, `classify_rf` |
 | `collections` | `list_collections`, `get_collection`, `get_items`, `get_item`, `create_item`, `update_item`, `delete_item` |
 | `attachments` | `upload_attachment`, `list_attachments`, `download_attachment`, `delete_attachment` |
 | `layers` | `upload_layer`, `list_layers`, `get_layer`, `update_layer`, `publish_layer`, `archive_layer`, `upload_layer_data`, `delete_layer`, `preview_layer` |
 | `vcs` | `init_repo`, `commit`, `log`, `diff`, `checkout` |
 | `raster` | `get_raster_info`, `get_raster_stats`, `get_raster_histogram`, `get_raster_dimensions`, `get_raster_band_values`, `band_math`, `ndvi`, `hillshade`, `zonal_stats`, `export_raster`, `contour`, `viewshed`, `elevation_profile`, `kde`, `process`, `mosaic`, `get_mosaic_info` |
 | `indoor` | `list_buildings`, `get_building`, `create_building`, `update_building`, `delete_building`, `list_floors`, `create_floor`, `list_spaces`, `create_space`, `get_space`, `list_assets`, `create_asset`, `find_path`, `parse_indoor_gml`, `import_ifc`, `get_occupancy`, `get_evacuation_routes` |
+
+### Example: analysis helpers
+
+```python
+from roteiro import analysis
+
+area = analysis.geodesic_area(
+    client,
+    {
+        "type": "FeatureCollection",
+        "features": [
+            {
+                "type": "Feature",
+                "geometry": {
+                    "type": "Polygon",
+                    "coordinates": [[
+                        [-73.99, 40.75],
+                        [-73.98, 40.75],
+                        [-73.98, 40.76],
+                        [-73.99, 40.76],
+                        [-73.99, 40.75],
+                    ]],
+                },
+                "properties": {},
+            },
+        ],
+    },
+)
+
+classified = analysis.classify_kmeans(
+    client,
+    bands={"nir": [0.9, 0.7], "red": [0.3, 0.2]},
+    config={"k": 2},
+)
+```
 
 ### Example: raster helpers
 
@@ -202,7 +254,7 @@ Supported fluent helpers are:
 
 ## Full OpenAPI Coverage
 
-Use `RoteiroGeneratedApi` when you need endpoints that are not wrapped by the handwritten client or module helpers.
+Use `RoteiroGeneratedApi` when you need endpoints that are not wrapped by the handwritten client or domain helpers.
 
 ```python
 from roteiro import RoteiroClient, RoteiroGeneratedApi
@@ -235,7 +287,7 @@ except (RoteiroConnectionError, RoteiroTimeoutError) as exc:
     print(exc)
 ```
 
-## Models
+## Exported Models
 
 The package exports the handwritten client models directly from `roteiro`.
 
@@ -251,3 +303,8 @@ from roteiro import (
     RasterInfo,
 )
 ```
+
+## Where to Look Next
+
+- [`generated-operations.md`](./generated-operations.md) for the Python-to-TypeScript generated method map
+- [`../python/examples/quickstart.py`](../python/examples/quickstart.py) for an executable end-to-end example
