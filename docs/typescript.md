@@ -1,10 +1,18 @@
 # TypeScript SDK Guide
 
-The TypeScript SDK provides three layers for the Cairn/Roteiro API:
+The TypeScript SDK exposes the Cairn/Roteiro API through the same three layers used by the Python SDK:
 
 1. `RoteiroClient` for the handwritten, high-traffic workflows.
-2. Namespace modules such as `raster`, `indoor`, `attachments`, `layers`, and `vcs`.
+2. Domain namespaces such as `analysis`, `attachments`, `collections`, `indoor`, `layers`, `raster`, and `vcs`.
 3. `RoteiroGeneratedApi` for full parity with the server OpenAPI spec and the generated operation map in [`generated-operations.md`](./generated-operations.md).
+
+## SDK Shape
+
+| Layer | Export | Use it for |
+|------|--------|------------|
+| Handwritten client | `RoteiroClient` | Health, datasets, collections, processing jobs, uploads, raster workflow helpers, and tile URL helpers |
+| Domain helpers | `analysis`, `collections`, `attachments`, `layers`, `vcs`, `raster`, `indoor`, `Pipeline` | Focused helpers grouped by domain; these are namespace exports, not instance methods on `RoteiroClient` |
+| Full API coverage | `RoteiroGeneratedApi` | Endpoints that are only available in the generated OpenAPI client |
 
 ## Installation
 
@@ -19,6 +27,14 @@ cd typescript
 npm ci
 npm run build
 ```
+
+## Naming Convention
+
+The TypeScript SDK uses `camelCase` for methods and options:
+
+- `listDatasets`
+- `queryFeatures`
+- `autoGetApiDocsPublicManifest`
 
 ## Create a Client
 
@@ -59,7 +75,7 @@ const client = new RoteiroClient({
 | Raster workflow helpers | `rasterProcess`, `rasterMosaic`, `getRasterMosaicInfo` |
 | Tile URL helpers | `vectorTilesUrl`, `rasterTilesUrl`, `pmtilesUrl` |
 
-### Common usage
+### Common workflow
 
 ```typescript
 const health = await client.health();
@@ -83,7 +99,7 @@ const uploaded = await client.upload(
 
 const buildings = await client.queryFeatures('buildings', {
   bbox: '-74.01,40.70,-73.97,40.73',
-  filter: "height > 100",
+  filter: 'height > 100',
   limit: 50,
 });
 
@@ -130,13 +146,15 @@ const catalog = await client.listOperations();
 console.log(catalog.operations.map((op) => op.name));
 ```
 
-## Domain Namespaces
+## Domain Helpers
 
 Domain helpers are namespace exports, not `RoteiroClient` instance methods.
 
 ```typescript
 import {
+  analysis,
   attachments,
+  collections,
   indoor,
   layers,
   raster,
@@ -146,12 +164,44 @@ import {
 
 | Namespace | Key helpers |
 |-----------|-------------|
+| `analysis` | `geodesicArea`, `geodesicLength`, `classifyKMeans`, `classifyIsodata`, `classifyML`, `classifyRF` |
 | `collections` | `listCollections`, `getCollection`, `getItems`, `getItem`, `createItem`, `updateItem`, `deleteItem` |
 | `attachments` | `uploadAttachment`, `listAttachments`, `downloadAttachment`, `deleteAttachment` |
 | `layers` | `uploadLayer`, `listLayers`, `getLayer`, `updateLayer`, `publishLayer`, `archiveLayer`, `uploadLayerData`, `deleteLayer`, `previewLayer` |
 | `vcs` | `initRepo`, `commit`, `log`, `diff`, `checkout` |
 | `raster` | `getRasterInfo`, `getRasterStats`, `getRasterHistogram`, `getRasterDimensions`, `getRasterBandValues`, `bandMath`, `ndvi`, `hillshade`, `zonalStats`, `exportRaster`, `contour`, `viewshed`, `elevationProfile`, `kde`, `process`, `mosaic`, `getMosaicInfo` |
 | `indoor` | `listBuildings`, `getBuilding`, `createBuilding`, `updateBuilding`, `deleteBuilding`, `listFloors`, `createFloor`, `listSpaces`, `createSpace`, `getSpace`, `listAssets`, `createAsset`, `findPath`, `parseIndoorGml`, `importIfc`, `getOccupancy`, `getEvacuationRoutes` |
+
+### Example: analysis helpers
+
+```typescript
+import { analysis } from '@roteiro/sdk';
+
+const area = await analysis.geodesicArea(client, {
+  type: 'FeatureCollection',
+  features: [
+    {
+      type: 'Feature',
+      geometry: {
+        type: 'Polygon',
+        coordinates: [[
+          [-73.99, 40.75],
+          [-73.98, 40.75],
+          [-73.98, 40.76],
+          [-73.99, 40.76],
+          [-73.99, 40.75],
+        ]],
+      },
+      properties: {},
+    },
+  ],
+});
+
+const classified = await analysis.classifyKMeans(client, {
+  bands: { nir: [0.9, 0.7], red: [0.3, 0.2] },
+  config: { k: 2 },
+});
+```
 
 ### Example: raster helpers
 
@@ -211,10 +261,10 @@ Supported fluent helpers are:
 
 ## Full OpenAPI Coverage
 
-Use `RoteiroGeneratedApi` when you need endpoints that are not wrapped by the handwritten client or namespace helpers.
+Use `RoteiroGeneratedApi` when you need endpoints that are not wrapped by the handwritten client or domain helpers.
 
 ```typescript
-import { RoteiroGeneratedApi, RoteiroClient } from '@roteiro/sdk';
+import { RoteiroClient, RoteiroGeneratedApi } from '@roteiro/sdk';
 
 const client = new RoteiroClient({ baseUrl: 'http://localhost:8080' });
 const api = new RoteiroGeneratedApi(client);
@@ -241,16 +291,19 @@ try {
 }
 ```
 
-## Types
+## Exported Types
 
 All handwritten client types are exported from `@roteiro/sdk`.
 
 ```typescript
 import type {
+  ClassifyResult,
   Collection,
   Dataset,
   Feature,
   FeatureCollection,
+  GeodesicAreaResult,
+  GeodesicLengthResult,
   ProcessJobRecord,
   ProcessPreflightResult,
   ProcessResult,
@@ -258,3 +311,8 @@ import type {
   RasterInfo,
 } from '@roteiro/sdk';
 ```
+
+## Where to Look Next
+
+- [`generated-operations.md`](./generated-operations.md) for the TypeScript-to-Python generated method map
+- [`../typescript/examples/quickstart.ts`](../typescript/examples/quickstart.ts) for an executable end-to-end example

@@ -1,6 +1,6 @@
 # @roteiro/sdk
 
-TypeScript SDK for the Cairn/Roteiro API. It provides a handwritten client for the common workflows, namespace helpers for specific domains, and a generated client for full OpenAPI coverage.
+TypeScript SDK for the Cairn/Roteiro API. It mirrors the Python SDK in structure: a handwritten client for common workflows, domain namespaces for focused helpers, and a generated client for full OpenAPI coverage.
 
 Full guide: [`../docs/typescript.md`](../docs/typescript.md)
 
@@ -10,10 +10,14 @@ Full guide: [`../docs/typescript.md`](../docs/typescript.md)
 npm install @roteiro/sdk
 ```
 
+## Naming Convention
+
+The TypeScript SDK uses `camelCase` names such as `listDatasets`, `queryFeatures`, and `autoGetApiDocsPublicManifest`.
+
 ## Quick Start
 
 ```typescript
-import { RoteiroClient, raster } from '@roteiro/sdk';
+import { RoteiroClient, analysis, raster } from '@roteiro/sdk';
 
 const client = new RoteiroClient({
   baseUrl: 'http://localhost:8080',
@@ -28,19 +32,24 @@ const features = await client.queryFeatures('buildings', {
   limit: 50,
 });
 
+const areas = await analysis.geodesicArea(client, {
+  type: 'FeatureCollection',
+  features: [],
+});
+
 const hillshade = await raster.hillshade(client, 'dem');
-console.log(health.status, collections.length, features.features.length, hillshade.size);
+console.log(health.status, collections.length, features.features.length, areas.length, hillshade.size);
 ```
 
 ## SDK Shape
 
 | Layer | Export | Notes |
 |------|--------|-------|
-| Handwritten client | `RoteiroClient` | Health, datasets, collections, processing jobs, raster workflow helpers, uploads, tile URL helpers |
-| Domain helpers | `collections`, `attachments`, `layers`, `vcs`, `raster`, `indoor`, `Pipeline` | Standalone namespace exports, not instance methods on `RoteiroClient` |
+| Handwritten client | `RoteiroClient` | Health, datasets, collections, processing jobs, uploads, raster workflow helpers, and tile URL helpers |
+| Domain helpers | `analysis`, `collections`, `attachments`, `layers`, `vcs`, `raster`, `indoor`, `Pipeline` | Namespace exports, not instance methods on `RoteiroClient` |
 | Full API coverage | `RoteiroGeneratedApi` | Generated from the server OpenAPI spec |
 
-## Core Client Methods
+## Core Client Surface
 
 | Area | Methods |
 |------|---------|
@@ -49,6 +58,18 @@ console.log(health.status, collections.length, features.features.length, hillsha
 | Processing | `convert`, `process`, `diff`, `listOperations`, `preflightProcess`, `submitProcessJob`, `submitProcessBatch`, `listProcessJobs`, `getProcessJob`, `cancelProcessJob`, `rerunProcessJob` |
 | Raster workflow helpers | `rasterProcess`, `rasterMosaic`, `getRasterMosaicInfo` |
 | Tile URL helpers | `vectorTilesUrl`, `rasterTilesUrl`, `pmtilesUrl` |
+
+## Domain Helpers
+
+| Namespace | Key helpers |
+|-----------|-------------|
+| `analysis` | `geodesicArea`, `geodesicLength`, `classifyKMeans`, `classifyIsodata`, `classifyML`, `classifyRF` |
+| `collections` | `listCollections`, `getCollection`, `getItems`, `getItem`, `createItem`, `updateItem`, `deleteItem` |
+| `attachments` | `uploadAttachment`, `listAttachments`, `downloadAttachment`, `deleteAttachment` |
+| `layers` | `uploadLayer`, `listLayers`, `getLayer`, `updateLayer`, `publishLayer`, `archiveLayer`, `uploadLayerData`, `deleteLayer`, `previewLayer` |
+| `vcs` | `initRepo`, `commit`, `log`, `diff`, `checkout` |
+| `raster` | `getRasterInfo`, `getRasterStats`, `getRasterHistogram`, `getRasterDimensions`, `getRasterBandValues`, `bandMath`, `ndvi`, `hillshade`, `zonalStats`, `exportRaster`, `contour`, `viewshed`, `elevationProfile`, `kde`, `process`, `mosaic`, `getMosaicInfo` |
+| `indoor` | `listBuildings`, `getBuilding`, `createBuilding`, `updateBuilding`, `deleteBuilding`, `listFloors`, `createFloor`, `listSpaces`, `createSpace`, `getSpace`, `listAssets`, `createAsset`, `findPath`, `parseIndoorGml`, `importIfc`, `getOccupancy`, `getEvacuationRoutes` |
 
 ## Full API Coverage
 
