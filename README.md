@@ -14,7 +14,7 @@ Standalone SDK repository for the Cairn/Roteiro API clients and public plugin-de
 - Plugin development reference: [`docs/plugins.md`](./docs/plugins.md)
 - Generated operations map: [`docs/generated-operations.md`](./docs/generated-operations.md)
 
-The TypeScript and Python guides now follow the same structure:
+The TypeScript and Python guides follow the same structure:
 
 - handwritten client surface
 - domain namespace or module helpers
