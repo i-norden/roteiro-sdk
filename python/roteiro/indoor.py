@@ -302,6 +302,37 @@ def find_path(
     return NavigationResult.from_dict(data)
 
 
+def find_nearest(
+    client: RoteiroClient,
+    building_id: str,
+    from_space: str,
+    target_type: str,
+    accessible_only: bool = False,
+) -> NavigationResult:
+    """Find the nearest space of a given type from a starting space.
+
+    Args:
+        client: An initialised RoteiroClient instance.
+        building_id: The building identifier.
+        from_space: Source space ID.
+        target_type: Type of space to search for (e.g. ``restroom``, ``exit``).
+        accessible_only: If True, only use accessible transitions.
+
+    Returns:
+        A NavigationResult with path steps, total distance, and time estimate.
+    """
+    data = client._post(
+        "/api/indoor/navigate/nearest",
+        {
+            "building_id": building_id,
+            "from": from_space,
+            "target_type": target_type,
+            "accessible_only": accessible_only,
+        },
+    )
+    return NavigationResult.from_dict(data)
+
+
 # ---------------------------------------------------------------------------
 # Import
 # ---------------------------------------------------------------------------

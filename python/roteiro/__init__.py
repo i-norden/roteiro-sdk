@@ -124,6 +124,7 @@ __all__ = [
     "WarningSuggestion",
     "ZonalStatsResult",
     # Sub-modules (importable for standalone function usage)
+    "analysis",
     "collections",
     "layers",
     "vcs",
@@ -134,4 +135,4 @@ __all__ = [
 ]
 
 # Make sub-modules importable as roteiro.collections, roteiro.vcs, etc.
-from . import attachments, collections, indoor, layers, raster, vcs
+from . import analysis, attachments, collections, indoor, layers, raster, vcs
