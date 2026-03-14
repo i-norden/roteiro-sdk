@@ -120,6 +120,7 @@ class RoteiroClient:
         self,
         base_url: str,
         api_key: Optional[str] = None,
+        project_id: Optional[int] = None,
         timeout: int = 30,
         max_retries: int = 3,
         backoff_factor: float = 0.5,
@@ -129,12 +130,14 @@ class RoteiroClient:
         Args:
             base_url: Root URL of the Roteiro server (e.g. ``http://localhost:8080``).
             api_key: Optional API key sent as ``X-API-Key`` header.
+            project_id: Optional project scope sent as ``X-Project-ID``.
             timeout: Request timeout in seconds.
             max_retries: Maximum number of retry attempts for transient errors.
             backoff_factor: Multiplier for exponential back-off between retries.
         """
         self.base_url: str = base_url.rstrip("/")
         self.api_key: Optional[str] = api_key
+        self.project_id: Optional[int] = project_id
         self.timeout: int = timeout
         self.max_retries: int = max_retries
         self.backoff_factor: float = backoff_factor
@@ -148,9 +151,32 @@ class RoteiroClient:
         headers: Dict[str, str] = {"Accept": "application/json"}
         if self.api_key:
             headers["X-API-Key"] = self.api_key
+        if self.project_id is not None:
+            headers["X-Project-ID"] = str(self.project_id)
         if extra:
             headers.update(extra)
         return headers
+
+    def _effective_project_id(self, project_id: Optional[int] = None) -> Optional[int]:
+        if project_id is not None:
+            return project_id
+        return self.project_id
+
+    def _with_project_id(
+        self, body: Dict[str, Any], project_id: Optional[int] = None
+    ) -> Dict[str, Any]:
+        effective_project_id = self._effective_project_id(project_id)
+        if effective_project_id is None or body.get("project_id") is not None:
+            return body
+        scoped = dict(body)
+        scoped["project_id"] = effective_project_id
+        return scoped
+
+    def _with_project_query(self, path: str) -> str:
+        if self.project_id is None:
+            return path
+        separator = "&" if "?" in path else "?"
+        return f"{path}{separator}{urlencode({'project_id': self.project_id})}"
 
     def _request(
         self,
@@ -399,6 +425,7 @@ class RoteiroClient:
         path: str,
         fmt: str = "",
         crs: str = "",
+        project_id: Optional[int] = None,
     ) -> Dataset:
         """Register a new dataset.
 
@@ -407,13 +434,17 @@ class RoteiroClient:
             path: Filesystem path to the data file.
             fmt: Data format (e.g. ``geojson``, ``parquet``).
             crs: Coordinate reference system identifier.
+            project_id: Optional project to attach the dataset to.
 
         Returns:
             The registered Dataset.
         """
         data = self._post(
             "/datasets",
-            {"name": name, "path": path, "format": fmt, "crs": crs},
+            self._with_project_id(
+                {"name": name, "path": path, "format": fmt, "crs": crs},
+                project_id=project_id,
+            ),
         )
         return Dataset.from_dict(data)
 
@@ -455,6 +486,8 @@ class RoteiroClient:
         collection_id: str,
         *,
         bbox: Optional[str] = None,
+        bbox_crs: Optional[str] = None,
+        crs: Optional[str] = None,
         limit: Optional[int] = None,
         where: Optional[str] = None,
         datetime: Optional[str] = None,
@@ -465,6 +498,8 @@ class RoteiroClient:
         Args:
             collection_id: The collection identifier.
             bbox: Bounding box filter (``minx,miny,maxx,maxy``).
+            bbox_crs: CRS identifier for the bbox coordinates.
+            crs: CRS identifier for the response geometries.
             limit: Maximum number of features to return.
             where: CQL2 filter expression.
             datetime: RFC3339 instant or interval temporal filter.
@@ -477,6 +512,8 @@ class RoteiroClient:
             f"/collections/{_encode_path_value(collection_id)}/items",
             [
                 ("bbox", bbox),
+                ("bbox-crs", bbox_crs),
+                ("crs", crs),
                 ("limit", limit),
                 ("filter", where),
                 ("datetime", datetime),
@@ -491,6 +528,8 @@ class RoteiroClient:
         collection_id: str,
         *,
         bbox: Optional[str] = None,
+        bbox_crs: Optional[str] = None,
+        crs: Optional[str] = None,
         limit: Optional[int] = None,
         filter_expr: Optional[str] = None,
         datetime: Optional[str] = None,
@@ -500,6 +539,8 @@ class RoteiroClient:
         return self.get_items(
             collection_id,
             bbox=bbox,
+            bbox_crs=bbox_crs,
+            crs=crs,
             limit=limit,
             where=filter_expr,
             datetime=datetime,
@@ -605,6 +646,7 @@ class RoteiroClient:
         output_format: str,
         output_name: Optional[str] = None,
         register: bool = True,
+        project_id: Optional[int] = None,
     ) -> ConvertResult:
         """Convert a dataset to another format.
 
@@ -613,6 +655,7 @@ class RoteiroClient:
             output_format: Target format (e.g. ``parquet``, ``gpkg``).
             output_name: Optional name for the output dataset.
             register: Whether to register the output as a new dataset.
+            project_id: Optional project to attach the output dataset to.
 
         Returns:
             A ConvertResult with conversion details.
@@ -624,7 +667,10 @@ class RoteiroClient:
         }
         if output_name:
             body["output_name"] = output_name
-        data = self._post("/api/convert", body)
+        data = self._post(
+            "/api/convert",
+            self._with_project_id(body, project_id=project_id),
+        )
         return ConvertResult.from_dict(data)
 
     def process(
@@ -637,6 +683,7 @@ class RoteiroClient:
         input_geojson: Any = None,
         register: Optional[bool] = None,
         output_name: Optional[str] = None,
+        project_id: Optional[int] = None,
     ) -> ProcessResult:
         """Run a spatial processing operation.
 
@@ -648,6 +695,7 @@ class RoteiroClient:
             output_format: Optional output format (``geojson`` for inline results).
             register: Whether the output should be registered as a dataset.
             output_name: Optional output dataset name.
+            project_id: Optional project to scope dataset resolution and outputs.
 
         Returns:
             A ProcessResult with operation statistics.
@@ -666,7 +714,10 @@ class RoteiroClient:
             body["register"] = register
         if output_name:
             body["output_name"] = output_name
-        data = self._post("/api/process", body)
+        data = self._post(
+            "/api/process",
+            self._with_project_id(body, project_id=project_id),
+        )
         return ProcessResult.from_dict(data)
 
     def diff(
@@ -705,6 +756,7 @@ class RoteiroClient:
         output_format: Optional[str] = None,
         register: Optional[bool] = None,
         output_name: Optional[str] = None,
+        project_id: Optional[int] = None,
     ) -> ProcessPreflightResult:
         """Validate and normalize a processing request without executing it."""
         body: Dict[str, Any] = {
@@ -721,7 +773,10 @@ class RoteiroClient:
             body["register"] = register
         if output_name:
             body["output_name"] = output_name
-        data = self._post("/api/process/preflight", body)
+        data = self._post(
+            "/api/process/preflight",
+            self._with_project_id(body, project_id=project_id),
+        )
         return ProcessPreflightResult.from_dict(data)
 
     def submit_process_job(
@@ -734,6 +789,7 @@ class RoteiroClient:
         output_format: Optional[str] = None,
         register: Optional[bool] = None,
         output_name: Optional[str] = None,
+        project_id: Optional[int] = None,
     ) -> ProcessJobRecord:
         """Submit an asynchronous processing job."""
         body: Dict[str, Any] = {
@@ -750,7 +806,11 @@ class RoteiroClient:
             body["register"] = register
         if output_name:
             body["output_name"] = output_name
-        data = self._request("POST", "/api/process/jobs", body)
+        data = self._request(
+            "POST",
+            "/api/process/jobs",
+            self._with_project_id(body, project_id=project_id),
+        )
         return ProcessJobRecord.from_dict(data)
 
     def list_process_jobs(
@@ -851,6 +911,7 @@ class RoteiroClient:
         for job in jobs:
             request = dict(job.get("request", {}))
             request["params"] = request.get("params") or {}
+            request = self._with_project_id(request)
             item = dict(job)
             item["request"] = request
             normalized_jobs.append(item)
@@ -861,12 +922,18 @@ class RoteiroClient:
     # Upload
     # ------------------------------------------------------------------
 
-    def upload(self, file_path: str, name: Optional[str] = None) -> Dataset:
+    def upload(
+        self,
+        file_path: str,
+        name: Optional[str] = None,
+        project_id: Optional[int] = None,
+    ) -> Dataset:
         """Upload a file and register it as a dataset.
 
         Args:
             file_path: Local path to the file to upload.
             name: Optional dataset name (defaults to filename without extension).
+            project_id: Optional project to attach the uploaded dataset to.
 
         Returns:
             The registered Dataset.
@@ -874,6 +941,9 @@ class RoteiroClient:
         extra: Dict[str, str] = {}
         if name:
             extra["name"] = name
+        effective_project_id = self._effective_project_id(project_id)
+        if effective_project_id is not None:
+            extra["project_id"] = str(effective_project_id)
         data = self._upload_file("/upload", file_path, extra_fields=extra)
         return Dataset.from_dict(data)
 
@@ -890,7 +960,7 @@ class RoteiroClient:
         Returns:
             URL template with ``{z}/{x}/{y}`` placeholders.
         """
-        return f"{self.base_url}/tiles/{_encode_path_value(tileset)}/{{z}}/{{x}}/{{y}}"
+        return f"{self.base_url}{self._with_project_query(f'/tiles/{_encode_path_value(tileset)}/{{z}}/{{x}}/{{y}}')}"
 
     def raster_tiles_url(self, name: str) -> str:
         """Get the raster tiles URL template.
@@ -901,7 +971,7 @@ class RoteiroClient:
         Returns:
             URL template with ``{z}/{x}/{y}`` placeholders.
         """
-        return f"{self.base_url}/raster/{_encode_path_value(name)}/tiles/{{z}}/{{x}}/{{y}}"
+        return f"{self.base_url}{self._with_project_query(f'/raster/{_encode_path_value(name)}/tiles/{{z}}/{{x}}/{{y}}')}"
 
     def pmtiles_url(self, archive: str) -> str:
         """Get the PMTiles URL template for an archive.
@@ -912,4 +982,4 @@ class RoteiroClient:
         Returns:
             URL template with ``{z}/{x}/{y}`` placeholders.
         """
-        return f"{self.base_url}/pmtiles/{_encode_path_value(archive)}/{{z}}/{{x}}/{{y}}"
+        return f"{self.base_url}{self._with_project_query(f'/pmtiles/{_encode_path_value(archive)}/{{z}}/{{x}}/{{y}}')}"

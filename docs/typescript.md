@@ -44,6 +44,7 @@ import { RoteiroClient } from '@roteiro/sdk';
 const client = new RoteiroClient({
   baseUrl: 'http://localhost:8080',
   apiKey: 'sk_your_api_key_here',
+  projectId: 42,
   timeout: 30_000,
   maxRetries: 3,
   backoffFactor: 500,
@@ -52,12 +53,15 @@ const client = new RoteiroClient({
 
 `baseUrl` should be the server origin, not `/api`.
 
+Set `projectId` when you want the client to scope requests to a workspace project. The handwritten and generated clients will send `X-Project-ID` automatically, and tile URL helpers append `project_id` for you.
+
 ### Client options
 
 | Option | Type | Description | Default |
 |--------|------|-------------|---------|
 | `baseUrl` | `string` | Server origin | required |
 | `apiKey` | `string` | Sent as `X-API-Key` | `undefined` |
+| `projectId` | `number` | Sent as `X-Project-ID`; also used in tile URL helpers and default request bodies that accept `project_id` | `undefined` |
 | `timeout` | `number` | Request timeout in milliseconds | `30000` |
 | `maxRetries` | `number` | Retries for `429`, `502`, `503`, `504`, and transport failures | `3` |
 | `backoffFactor` | `number` | Exponential backoff base in milliseconds | `500` |
@@ -99,6 +103,8 @@ const uploaded = await client.upload(
 
 const buildings = await client.queryFeatures('buildings', {
   bbox: '-74.01,40.70,-73.97,40.73',
+  bboxCRS: 'EPSG:4326',
+  crs: 'EPSG:3857',
   filter: 'height > 100',
   limit: 50,
 });
@@ -261,7 +267,7 @@ Supported fluent helpers are:
 
 ## Full OpenAPI Coverage
 
-Use `RoteiroGeneratedApi` when you need endpoints that are not wrapped by the handwritten client or domain helpers.
+Use `RoteiroGeneratedApi` when you need endpoints that are not wrapped by the handwritten client or domain helpers, such as preferences, saved queries, project workspace endpoints, or newer API surfaces that have not been elevated into handwritten helpers yet.
 
 ```typescript
 import { RoteiroClient, RoteiroGeneratedApi } from '@roteiro/sdk';

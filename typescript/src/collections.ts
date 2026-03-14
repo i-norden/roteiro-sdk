@@ -40,7 +40,7 @@ export async function getCollection(
  *
  * @param client - An initialised RoteiroClient instance.
  * @param collectionId - The collection identifier.
- * @param params - Optional query parameters (bbox, limit, filter).
+ * @param params - Optional query parameters (bbox, bboxCRS, crs, limit, filter, datetime, offset).
  * @returns A FeatureCollection with matching features.
  */
 export async function getItems(
@@ -50,8 +50,12 @@ export async function getItems(
 ): Promise<FeatureCollection> {
   const sp = new URLSearchParams();
   if (params?.bbox) sp.set('bbox', params.bbox);
+  if (params?.bboxCRS) sp.set('bbox-crs', params.bboxCRS);
+  if (params?.crs) sp.set('crs', params.crs);
   if (params?.limit) sp.set('limit', String(params.limit));
   if (params?.filter) sp.set('filter', params.filter);
+  if (params?.datetime) sp.set('datetime', params.datetime);
+  if (params?.offset !== undefined) sp.set('offset', String(params.offset));
   const q = sp.toString();
   return client.request<FeatureCollection>(
     `/collections/${encodeURIComponent(collectionId)}/items${q ? `?${q}` : ''}`,

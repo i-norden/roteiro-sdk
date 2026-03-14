@@ -25,10 +25,13 @@ class _DummyResponse:
 
 class RoteiroClientTests(unittest.TestCase):
     def test_build_headers_includes_api_key(self):
-        client = RoteiroClient("https://example.com", api_key="secret")
+        client = RoteiroClient(
+            "https://example.com", api_key="secret", project_id=42
+        )
         headers = client._build_headers({"Content-Type": "application/json"})
         self.assertEqual(headers["Accept"], "application/json")
         self.assertEqual(headers["X-API-Key"], "secret")
+        self.assertEqual(headers["X-Project-ID"], "42")
         self.assertEqual(headers["Content-Type"], "application/json")
 
     def test_get_items_builds_expected_query_params(self):
@@ -44,6 +47,8 @@ class RoteiroClientTests(unittest.TestCase):
         fc = client.get_items(
             "roads/primary",
             bbox="1,2,3,4",
+            bbox_crs="EPSG:4326",
+            crs="EPSG:3857",
             limit=5,
             where="kind='road'",
             datetime="2024-01-01T00:00:00Z",
@@ -56,6 +61,8 @@ class RoteiroClientTests(unittest.TestCase):
             parse_qs(parsed.query),
             {
                 "bbox": ["1,2,3,4"],
+                "bbox-crs": ["EPSG:4326"],
+                "crs": ["EPSG:3857"],
                 "limit": ["5"],
                 "filter": ["kind='road'"],
                 "datetime": ["2024-01-01T00:00:00Z"],
@@ -113,7 +120,7 @@ class RoteiroClientTests(unittest.TestCase):
         self.assertEqual(catalog["formats"], ["geojson"])
 
     def test_preflight_process_posts_expected_body(self):
-        client = RoteiroClient("https://example.com")
+        client = RoteiroClient("https://example.com", project_id=42)
         captured = {}
 
         def fake_post(path, body=None):
@@ -135,10 +142,51 @@ class RoteiroClientTests(unittest.TestCase):
                 "operation": "clip",
                 "input": "buildings",
                 "params": {"mask": "study_area"},
+                "project_id": 42,
             },
         )
         self.assertTrue(result.valid)
         self.assertEqual(result.resolved_params["mask_path"], "/tmp/mask.geojson")
+
+    def test_register_dataset_and_upload_apply_project_scope(self):
+        client = RoteiroClient("https://example.com", project_id=42)
+        captured = {}
+
+        def fake_post(path, body=None):
+            captured["register_path"] = path
+            captured["register_body"] = body
+            return {"name": "roads", "path": "/tmp/roads.tif", "format": "geotiff"}
+
+        def fake_upload(path, file_path, field_name="file", extra_fields=None):
+            captured["upload_path"] = path
+            captured["upload_file_path"] = file_path
+            captured["upload_extra_fields"] = extra_fields
+            return {"name": "roads", "path": "/tmp/roads.geojson", "format": "geojson"}
+
+        client._post = fake_post  # type: ignore[method-assign]
+        client._upload_file = fake_upload  # type: ignore[method-assign]
+
+        dataset = client.register_dataset("roads", "/tmp/roads.tif", fmt="geotiff")
+        uploaded = client.upload("/tmp/roads.geojson", name="roads")
+
+        self.assertEqual(captured["register_path"], "/datasets")
+        self.assertEqual(
+            captured["register_body"],
+            {
+                "name": "roads",
+                "path": "/tmp/roads.tif",
+                "format": "geotiff",
+                "crs": "",
+                "project_id": 42,
+            },
+        )
+        self.assertEqual(captured["upload_path"], "/upload")
+        self.assertEqual(
+            captured["upload_extra_fields"],
+            {"name": "roads", "project_id": "42"},
+        )
+        self.assertEqual(dataset.name, "roads")
+        self.assertEqual(uploaded.name, "roads")
 
     def test_list_process_jobs_builds_expected_query_params(self):
         client = RoteiroClient("https://example.com")
@@ -203,7 +251,7 @@ class RoteiroClientTests(unittest.TestCase):
         self.assertEqual(result.count, 2)
 
     def test_get_item_and_tile_urls_encode_path_segments(self):
-        client = RoteiroClient("https://example.com")
+        client = RoteiroClient("https://example.com", project_id=42)
         captured = {}
 
         def fake_get(path):
@@ -220,7 +268,7 @@ class RoteiroClientTests(unittest.TestCase):
         self.assertEqual(feature.id, "feature/1")
         self.assertEqual(
             client.vector_tiles_url("city basemap/2024"),
-            "https://example.com/tiles/city%20basemap%2F2024/{z}/{x}/{y}",
+            "https://example.com/tiles/city%20basemap%2F2024/{z}/{x}/{y}?project_id=42",
         )
 
 

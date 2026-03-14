@@ -51,6 +51,7 @@ export class RoteiroAPIError extends Error {
 export class RoteiroClient {
   private readonly baseUrl: string;
   private readonly apiKey?: string;
+  private readonly projectId?: number;
   private readonly timeout: number;
   private readonly maxRetries: number;
   private readonly backoffFactor: number;
@@ -62,6 +63,7 @@ export class RoteiroClient {
   constructor(options: ClientOptions) {
     this.baseUrl = options.baseUrl.replace(/\/$/, '');
     this.apiKey = options.apiKey;
+    this.projectId = options.projectId;
     this.timeout = options.timeout ?? 30_000;
     this.maxRetries = options.maxRetries ?? 3;
     this.backoffFactor = options.backoffFactor ?? 500;
@@ -81,7 +83,28 @@ export class RoteiroClient {
     if (this.apiKey) {
       headers['X-API-Key'] = this.apiKey;
     }
+    if (this.projectId !== undefined) {
+      headers['X-Project-ID'] = String(this.projectId);
+    }
     return headers;
+  }
+
+  private withDefaultProjectId<T extends { project_id?: number }>(body: T): T {
+    if (body.project_id !== undefined || this.projectId === undefined) {
+      return body;
+    }
+    return {
+      ...body,
+      project_id: this.projectId,
+    };
+  }
+
+  private withProjectQuery(path: string): string {
+    if (this.projectId === undefined) {
+      return path;
+    }
+    const separator = path.includes('?') ? '&' : '?';
+    return `${path}${separator}project_id=${encodeURIComponent(String(this.projectId))}`;
   }
 
   /**
@@ -206,8 +229,10 @@ export class RoteiroClient {
   }
 
   /** Register a new dataset. */
-  async registerDataset(dataset: Partial<Dataset>): Promise<Dataset> {
-    return this.post<Dataset>('/datasets', dataset);
+  async registerDataset(
+    dataset: Partial<Dataset> & { project_id?: number },
+  ): Promise<Dataset> {
+    return this.post<Dataset>('/datasets', this.withDefaultProjectId(dataset));
   }
 
   /** Delete a dataset registration. */
@@ -237,6 +262,8 @@ export class RoteiroClient {
   ): Promise<FeatureCollection> {
     const sp = new URLSearchParams();
     if (params?.bbox) sp.set('bbox', params.bbox);
+    if (params?.bboxCRS) sp.set('bbox-crs', params.bboxCRS);
+    if (params?.crs) sp.set('crs', params.crs);
     if (params?.limit) sp.set('limit', String(params.limit));
     if (params?.filter) sp.set('filter', params.filter);
     if (params?.datetime) sp.set('datetime', params.datetime);
@@ -331,14 +358,18 @@ export class RoteiroClient {
     output_format: string;
     output_name?: string;
     register?: boolean;
+    project_id?: number;
   }): Promise<ConvertResult> {
-    return this.post<ConvertResult>('/api/convert', params);
+    return this.post<ConvertResult>(
+      '/api/convert',
+      this.withDefaultProjectId(params),
+    );
   }
 
   /** Run a spatial processing operation. */
   async process(params: ProcessRequest): Promise<ProcessResult> {
     return this.post<ProcessResult>('/api/process', {
-      ...params,
+      ...this.withDefaultProjectId(params),
       params: params.params ?? {},
     });
   }
@@ -360,18 +391,19 @@ export class RoteiroClient {
   /** Validate and normalize a processing request without executing it. */
   async preflightProcess(params: ProcessRequest): Promise<ProcessPreflightResult> {
     return this.post<ProcessPreflightResult>('/api/process/preflight', {
-      ...params,
+      ...this.withDefaultProjectId(params),
       params: params.params ?? {},
     });
   }
 
   /** Submit an asynchronous processing job. */
   async submitProcessJob(params: ProcessRequest): Promise<ProcessJobRecord> {
+    const scoped = this.withDefaultProjectId(params);
     return this.request<ProcessJobRecord>('/api/process/jobs', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        ...params,
+        ...scoped,
         params: params.params ?? {},
       }),
     });
@@ -392,7 +424,7 @@ export class RoteiroClient {
         jobs: params.jobs.map((job) => ({
           ...job,
           request: {
-            ...job.request,
+            ...this.withDefaultProjectId(job.request),
             params: job.request.params ?? {},
           },
         })),
@@ -472,6 +504,7 @@ export class RoteiroClient {
     file: Blob | ArrayBuffer | ArrayBufferView,
     filename: string,
     name?: string,
+    options: { projectId?: number } = {},
   ): Promise<Dataset> {
     const FormDataCtor = (globalThis as { FormData?: typeof FormData }).FormData;
     const BlobCtor = (globalThis as { Blob?: typeof Blob }).Blob;
@@ -491,6 +524,10 @@ export class RoteiroClient {
     if (name) {
       form.append('name', name);
     }
+    const projectId = options.projectId ?? this.projectId;
+    if (projectId !== undefined) {
+      form.append('project_id', String(projectId));
+    }
 
     return this.request<Dataset>('/upload', {
       method: 'POST',
@@ -504,16 +541,22 @@ export class RoteiroClient {
 
   /** Get the vector tiles URL template for a tileset. */
   vectorTilesUrl(tileset: string): string {
-    return `${this.baseUrl}/tiles/${encodeURIComponent(tileset)}/{z}/{x}/{y}`;
+    return `${this.baseUrl}${this.withProjectQuery(
+      `/tiles/${encodeURIComponent(tileset)}/{z}/{x}/{y}`,
+    )}`;
   }
 
   /** Get the raster tiles URL template for a dataset. */
   rasterTilesUrl(name: string): string {
-    return `${this.baseUrl}/raster/${encodeURIComponent(name)}/tiles/{z}/{x}/{y}`;
+    return `${this.baseUrl}${this.withProjectQuery(
+      `/raster/${encodeURIComponent(name)}/tiles/{z}/{x}/{y}`,
+    )}`;
   }
 
   /** Get the PMTiles URL template for an archive. */
   pmtilesUrl(archive: string): string {
-    return `${this.baseUrl}/pmtiles/${encodeURIComponent(archive)}/{z}/{x}/{y}`;
+    return `${this.baseUrl}${this.withProjectQuery(
+      `/pmtiles/${encodeURIComponent(archive)}/{z}/{x}/{y}`,
+    )}`;
   }
 }

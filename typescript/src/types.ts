@@ -8,6 +8,8 @@ export interface ClientOptions {
   baseUrl: string;
   /** Optional API key for authentication. */
   apiKey?: string;
+  /** Optional project scope applied as `X-Project-ID` and tile/query helpers. */
+  projectId?: number;
   /** Request timeout in milliseconds (default: 30000). */
   timeout?: number;
   /** Maximum number of retry attempts for transient errors (default: 3). */
@@ -87,6 +89,8 @@ export interface FeatureCollection {
 
 export interface QueryParams {
   bbox?: string;
+  bboxCRS?: string;
+  crs?: string;
   limit?: number;
   filter?: string;
   datetime?: string;
@@ -179,6 +183,7 @@ export interface ProcessRequest {
   output_format?: string;
   register?: boolean;
   output_name?: string;
+  project_id?: number;
 }
 
 export type ProcessJobStatus =

@@ -21,6 +21,8 @@ The TypeScript and Python guides now follow the same structure:
 - pipeline builder
 - generated client for full OpenAPI coverage
 
+Both SDKs support project-scoped requests via client configuration (`projectId` in TypeScript, `project_id` in Python), which applies `X-Project-ID` automatically and carries through to generated clients as well.
+
 ## Quick Start
 
 ### TypeScript
