@@ -298,6 +298,31 @@ export async function findPath(
   });
 }
 
+/**
+ * Find the nearest space of a given type from a starting space.
+ *
+ * @param client - An initialised RoteiroClient instance.
+ * @param buildingId - The building identifier.
+ * @param fromSpace - Source space ID.
+ * @param targetType - Type of space to search for (e.g. "restroom", "exit").
+ * @param accessibleOnly - Only use accessible transitions (default: false).
+ * @returns A NavigationResult with path steps, distance, and time estimate.
+ */
+export async function findNearest(
+  client: RoteiroClient,
+  buildingId: string,
+  fromSpace: string,
+  targetType: string,
+  accessibleOnly: boolean = false,
+): Promise<NavigationResult> {
+  return client.post<NavigationResult>('/api/indoor/navigate/nearest', {
+    building_id: buildingId,
+    from: fromSpace,
+    target_type: targetType,
+    accessible_only: accessibleOnly,
+  });
+}
+
 // ---------------------------------------------------------------------------
 // Import
 // ---------------------------------------------------------------------------

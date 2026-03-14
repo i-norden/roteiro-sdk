@@ -555,6 +555,27 @@ export interface RasterKDERequest {
 }
 
 // ---------------------------------------------------------------------------
+// Analysis (Geodesic & Classification)
+// ---------------------------------------------------------------------------
+
+export interface GeodesicAreaResult {
+  index: number;
+  area_sq_m: number;
+}
+
+export interface GeodesicLengthResult {
+  index: number;
+  length_m: number;
+}
+
+export interface ClassifyResult {
+  labels: number[];
+  width: number;
+  height: number;
+  confidence?: number[];
+}
+
+// ---------------------------------------------------------------------------
 // Pipeline
 // ---------------------------------------------------------------------------
 
