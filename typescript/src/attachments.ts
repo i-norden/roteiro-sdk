@@ -73,11 +73,7 @@ export async function downloadAttachment(
   client: RoteiroClient,
   attachmentId: string,
 ): Promise<Blob> {
-  // Use a raw fetch since we need the binary response.
-  const resp = await client.request<Blob>(
-    `/api/attachments/${encodeURIComponent(attachmentId)}`,
-  );
-  return resp;
+  return client.requestBlob(`/api/attachments/${encodeURIComponent(attachmentId)}`);
 }
 
 /**

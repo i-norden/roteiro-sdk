@@ -1,8 +1,10 @@
 # Python SDK Guide
 
-The Roteiro Python SDK (`roteiro`) provides a convenient client for interacting with the roteiro API from Python scripts, Jupyter notebooks, and data pipelines.
+The Python SDK provides three layers for the Cairn/Roteiro API:
 
-For full endpoint parity with server OpenAPI, use `RoteiroGeneratedApi` and the generated operation map in [`generated-operations.md`](./generated-operations.md).
+1. `RoteiroClient` for the handwritten, high-traffic workflows.
+2. Module helpers such as `raster`, `indoor`, `attachments`, `layers`, and `vcs`.
+3. `RoteiroGeneratedApi` for full parity with the server OpenAPI spec and the generated operation map in [`generated-operations.md`](./generated-operations.md).
 
 ## Installation
 
@@ -10,426 +12,242 @@ For full endpoint parity with server OpenAPI, use `RoteiroGeneratedApi` and the 
 pip install roteiro
 ```
 
-Or install from source:
+From source:
 
 ```bash
 cd python
 pip install -e .
 ```
 
-## Authentication
-
-The client supports two authentication methods:
-
-### API key (recommended for scripts)
+## Create a Client
 
 ```python
 from roteiro import RoteiroClient
 
 client = RoteiroClient(
     base_url="http://localhost:8080",
-    api_key="sk_your_api_key_here"
+    api_key="sk_your_api_key_here",
+    timeout=30,
+    max_retries=3,
+    backoff_factor=0.5,
 )
 ```
 
-### Session cookie (for browser-like flows)
+`base_url` should be the server origin, not `/api`.
 
-The client does not directly manage session cookies. For session-based auth, use the `requests` library or the API key method above.
+### Client options
 
-### Timeout configuration
+| Option | Type | Description | Default |
+|--------|------|-------------|---------|
+| `base_url` | `str` | Server origin | required |
+| `api_key` | `str | None` | Sent as `X-API-Key` | `None` |
+| `timeout` | `int` | Request timeout in seconds | `30` |
+| `max_retries` | `int` | Retries for `429`, `502`, `503`, `504`, and transport failures | `3` |
+| `backoff_factor` | `float` | Exponential backoff base in seconds | `0.5` |
 
-```python
-client = RoteiroClient(
-    base_url="http://localhost:8080",
-    api_key="sk_abc123",
-    timeout=60  # seconds
-)
-```
+## Core Client Surface
 
-## Health Check
+`RoteiroClient` covers the main handwritten SDK surface:
+
+| Area | Methods |
+|------|---------|
+| Health and datasets | `health`, `list_datasets`, `register_dataset`, `delete_dataset`, `upload` |
+| Collections and features | `list_collections`, `get_collection`, `get_items`, `query_features`, `get_item`, `get_feature`, `create_item`, `create_feature`, `update_item`, `update_feature`, `delete_item`, `delete_feature` |
+| Processing | `convert`, `process`, `diff`, `list_operations`, `preflight_process`, `submit_process_job`, `submit_process_batch`, `list_process_jobs`, `get_process_job`, `cancel_process_job`, `rerun_process_job` |
+| Raster workflow helpers | `raster_process`, `raster_mosaic`, `get_raster_mosaic_info` |
+| Tile URL helpers | `vector_tiles_url`, `raster_tiles_url`, `pmtiles_url` |
+
+### Common usage
 
 ```python
 health = client.health()
-print(health)
-# {'status': 'ok', 'uptime': 3600, 'version': '0.1.0', 'database': 'ok'}
-```
 
-## Datasets
-
-### List datasets
-
-```python
 datasets = client.list_datasets()
-for ds in datasets:
-    print(f"{ds['name']}: {ds['format']} ({ds.get('feature_count', 'N/A')} features)")
-```
 
-### Register a dataset
-
-```python
-ds = client.register_dataset(
+parcels = client.register_dataset(
     name="parcels",
     path="/data/parcels.geojson",
     fmt="geojson",
-    crs="EPSG:4326"
+    crs="EPSG:4326",
 )
-print(f"Registered: {ds['name']}")
-```
 
-### Delete a dataset
+uploaded = client.upload("./data/empty.geojson", name="empty")
 
-```python
-client.delete_dataset("parcels")
-```
-
-## Collections and Features
-
-### List OGC collections
-
-```python
-collections = client.list_collections()
-for col in collections:
-    print(f"{col['id']}: {col.get('title', col['id'])}")
-```
-
-### Get collection metadata
-
-```python
-col = client.get_collection("buildings")
-print(f"CRS: {col.get('crs', 'unknown')}")
-print(f"Extent: {col.get('extent', {})}")
-```
-
-### Query features
-
-```python
-# Basic query with limit
-result = client.query_features("buildings", limit=100)
-print(f"Returned {result['numberReturned']} of {result['numberMatched']} features")
-
-# Bounding box filter
-result = client.query_features(
+buildings = client.query_features(
     "buildings",
     bbox="-74.01,40.70,-73.97,40.73",
-    limit=50
-)
-
-# Attribute filter
-result = client.query_features(
-    "buildings",
     filter_expr="height > 100",
-    limit=20
+    limit=50,
 )
 
-# Combined filters
-result = client.query_features(
+created = client.create_feature(
     "buildings",
-    bbox="-74.01,40.70,-73.97,40.73",
-    filter_expr="type = 'commercial'",
-    limit=50
-)
-```
-
-### Get a single feature
-
-```python
-feature = client.get_feature("buildings", "42")
-print(f"Geometry type: {feature['geometry']['type']}")
-print(f"Properties: {feature['properties']}")
-```
-
-### Create a feature
-
-```python
-new_feature = {
-    "type": "Feature",
-    "geometry": {
-        "type": "Point",
-        "coordinates": [-73.985, 40.748]
+    {
+        "type": "Feature",
+        "geometry": {"type": "Point", "coordinates": [-73.985, 40.748]},
+        "properties": {"name": "New Building"},
     },
-    "properties": {
-        "name": "New Building",
-        "height": 50
-    }
-}
-
-created = client.create_feature("buildings", new_feature)
-print(f"Created feature ID: {created.get('id')}")
-```
-
-## Geoprocessing
-
-### Run a processing operation
-
-```python
-# Buffer
-result = client.process(
-    operation="buffer",
-    input_path="buildings",
-    params={"distance": 100}
 )
-print(f"Operation: {result['operation']}")
-print(f"Input features: {result['input_features']}")
-print(f"Output features: {result['output_features']}")
-print(f"Duration: {result['duration_ms']}ms")
-```
 
-### Available operations
-
-```python
-catalog = client.list_operations()
-print("Formats:", catalog["formats"])
-print("Operation count:", len(catalog["operations"]))
-
-for op in catalog["operations"]:
-    print(op["name"], op["params"])
-
-# Example param names from current server catalog:
-client.process("dissolve", "dataset", params={"group_by": "category"})
-client.process("clip", "dataset", params={"mask": "boundary"})
-client.process("sjoin", "points", params={"right": "polygons", "predicate": "within"})
-client.process("reproject", "dataset", params={"from_crs": "EPSG:4326", "to_crs": "EPSG:3857"})
-```
-
-### Validate before submitting an async job
-
-```python
 preflight = client.preflight_process(
     "clip",
     input_path="buildings",
     params={"mask": "study_area"},
 )
-if not preflight.valid:
-    print(preflight.errors)
 
-job = client.submit_process_job(
-    "clip",
-    input_path="buildings",
-    params={"mask": "study_area"},
-    output_name="buildings_clipped",
-)
-print(job.id, job.status, job.phase)
+if preflight.valid:
+    job = client.submit_process_job(
+        "clip",
+        input_path="buildings",
+        params={"mask": "study_area"},
+        output_name="buildings_clipped",
+    )
+    print(job.id)
 ```
 
-### Run raster processing
+### Processing request shape
+
+The handwritten client uses positional arguments plus keyword options for processing:
+
+```python
+result = client.process(
+    "buffer",
+    input_path="buildings",
+    params={"distance": 100},
+    output_format="geojson",
+)
+```
+
+Fetch the live catalog from the server for currently enabled operations and formats:
+
+```python
+catalog = client.list_operations()
+print([op["name"] for op in catalog["operations"]])
+```
+
+## Domain Modules
+
+Domain helpers are standalone modules, not `RoteiroClient` instance methods.
+
+```python
+from roteiro import attachments, indoor, layers, raster, vcs
+```
+
+| Module | Key helpers |
+|--------|-------------|
+| `collections` | `list_collections`, `get_collection`, `get_items`, `get_item`, `create_item`, `update_item`, `delete_item` |
+| `attachments` | `upload_attachment`, `list_attachments`, `download_attachment`, `delete_attachment` |
+| `layers` | `upload_layer`, `list_layers`, `get_layer`, `update_layer`, `publish_layer`, `archive_layer`, `upload_layer_data`, `delete_layer`, `preview_layer` |
+| `vcs` | `init_repo`, `commit`, `log`, `diff`, `checkout` |
+| `raster` | `get_raster_info`, `get_raster_stats`, `get_raster_histogram`, `get_raster_dimensions`, `get_raster_band_values`, `band_math`, `ndvi`, `hillshade`, `zonal_stats`, `export_raster`, `contour`, `viewshed`, `elevation_profile`, `kde`, `process`, `mosaic`, `get_mosaic_info` |
+| `indoor` | `list_buildings`, `get_building`, `create_building`, `update_building`, `delete_building`, `list_floors`, `create_floor`, `list_spaces`, `create_space`, `get_space`, `list_assets`, `create_asset`, `find_path`, `parse_indoor_gml`, `import_ifc`, `get_occupancy`, `get_evacuation_routes` |
+
+### Example: raster helpers
 
 ```python
 from roteiro import raster
 
-terrain = client.raster_process(
-    "slope",
-    input_path="/data/dem.tif",
-)
-print(terrain["width"], terrain["height"])
-
-ndvi_png = raster.ndvi(client, "landsat_scene", nir_band=4, red_band=3)
-print(len(ndvi_png))
-
-zonal = raster.zonal_stats(client, "dem", "watersheds", band=0)
-print(len(zonal.zones))
-
-exported = raster.export_raster(client, "dem", "analysis/dem_band1.tif", band=0)
-print(exported.message)
-
+info = raster.get_raster_info(client, "dem")
+stats = raster.get_raster_stats(client, "dem", band=0)
+ndvi = raster.ndvi(client, "landsat_scene", nir_band=4, red_band=3)
 contours = raster.contour(client, "dem", interval=5)
-view = raster.viewshed(client, "dem", observer_x=-122.4, observer_y=37.8)
-profile = raster.elevation_profile(
+```
+
+### Example: indoor helpers
+
+```python
+from roteiro import indoor
+
+buildings = indoor.list_buildings(client)
+
+route = indoor.find_path(
     client,
-    "dem",
-    [[-122.4, 37.7], [-122.3, 37.8]],
+    "hq",
+    "lobby",
+    "room-201",
+    accessible_only=True,
 )
-density = raster.kde(client, "points", bandwidth=50)
 ```
 
-The generic raster process endpoint currently supports terrain (`slope`, `aspect`, `profile_curvature`, `plan_curvature`, `general_curvature`), hydrology (`fill`, `flow_direction`, `flow_accumulation`, `watershed`, `stream_order`, `snap_pour_point`, `basin_labels`), distance/cost, spectral/change, classification, and raster-vector conversion operations. Dedicated JSON routes are also available for `contour`, `viewshed`, `profile`, and `kde`.
+## Pipeline Builder
 
-### Convert formats
+Use `Pipeline` when you want a compact, fluent wrapper around repeated `/api/process` calls:
 
 ```python
-result = client.convert(
-    input_path="buildings",
-    output_format="parquet",
-    output_name="buildings_parquet",
-    register=True
+from roteiro import Pipeline
+
+result = (
+    Pipeline(client)
+    .buffer(distance=100)
+    .simplify(tolerance=10)
+    .reproject(from_crs="EPSG:4326", to_crs="EPSG:3857")
+    .execute("buildings")
 )
-print(f"Converted: {result['message']}")
-print(f"Duration: {result['duration_ms']}ms")
 ```
 
-### Compare datasets
+Supported fluent helpers are:
+
+- `buffer`
+- `clip`
+- `simplify`
+- `union`
+- `intersect`
+- `sjoin`
+- `reproject`
+- `centroid`
+- `convex_hull`
+- `aggregate`
+- `spatial_stats`
+- `interpolate`
+
+## Full OpenAPI Coverage
+
+Use `RoteiroGeneratedApi` when you need endpoints that are not wrapped by the handwritten client or module helpers.
 
 ```python
-diff = client.diff(
-    left="buildings",
-    right="buildings_v2",
-    match_field="id"
-)
-print(f"Added: {diff['added']}")
-print(f"Removed: {diff['removed']}")
-print(f"Modified: {diff['modified']}")
-print(f"Unchanged: {diff['unchanged']}")
+from roteiro import RoteiroClient, RoteiroGeneratedApi
+
+client = RoteiroClient("http://localhost:8080")
+api = RoteiroGeneratedApi(client)
+
+docs_manifest = api.auto_get_api_docs_public_manifest()
+public_map = api.get_public_map("share-token")
 ```
 
-## Indoor GIS
-
-### List buildings
-
-```python
-buildings = client.list_buildings()
-for b in buildings:
-    print(f"{b['id']}: {b['name']} ({b.get('address', 'N/A')})")
-```
-
-### Get building details
-
-```python
-building = client.get_building("bldg-001")
-print(f"Building: {building['name']}")
-print(f"Floors: {len(building.get('floors', []))}")
-print(f"Transitions: {len(building.get('transitions', []))}")
-```
-
-### Create a building
-
-```python
-building = client.create_building({
-    "id": "bldg-001",
-    "name": "Main Office",
-    "address": "123 Main St",
-    "floors": [
-        {
-            "id": "floor-1",
-            "name": "Ground Floor",
-            "level": 0,
-            "spaces": [
-                {
-                    "id": "lobby",
-                    "name": "Main Lobby",
-                    "space_type": "lobby",
-                    "navigable": True,
-                    "connections": ["hallway-1"]
-                },
-                {
-                    "id": "hallway-1",
-                    "name": "Main Hallway",
-                    "space_type": "hallway",
-                    "navigable": True,
-                    "connections": ["lobby", "room-101"]
-                }
-            ]
-        }
-    ],
-    "transitions": [
-        {
-            "id": "elevator-1",
-            "name": "Main Elevator",
-            "transition_type": "elevator",
-            "connects_floors": [0, 1, 2],
-            "accessible": True,
-            "bidirectional": True
-        }
-    ]
-})
-```
-
-### Navigate between spaces
-
-```python
-route = client.navigate(
-    building_id="bldg-001",
-    from_space="lobby",
-    to_space="room-201",
-    accessible_only=True
-)
-print(f"Total distance: {route['totalDistance']}m")
-print(f"Floor changes: {route['floorChanges']}")
-print(f"Estimated time: {route['estimatedTimeSeconds']}s")
-for step in route['path']:
-    print(f"  -> {step['instruction']} ({step['spaceName']}, floor {step['floorLevel']})")
-```
-
-### List floors and spaces
-
-```python
-floors = client.list_floors("bldg-001")
-for floor in floors:
-    print(f"Level {floor['level']}: {floor['name']}")
-
-spaces = client.list_spaces("bldg-001", level=0)
-for space in spaces:
-    print(f"  {space['name']} ({space['space_type']})")
-```
-
-### Delete a building
-
-```python
-client.delete_building("bldg-001")
-```
-
-## Tile URL Helpers
-
-Generate tile URL templates for use with mapping libraries:
-
-```python
-# Vector tiles
-vt_url = client.vector_tiles_url("buildings")
-print(vt_url)
-# http://localhost:8080/tiles/buildings/{z}/{x}/{y}
-
-# Raster tiles
-rt_url = client.raster_tiles_url("elevation")
-print(rt_url)
-# http://localhost:8080/raster/elevation/tiles/{z}/{x}/{y}
-```
-
-## Complete Example: Analysis Pipeline
-
-```python
-from roteiro import RoteiroClient
-
-client = RoteiroClient("http://localhost:8080", api_key="sk_abc123")
-
-# 1. Check server health
-health = client.health()
-assert health["status"] == "ok"
-
-# 2. List available datasets
-datasets = client.list_datasets()
-print(f"Found {len(datasets)} datasets")
-
-# 3. Query features within a bounding box
-features = client.query_features(
-    "buildings",
-    bbox="-74.01,40.70,-73.97,40.73",
-    filter_expr="height > 50"
-)
-print(f"Found {features['numberMatched']} tall buildings in downtown")
-
-# 4. Buffer the buildings by 100 meters
-result = client.process("buffer", "buildings", params={"distance": 100})
-print(f"Buffered {result['input_features']} buildings -> {result['output_features']} polygons")
-
-# 5. Convert the result to GeoPackage
-convert = client.convert("buildings_buffer", "gpkg", output_name="buildings_buffered")
-print(f"Exported to: {convert['dataset']['path']}")
-
-# 6. Compare original with the new version
-diff = client.diff("buildings", "buildings_v2", match_field="id")
-print(f"Changes: +{diff['added']} -{diff['removed']} ~{diff['modified']}")
-```
+Generated method names are intentionally mechanical. Use [`generated-operations.md`](./generated-operations.md) to map HTTP routes to TypeScript and Python method names.
 
 ## Error Handling
 
-All API errors raise SDK exceptions such as `RoteiroAPIError`:
+The handwritten client raises `RoteiroAPIError` for non-success HTTP responses, plus `RoteiroConnectionError` and `RoteiroTimeoutError` for transport failures:
 
 ```python
-from roteiro import RoteiroAPIError
+from roteiro import (
+    RoteiroAPIError,
+    RoteiroConnectionError,
+    RoteiroTimeoutError,
+)
 
 try:
-    client.get_collection("nonexistent")
-except RoteiroAPIError as e:
-    print(f"API error: {e}")
-    # API error: collection not found
+    client.get_collection("missing")
+except RoteiroAPIError as exc:
+    print(exc.status_code, exc)
+except (RoteiroConnectionError, RoteiroTimeoutError) as exc:
+    print(exc)
 ```
 
-HTTP error codes are converted to typed SDK errors with the server's message when available.
+## Models
+
+The package exports the handwritten client models directly from `roteiro`.
+
+```python
+from roteiro import (
+    Collection,
+    Dataset,
+    Feature,
+    FeatureCollection,
+    ProcessJobRecord,
+    ProcessPreflightResult,
+    ProcessResult,
+    RasterInfo,
+)
+```

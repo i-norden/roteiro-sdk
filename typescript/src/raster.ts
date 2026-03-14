@@ -112,6 +112,56 @@ export async function hillshade(
 }
 
 /**
+ * Compute slope from a DEM and return as PNG bytes.
+ *
+ * @param client - An initialised RoteiroClient instance.
+ * @param inputName - Name of the raster dataset.
+ * @param band - Band index to use for slope computation (default: 0).
+ * @param colormap - Color ramp to apply (default: "greyscale").
+ * @returns PNG image bytes as a Blob.
+ */
+export async function slope(
+  client: RoteiroClient,
+  inputName: string,
+  band: number = 0,
+  colormap: string = 'greyscale',
+): Promise<Blob> {
+  return client.requestBlob(
+    `/raster/${encodeURIComponent(inputName)}/slope`,
+    {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ band, colormap }),
+    },
+  );
+}
+
+/**
+ * Compute aspect from a DEM and return as PNG bytes.
+ *
+ * @param client - An initialised RoteiroClient instance.
+ * @param inputName - Name of the raster dataset.
+ * @param band - Band index to use for aspect computation (default: 0).
+ * @param colormap - Color ramp to apply (default: "hsv").
+ * @returns PNG image bytes as a Blob.
+ */
+export async function aspect(
+  client: RoteiroClient,
+  inputName: string,
+  band: number = 0,
+  colormap: string = 'hsv',
+): Promise<Blob> {
+  return client.requestBlob(
+    `/raster/${encodeURIComponent(inputName)}/aspect`,
+    {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ band, colormap }),
+    },
+  );
+}
+
+/**
  * Compute zonal statistics for a raster dataset.
  *
  * Calculates statistics (min, max, mean, count, sum) for each zone

@@ -1,10 +1,10 @@
 """Core HTTP client for the Roteiro GIS API.
 
 Provides a ``RoteiroClient`` class with automatic retry, exponential back-off,
-custom error handling, and typed helper methods for every API domain.  Domain-
-specific logic is split into separate modules (``collections``, ``layers``,
-``vcs``, ``pipeline``, ``attachments``, ``raster``, ``indoor``) which are
-mixed into the client at import time.
+custom error handling, and typed helper methods for the core handwritten SDK
+surface. Domain-specific helpers also live in separate modules
+(``collections``, ``layers``, ``vcs``, ``pipeline``, ``attachments``,
+``raster``, ``indoor``) which accept a ``RoteiroClient`` instance.
 """
 
 from __future__ import annotations

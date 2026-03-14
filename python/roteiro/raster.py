@@ -116,6 +116,56 @@ def hillshade(
     )
 
 
+def slope(
+    client: RoteiroClient,
+    input_name: str,
+    band: int = 0,
+    colormap: str = "greyscale",
+) -> bytes:
+    """Compute slope from a DEM and return as PNG bytes.
+
+    Args:
+        client: An initialised RoteiroClient instance.
+        input_name: Name of the raster dataset.
+        band: Band index to use for slope computation.
+        colormap: Color ramp to apply (default: ``greyscale``).
+
+    Returns:
+        PNG image bytes of the slope result.
+    """
+    return client._request_bytes(
+        "POST",
+        f"/raster/{_encode_path_value(input_name)}/slope",
+        {"band": band, "colormap": colormap},
+        {"Accept": "image/png"},
+    )
+
+
+def aspect(
+    client: RoteiroClient,
+    input_name: str,
+    band: int = 0,
+    colormap: str = "hsv",
+) -> bytes:
+    """Compute aspect from a DEM and return as PNG bytes.
+
+    Args:
+        client: An initialised RoteiroClient instance.
+        input_name: Name of the raster dataset.
+        band: Band index to use for aspect computation.
+        colormap: Color ramp to apply (default: ``hsv``).
+
+    Returns:
+        PNG image bytes of the aspect result.
+    """
+    return client._request_bytes(
+        "POST",
+        f"/raster/{_encode_path_value(input_name)}/aspect",
+        {"band": band, "colormap": colormap},
+        {"Accept": "image/png"},
+    )
+
+
 def zonal_stats(
     client: RoteiroClient,
     raster_name: str,

@@ -1,7 +1,6 @@
 # Roteiro SDKs
 
-Standalone SDK repository for Roteiro API clients and public plugin-development
-documentation.
+Standalone SDK repository for the Cairn/Roteiro API clients and public plugin-development documentation.
 
 ## Packages
 
@@ -14,6 +13,13 @@ documentation.
 - Python guide: [`docs/python.md`](./docs/python.md)
 - Plugin development reference: [`docs/plugins.md`](./docs/plugins.md)
 - Generated operations map: [`docs/generated-operations.md`](./docs/generated-operations.md)
+
+The TypeScript and Python guides now follow the same structure:
+
+- handwritten client surface
+- domain namespace or module helpers
+- pipeline builder
+- generated client for full OpenAPI coverage
 
 ## Quick Start
 
@@ -34,7 +40,4 @@ pip install -e .
 
 ## Plugin Development Docs
 
-This repo is also the public home for plugin-development documentation. It does
-not currently publish a standalone plugin runtime package; the plugin docs are
-limited to the public manifest and marketplace contract until that tooling is
-versioned and released here.
+This repo is also the public home for plugin-development documentation. It does not currently publish a standalone plugin runtime package; the plugin docs are limited to the public manifest and marketplace contract until that tooling is versioned and released here.

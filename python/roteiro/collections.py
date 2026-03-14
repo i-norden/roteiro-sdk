@@ -1,8 +1,7 @@
 """OGC API Features collections and feature operations.
 
 This module provides standalone functions that operate on a ``RoteiroClient``
-instance.  They are also accessible as methods on ``RoteiroClient`` directly
-(the client class delegates to these).
+instance.
 """
 
 from __future__ import annotations

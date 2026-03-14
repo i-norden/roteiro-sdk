@@ -145,3 +145,16 @@ def delete_layer(client: RoteiroClient, layer_id: str) -> None:
         layer_id: The identifier of the layer to delete.
     """
     client._delete(f"/api/layers/{_encode_path_value(layer_id)}")
+
+
+def preview_layer(client: RoteiroClient, layer_id: str) -> Any:
+    """Fetch a lightweight preview payload for a hosted layer.
+
+    Args:
+        client: An initialised RoteiroClient instance.
+        layer_id: The identifier of the layer.
+
+    Returns:
+        The preview payload returned by the server.
+    """
+    return client._get(f"/api/layers/{_encode_path_value(layer_id)}/preview")

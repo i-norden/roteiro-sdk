@@ -127,6 +127,38 @@ describe('RoteiroClient', () => {
     expect(result).toEqual([]);
   });
 
+  it('uploads datasets as multipart form data', async () => {
+    const fetchMock = vi.fn(async (url: string, init?: RequestInit) => {
+      expect(new URL(url).pathname).toBe('/upload');
+      expect(init?.method).toBe('POST');
+      expect(init?.body).toBeInstanceOf(FormData);
+      const form = init?.body as FormData;
+      expect(form.get('name')).toBe('roads');
+      expect(form.get('file')).toBeInstanceOf(File);
+      return new Response(
+        JSON.stringify({
+          name: 'roads',
+          path: '/tmp/roads.geojson',
+          format: 'geojson',
+        }),
+        { status: 200 },
+      );
+    });
+
+    const client = new RoteiroClient({
+      baseUrl: 'https://example.com',
+      fetch: fetchMock as typeof globalThis.fetch,
+    });
+
+    const result = await client.upload(
+      new Uint8Array([1, 2, 3]),
+      'roads.geojson',
+      'roads',
+    );
+
+    expect(result.name).toBe('roads');
+  });
+
   it('retries retryable responses and then succeeds', async () => {
     const fetchMock = vi
       .fn()

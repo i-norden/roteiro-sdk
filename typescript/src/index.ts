@@ -2,6 +2,7 @@
 export { RoteiroClient, RoteiroAPIError } from './client';
 
 // Domain modules (namespace exports)
+export * as analysis from './analysis';
 export * as collections from './collections';
 export * as layers from './layers';
 export * as vcs from './vcs';
@@ -88,6 +89,10 @@ export type {
   RasterStats,
   // Raster
   ZonalStatsResult,
+  // Analysis
+  GeodesicAreaResult,
+  GeodesicLengthResult,
+  ClassifyResult,
   // Pipeline
   PipelineStep,
 } from './types';
