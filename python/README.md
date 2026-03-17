@@ -74,7 +74,7 @@ print(health.status, len(collections), len(features.features), len(areas), len(h
 | `layers` | `upload_layer`, `list_layers`, `get_layer`, `update_layer`, `publish_layer`, `archive_layer`, `upload_layer_data`, `delete_layer`, `preview_layer` |
 | `vcs` | `init_repo`, `commit`, `log`, `diff`, `checkout` |
 | `raster` | `get_raster_info`, `get_raster_stats`, `get_raster_histogram`, `get_raster_dimensions`, `get_raster_band_values`, `band_math`, `ndvi`, `hillshade`, `zonal_stats`, `export_raster`, `contour`, `viewshed`, `elevation_profile`, `kde`, `process`, `mosaic`, `get_mosaic_info` |
-| `indoor` | `list_buildings`, `get_building`, `create_building`, `update_building`, `delete_building`, `list_floors`, `create_floor`, `list_spaces`, `create_space`, `get_space`, `list_assets`, `create_asset`, `find_path`, `parse_indoor_gml`, `import_ifc`, `get_occupancy`, `get_evacuation_routes` |
+| `indoor` | `list_buildings`, `get_building`, `create_building`, `update_building`, `delete_building`, `list_floors`, `create_floor`, `list_spaces`, `create_space`, `get_space`, `list_assets`, `create_asset`, `find_path`, `parse_indoor_gml`, `import_ifc`, `import_indoor_file`, `import_imdf`, `get_occupancy`, `get_evacuation_routes` |
 
 ## Full API Coverage
 

@@ -17,6 +17,14 @@ import type {
   OccupancyData,
 } from './types';
 
+function inferIndoorImportFormat(filename: string): IndoorModel['source_format'] {
+  const lower = filename.toLowerCase();
+  if (lower.endsWith('.ifc')) return 'ifc';
+  if (lower.endsWith('.gml') || lower.endsWith('.xml')) return 'indoorgml';
+  if (lower.endsWith('.imdf.zip') || lower.endsWith('.zip')) return 'imdf';
+  return undefined;
+}
+
 // ---------------------------------------------------------------------------
 // Buildings
 // ---------------------------------------------------------------------------
@@ -351,7 +359,7 @@ export async function parseIndoorGml(
       body: fileContent,
     },
   );
-  return { building: resp, source_format: 'indoorgml' };
+  return { building: resp, source_format: inferIndoorImportFormat(filename) };
 }
 
 /**
@@ -375,7 +383,51 @@ export async function importIfc(
       body: fileContent,
     },
   );
-  return { building: resp, source_format: 'ifc' };
+  return { building: resp, source_format: inferIndoorImportFormat(filename) };
+}
+
+/**
+ * Import an indoor model file using Cairn's multipart upload endpoint.
+ *
+ * Supports IFC, IndoorGML, and IMDF archives.
+ *
+ * @param client - An initialised RoteiroClient instance.
+ * @param file - The file as a Blob or File object.
+ * @param filename - Filename used for server-side format detection.
+ * @returns The imported IndoorModel.
+ */
+export async function importIndoorFile(
+  client: RoteiroClient,
+  file: Blob,
+  filename: string,
+): Promise<IndoorModel> {
+  const formData = new FormData();
+  formData.append('file', file, filename);
+
+  const building = await client.request<IndoorBuilding>('/api/indoor/import', {
+    method: 'POST',
+    body: formData,
+  });
+  return {
+    building,
+    source_format: inferIndoorImportFormat(filename),
+  };
+}
+
+/**
+ * Import an IMDF archive using Cairn's multipart upload endpoint.
+ *
+ * @param client - An initialised RoteiroClient instance.
+ * @param file - The IMDF ZIP archive.
+ * @param filename - Filename hint for format detection.
+ * @returns The imported IndoorModel.
+ */
+export async function importImdf(
+  client: RoteiroClient,
+  file: Blob,
+  filename: string = 'model.imdf.zip',
+): Promise<IndoorModel> {
+  return importIndoorFile(client, file, filename);
 }
 
 // ---------------------------------------------------------------------------

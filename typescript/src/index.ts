@@ -28,6 +28,7 @@ export type {
   Feature,
   FeatureCollection,
   GeoJSONGeometry,
+  Link,
   QueryParams,
   // Processing
   ConvertResult,
@@ -64,7 +65,10 @@ export type {
   IndoorModel,
   NavigationStep,
   NavigationResult,
+  OccupancyFloorSummary,
+  OccupancySpaceSummary,
   OccupancyData,
+  OccupancyTypeSummary,
   // Hosted Layers
   HostedLayer,
   // Attachments
