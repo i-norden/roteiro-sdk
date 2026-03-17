@@ -51,6 +51,7 @@ class FeatureCollection:
     features: List[Feature] = field(default_factory=list)
     number_matched: Optional[int] = None
     number_returned: Optional[int] = None
+    links: List[Dict[str, Any]] = field(default_factory=list)
 
     @classmethod
     def from_dict(cls, data: Dict[str, Any]) -> "FeatureCollection":
@@ -61,6 +62,26 @@ class FeatureCollection:
             features=features,
             number_matched=data.get("numberMatched"),
             number_returned=data.get("numberReturned"),
+            links=list(data.get("links", []) or []),
+        )
+
+
+@dataclass
+class Link:
+    """An OGC-style hypermedia link."""
+
+    href: str
+    rel: str
+    type: Optional[str] = None
+    title: Optional[str] = None
+
+    @classmethod
+    def from_dict(cls, data: Dict[str, Any]) -> "Link":
+        return cls(
+            href=data.get("href", ""),
+            rel=data.get("rel", ""),
+            type=data.get("type"),
+            title=data.get("title"),
         )
 
 
@@ -73,9 +94,13 @@ class Collection:
     path: str = ""
     format: str = ""
     crs: str = ""
+    storage_type: Optional[str] = None
+    feature_count: Optional[int] = None
+    geometry_type: Optional[str] = None
     title: Optional[str] = None
     description: Optional[str] = None
     extent: Optional[Dict[str, Any]] = None
+    links: List[Link] = field(default_factory=list)
 
     @classmethod
     def from_dict(cls, data: Dict[str, Any]) -> "Collection":
@@ -85,9 +110,17 @@ class Collection:
             path=data.get("path", ""),
             format=data.get("format", ""),
             crs=data.get("crs", ""),
+            storage_type=data.get("storage_type"),
+            feature_count=data.get("feature_count"),
+            geometry_type=data.get("geometryType"),
             title=data.get("title"),
             description=data.get("description"),
             extent=data.get("extent"),
+            links=[
+                Link.from_dict(item)
+                for item in data.get("links", [])
+                if isinstance(item, dict)
+            ],
         )
 
 
@@ -104,8 +137,10 @@ class Dataset:
     path: str
     format: str = ""
     crs: str = ""
+    status: Optional[str] = None
     feature_count: Optional[int] = None
     bounds: Optional[List[float]] = None
+    description: Optional[str] = None
 
     @classmethod
     def from_dict(cls, data: Dict[str, Any]) -> "Dataset":
@@ -114,8 +149,10 @@ class Dataset:
             path=data.get("path", ""),
             format=data.get("format", ""),
             crs=data.get("crs", ""),
+            status=data.get("status"),
             feature_count=data.get("feature_count"),
             bounds=data.get("bounds"),
+            description=data.get("description"),
         )
 
 
@@ -501,9 +538,11 @@ class IndoorBuilding:
 
     id: str
     name: str
+    campus_id: Optional[str] = None
     address: str = ""
     metadata: Optional[Dict[str, str]] = None
     bounds: Optional[Any] = None
+    created_by: Optional[int] = None
     created_at: str = ""
     updated_at: str = ""
     floors: Optional[List["IndoorFloor"]] = None
@@ -519,10 +558,12 @@ class IndoorBuilding:
             transitions = [IndoorTransition.from_dict(t) for t in data["transitions"]]
         return cls(
             id=data.get("id", ""),
+            campus_id=data.get("campus_id"),
             name=data.get("name", ""),
             address=data.get("address", ""),
             metadata=data.get("metadata"),
             bounds=data.get("bounds"),
+            created_by=data.get("created_by"),
             created_at=data.get("created_at", ""),
             updated_at=data.get("updated_at", ""),
             floors=floors,
@@ -541,6 +582,8 @@ class IndoorFloor:
     elevation: float = 0.0
     height: float = 0.0
     outline: Optional[Any] = None
+    plan_image: Optional[str] = None
+    plan_bounds: Optional[List[float]] = None
     created_at: str = ""
 
     @classmethod
@@ -553,6 +596,8 @@ class IndoorFloor:
             elevation=data.get("elevation", 0.0),
             height=data.get("height", 0.0),
             outline=data.get("outline"),
+            plan_image=data.get("plan_image"),
+            plan_bounds=data.get("plan_bounds"),
             created_at=data.get("created_at", ""),
         )
 
@@ -627,8 +672,13 @@ class IndoorAsset:
     floor_id: str = ""
     space_id: str = ""
     asset_type: str = ""
+    asset_category: str = ""
     position: Optional[Any] = None
     properties: Optional[Dict[str, Any]] = None
+    status: str = ""
+    last_seen: Optional[str] = None
+    created_at: str = ""
+    updated_at: str = ""
 
     @classmethod
     def from_dict(cls, data: Dict[str, Any]) -> "IndoorAsset":
@@ -639,8 +689,13 @@ class IndoorAsset:
             floor_id=data.get("floor_id", ""),
             space_id=data.get("space_id", ""),
             asset_type=data.get("asset_type", ""),
+            asset_category=data.get("asset_category", ""),
             position=data.get("position"),
             properties=data.get("properties"),
+            status=data.get("status", ""),
+            last_seen=data.get("last_seen"),
+            created_at=data.get("created_at", ""),
+            updated_at=data.get("updated_at", ""),
         )
 
 
@@ -717,13 +772,24 @@ class HostedLayer:
     id: str = ""
     name: str = ""
     description: str = ""
-    format: str = ""
+    owner_id: Optional[int] = None
     status: str = ""
-    path: str = ""
+    source_format: str = ""
+    source_path: str = ""
+    published_path: Optional[str] = None
     feature_count: Optional[int] = None
-    bounds: Optional[List[float]] = None
+    bbox: Optional[List[float]] = None
+    crs: str = ""
+    properties: Optional[Dict[str, Any]] = None
+    style: Optional[Dict[str, Any]] = None
+    tags: List[str] = field(default_factory=list)
     created_at: str = ""
     updated_at: str = ""
+    published_at: Optional[str] = None
+    error_message: Optional[str] = None
+    format: str = ""
+    path: str = ""
+    bounds: Optional[List[float]] = None
 
     @classmethod
     def from_dict(cls, data: Dict[str, Any]) -> "HostedLayer":
@@ -731,13 +797,24 @@ class HostedLayer:
             id=data.get("id", data.get("name", "")),
             name=data.get("name", ""),
             description=data.get("description", ""),
-            format=data.get("format", ""),
+            owner_id=data.get("owner_id"),
             status=data.get("status", ""),
-            path=data.get("path", ""),
+            source_format=data.get("source_format", ""),
+            source_path=data.get("source_path", ""),
+            published_path=data.get("published_path"),
             feature_count=data.get("feature_count"),
-            bounds=data.get("bounds"),
+            bbox=data.get("bbox"),
+            crs=data.get("crs", ""),
+            properties=data.get("properties"),
+            style=data.get("style"),
+            tags=list(data.get("tags", []) or []),
             created_at=data.get("created_at", ""),
             updated_at=data.get("updated_at", ""),
+            published_at=data.get("published_at"),
+            error_message=data.get("error_message"),
+            format=data.get("format", data.get("source_format", "")),
+            path=data.get("path", data.get("source_path", "")),
+            bounds=data.get("bounds", data.get("bbox")),
         )
 
 
@@ -756,7 +833,13 @@ class Attachment:
     filename: str = ""
     content_type: str = ""
     size: int = 0
+    size_bytes: int = 0
+    description: str = ""
+    metadata: Dict[str, Any] = field(default_factory=dict)
+    uploaded_by: Optional[int] = None
     created_at: str = ""
+    download_url: Optional[str] = None
+    thumbnail_url: Optional[str] = None
 
     @classmethod
     def from_dict(cls, data: Dict[str, Any]) -> "Attachment":
@@ -766,8 +849,14 @@ class Attachment:
             feature_id=data.get("feature_id", ""),
             filename=data.get("filename", ""),
             content_type=data.get("content_type", ""),
-            size=data.get("size", 0),
+            size=data.get("size", data.get("size_bytes", 0)),
+            size_bytes=data.get("size_bytes", data.get("size", 0)),
+            description=data.get("description", ""),
+            metadata=dict(data.get("metadata", {}) or {}),
+            uploaded_by=data.get("uploaded_by"),
             created_at=data.get("created_at", ""),
+            download_url=data.get("download_url"),
+            thumbnail_url=data.get("thumbnail_url"),
         )
 
 
@@ -1047,12 +1136,23 @@ class HealthStatus:
 
     status: str = ""
     version: str = ""
+    uptime: int = 0
     uptime_seconds: int = 0
+    database: Optional[Dict[str, Any]] = None
+    storage: Optional[Dict[str, Any]] = None
+    engine: Optional[Dict[str, Any]] = None
+    metrics: Optional[Dict[str, Any]] = None
 
     @classmethod
     def from_dict(cls, data: Dict[str, Any]) -> "HealthStatus":
+        uptime_seconds = data.get("uptime_seconds", data.get("uptime", 0))
         return cls(
             status=data.get("status", ""),
             version=data.get("version", ""),
-            uptime_seconds=data.get("uptime_seconds", 0),
+            uptime=uptime_seconds,
+            uptime_seconds=uptime_seconds,
+            database=data.get("database"),
+            storage=data.get("storage"),
+            engine=data.get("engine"),
+            metrics=data.get("metrics"),
         )

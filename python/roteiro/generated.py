@@ -40,84 +40,6 @@ class RoteiroGeneratedApi:
             extra_headers['Content-Type'] = 'application/json'
         return self._client._request('GET', path, body=payload, extra_headers=extra_headers)
 
-    def list_audit_log(self, query: Optional[Dict[str, Any]] = None, body: Any = None, headers: Optional[Dict[str, str]] = None) -> Any:
-        """List audit log entries (admin only)"""
-        path = "/api/admin/audit"
-        if query:
-            q = urlencode({k: v for k, v in query.items() if v is not None})
-            if q:
-                path = f"{path}?{q}"
-        extra_headers = dict(headers or {})
-        payload = body
-        if payload is not None and 'Content-Type' not in extra_headers:
-            extra_headers['Content-Type'] = 'application/json'
-        return self._client._request('GET', path, body=payload, extra_headers=extra_headers)
-
-    def auto_get_api_admin_audit_log(self, query: Optional[Dict[str, Any]] = None, body: Any = None, headers: Optional[Dict[str, str]] = None) -> Any:
-        """[auto] GET /api/admin/audit-log"""
-        path = "/api/admin/audit-log"
-        if query:
-            q = urlencode({k: v for k, v in query.items() if v is not None})
-            if q:
-                path = f"{path}?{q}"
-        extra_headers = dict(headers or {})
-        payload = body
-        if payload is not None and 'Content-Type' not in extra_headers:
-            extra_headers['Content-Type'] = 'application/json'
-        return self._client._request('GET', path, body=payload, extra_headers=extra_headers)
-
-    def auto_get_api_admin_audit_log_actions(self, query: Optional[Dict[str, Any]] = None, body: Any = None, headers: Optional[Dict[str, str]] = None) -> Any:
-        """[auto] GET /api/admin/audit-log/actions"""
-        path = "/api/admin/audit-log/actions"
-        if query:
-            q = urlencode({k: v for k, v in query.items() if v is not None})
-            if q:
-                path = f"{path}?{q}"
-        extra_headers = dict(headers or {})
-        payload = body
-        if payload is not None and 'Content-Type' not in extra_headers:
-            extra_headers['Content-Type'] = 'application/json'
-        return self._client._request('GET', path, body=payload, extra_headers=extra_headers)
-
-    def auto_post_api_admin_audit_log_archive(self, query: Optional[Dict[str, Any]] = None, body: Any = None, headers: Optional[Dict[str, str]] = None) -> Any:
-        """[auto] POST /api/admin/audit-log/archive"""
-        path = "/api/admin/audit-log/archive"
-        if query:
-            q = urlencode({k: v for k, v in query.items() if v is not None})
-            if q:
-                path = f"{path}?{q}"
-        extra_headers = dict(headers or {})
-        payload = body
-        if payload is not None and 'Content-Type' not in extra_headers:
-            extra_headers['Content-Type'] = 'application/json'
-        return self._client._request('POST', path, body=payload, extra_headers=extra_headers)
-
-    def auto_get_api_admin_audit_log_export(self, query: Optional[Dict[str, Any]] = None, body: Any = None, headers: Optional[Dict[str, str]] = None) -> Any:
-        """[auto] GET /api/admin/audit-log/export"""
-        path = "/api/admin/audit-log/export"
-        if query:
-            q = urlencode({k: v for k, v in query.items() if v is not None})
-            if q:
-                path = f"{path}?{q}"
-        extra_headers = dict(headers or {})
-        payload = body
-        if payload is not None and 'Content-Type' not in extra_headers:
-            extra_headers['Content-Type'] = 'application/json'
-        return self._client._request('GET', path, body=payload, extra_headers=extra_headers)
-
-    def auto_post_api_admin_audit_log_verify(self, query: Optional[Dict[str, Any]] = None, body: Any = None, headers: Optional[Dict[str, str]] = None) -> Any:
-        """[auto] POST /api/admin/audit-log/verify"""
-        path = "/api/admin/audit-log/verify"
-        if query:
-            q = urlencode({k: v for k, v in query.items() if v is not None})
-            if q:
-                path = f"{path}?{q}"
-        extra_headers = dict(headers or {})
-        payload = body
-        if payload is not None and 'Content-Type' not in extra_headers:
-            extra_headers['Content-Type'] = 'application/json'
-        return self._client._request('POST', path, body=payload, extra_headers=extra_headers)
-
     def auto_post_api_admin_backup(self, query: Optional[Dict[str, Any]] = None, body: Any = None, headers: Optional[Dict[str, str]] = None) -> Any:
         """[auto] POST /api/admin/backup"""
         path = "/api/admin/backup"
@@ -157,9 +79,9 @@ class RoteiroGeneratedApi:
             extra_headers['Content-Type'] = 'application/json'
         return self._client._request('GET', path, body=payload, extra_headers=extra_headers)
 
-    def auto_get_api_admin_compliance_status(self, query: Optional[Dict[str, Any]] = None, body: Any = None, headers: Optional[Dict[str, str]] = None) -> Any:
-        """[auto] GET /api/admin/compliance/status"""
-        path = "/api/admin/compliance/status"
+    def auto_get_api_admin_billing_tenants(self, query: Optional[Dict[str, Any]] = None, body: Any = None, headers: Optional[Dict[str, str]] = None) -> Any:
+        """[auto] GET /api/admin/billing/tenants"""
+        path = "/api/admin/billing/tenants"
         if query:
             q = urlencode({k: v for k, v in query.items() if v is not None})
             if q:
@@ -169,6 +91,32 @@ class RoteiroGeneratedApi:
         if payload is not None and 'Content-Type' not in extra_headers:
             extra_headers['Content-Type'] = 'application/json'
         return self._client._request('GET', path, body=payload, extra_headers=extra_headers)
+
+    def auto_get_api_admin_billing_tenants_id(self, id: str, query: Optional[Dict[str, Any]] = None, body: Any = None, headers: Optional[Dict[str, str]] = None) -> Any:
+        """[auto] GET /api/admin/billing/tenants/{id}"""
+        path = f"/api/admin/billing/tenants/{_quote_path_value(id)}"
+        if query:
+            q = urlencode({k: v for k, v in query.items() if v is not None})
+            if q:
+                path = f"{path}?{q}"
+        extra_headers = dict(headers or {})
+        payload = body
+        if payload is not None and 'Content-Type' not in extra_headers:
+            extra_headers['Content-Type'] = 'application/json'
+        return self._client._request('GET', path, body=payload, extra_headers=extra_headers)
+
+    def auto_post_api_admin_billing_tenants_id_reconcile(self, id: str, query: Optional[Dict[str, Any]] = None, body: Any = None, headers: Optional[Dict[str, str]] = None) -> Any:
+        """[auto] POST /api/admin/billing/tenants/{id}/reconcile"""
+        path = f"/api/admin/billing/tenants/{_quote_path_value(id)}/reconcile"
+        if query:
+            q = urlencode({k: v for k, v in query.items() if v is not None})
+            if q:
+                path = f"{path}?{q}"
+        extra_headers = dict(headers or {})
+        payload = body
+        if payload is not None and 'Content-Type' not in extra_headers:
+            extra_headers['Content-Type'] = 'application/json'
+        return self._client._request('POST', path, body=payload, extra_headers=extra_headers)
 
     def auto_get_api_admin_dr_config(self, query: Optional[Dict[str, Any]] = None, body: Any = None, headers: Optional[Dict[str, str]] = None) -> Any:
         """[auto] GET /api/admin/dr/config"""
@@ -209,84 +157,6 @@ class RoteiroGeneratedApi:
             extra_headers['Content-Type'] = 'application/json'
         return self._client._request('GET', path, body=payload, extra_headers=extra_headers)
 
-    def auto_get_api_admin_lti_keys(self, query: Optional[Dict[str, Any]] = None, body: Any = None, headers: Optional[Dict[str, str]] = None) -> Any:
-        """[auto] GET /api/admin/lti/keys"""
-        path = "/api/admin/lti/keys"
-        if query:
-            q = urlencode({k: v for k, v in query.items() if v is not None})
-            if q:
-                path = f"{path}?{q}"
-        extra_headers = dict(headers or {})
-        payload = body
-        if payload is not None and 'Content-Type' not in extra_headers:
-            extra_headers['Content-Type'] = 'application/json'
-        return self._client._request('GET', path, body=payload, extra_headers=extra_headers)
-
-    def auto_post_api_admin_lti_keys(self, query: Optional[Dict[str, Any]] = None, body: Any = None, headers: Optional[Dict[str, str]] = None) -> Any:
-        """[auto] POST /api/admin/lti/keys"""
-        path = "/api/admin/lti/keys"
-        if query:
-            q = urlencode({k: v for k, v in query.items() if v is not None})
-            if q:
-                path = f"{path}?{q}"
-        extra_headers = dict(headers or {})
-        payload = body
-        if payload is not None and 'Content-Type' not in extra_headers:
-            extra_headers['Content-Type'] = 'application/json'
-        return self._client._request('POST', path, body=payload, extra_headers=extra_headers)
-
-    def auto_get_api_admin_lti_platforms(self, query: Optional[Dict[str, Any]] = None, body: Any = None, headers: Optional[Dict[str, str]] = None) -> Any:
-        """[auto] GET /api/admin/lti/platforms"""
-        path = "/api/admin/lti/platforms"
-        if query:
-            q = urlencode({k: v for k, v in query.items() if v is not None})
-            if q:
-                path = f"{path}?{q}"
-        extra_headers = dict(headers or {})
-        payload = body
-        if payload is not None and 'Content-Type' not in extra_headers:
-            extra_headers['Content-Type'] = 'application/json'
-        return self._client._request('GET', path, body=payload, extra_headers=extra_headers)
-
-    def auto_post_api_admin_lti_platforms(self, query: Optional[Dict[str, Any]] = None, body: Any = None, headers: Optional[Dict[str, str]] = None) -> Any:
-        """[auto] POST /api/admin/lti/platforms"""
-        path = "/api/admin/lti/platforms"
-        if query:
-            q = urlencode({k: v for k, v in query.items() if v is not None})
-            if q:
-                path = f"{path}?{q}"
-        extra_headers = dict(headers or {})
-        payload = body
-        if payload is not None and 'Content-Type' not in extra_headers:
-            extra_headers['Content-Type'] = 'application/json'
-        return self._client._request('POST', path, body=payload, extra_headers=extra_headers)
-
-    def auto_put_api_admin_lti_platforms_id(self, id: str, query: Optional[Dict[str, Any]] = None, body: Any = None, headers: Optional[Dict[str, str]] = None) -> Any:
-        """[auto] PUT /api/admin/lti/platforms/{id}"""
-        path = f"/api/admin/lti/platforms/{_quote_path_value(id)}"
-        if query:
-            q = urlencode({k: v for k, v in query.items() if v is not None})
-            if q:
-                path = f"{path}?{q}"
-        extra_headers = dict(headers or {})
-        payload = body
-        if payload is not None and 'Content-Type' not in extra_headers:
-            extra_headers['Content-Type'] = 'application/json'
-        return self._client._request('PUT', path, body=payload, extra_headers=extra_headers)
-
-    def auto_delete_api_admin_lti_platforms_id(self, id: str, query: Optional[Dict[str, Any]] = None, body: Any = None, headers: Optional[Dict[str, str]] = None) -> Any:
-        """[auto] DELETE /api/admin/lti/platforms/{id}"""
-        path = f"/api/admin/lti/platforms/{_quote_path_value(id)}"
-        if query:
-            q = urlencode({k: v for k, v in query.items() if v is not None})
-            if q:
-                path = f"{path}?{q}"
-        extra_headers = dict(headers or {})
-        payload = body
-        if payload is not None and 'Content-Type' not in extra_headers:
-            extra_headers['Content-Type'] = 'application/json'
-        return self._client._request('DELETE', path, body=payload, extra_headers=extra_headers)
-
     def get_admin_onboarding_analytics(self, query: Optional[Dict[str, Any]] = None, body: Any = None, headers: Optional[Dict[str, str]] = None) -> Any:
         """Onboarding funnel analytics (admin only)"""
         path = "/api/admin/onboarding-analytics"
@@ -303,97 +173,6 @@ class RoteiroGeneratedApi:
     def auto_post_api_admin_restore(self, query: Optional[Dict[str, Any]] = None, body: Any = None, headers: Optional[Dict[str, str]] = None) -> Any:
         """[auto] POST /api/admin/restore"""
         path = "/api/admin/restore"
-        if query:
-            q = urlencode({k: v for k, v in query.items() if v is not None})
-            if q:
-                path = f"{path}?{q}"
-        extra_headers = dict(headers or {})
-        payload = body
-        if payload is not None and 'Content-Type' not in extra_headers:
-            extra_headers['Content-Type'] = 'application/json'
-        return self._client._request('POST', path, body=payload, extra_headers=extra_headers)
-
-    def auto_get_api_admin_sso_group_mappings(self, query: Optional[Dict[str, Any]] = None, body: Any = None, headers: Optional[Dict[str, str]] = None) -> Any:
-        """[auto] GET /api/admin/sso/group-mappings"""
-        path = "/api/admin/sso/group-mappings"
-        if query:
-            q = urlencode({k: v for k, v in query.items() if v is not None})
-            if q:
-                path = f"{path}?{q}"
-        extra_headers = dict(headers or {})
-        payload = body
-        if payload is not None and 'Content-Type' not in extra_headers:
-            extra_headers['Content-Type'] = 'application/json'
-        return self._client._request('GET', path, body=payload, extra_headers=extra_headers)
-
-    def auto_post_api_admin_sso_group_mappings(self, query: Optional[Dict[str, Any]] = None, body: Any = None, headers: Optional[Dict[str, str]] = None) -> Any:
-        """[auto] POST /api/admin/sso/group-mappings"""
-        path = "/api/admin/sso/group-mappings"
-        if query:
-            q = urlencode({k: v for k, v in query.items() if v is not None})
-            if q:
-                path = f"{path}?{q}"
-        extra_headers = dict(headers or {})
-        payload = body
-        if payload is not None and 'Content-Type' not in extra_headers:
-            extra_headers['Content-Type'] = 'application/json'
-        return self._client._request('POST', path, body=payload, extra_headers=extra_headers)
-
-    def auto_put_api_admin_sso_group_mappings_id(self, id: str, query: Optional[Dict[str, Any]] = None, body: Any = None, headers: Optional[Dict[str, str]] = None) -> Any:
-        """[auto] PUT /api/admin/sso/group-mappings/{id}"""
-        path = f"/api/admin/sso/group-mappings/{_quote_path_value(id)}"
-        if query:
-            q = urlencode({k: v for k, v in query.items() if v is not None})
-            if q:
-                path = f"{path}?{q}"
-        extra_headers = dict(headers or {})
-        payload = body
-        if payload is not None and 'Content-Type' not in extra_headers:
-            extra_headers['Content-Type'] = 'application/json'
-        return self._client._request('PUT', path, body=payload, extra_headers=extra_headers)
-
-    def auto_delete_api_admin_sso_group_mappings_id(self, id: str, query: Optional[Dict[str, Any]] = None, body: Any = None, headers: Optional[Dict[str, str]] = None) -> Any:
-        """[auto] DELETE /api/admin/sso/group-mappings/{id}"""
-        path = f"/api/admin/sso/group-mappings/{_quote_path_value(id)}"
-        if query:
-            q = urlencode({k: v for k, v in query.items() if v is not None})
-            if q:
-                path = f"{path}?{q}"
-        extra_headers = dict(headers or {})
-        payload = body
-        if payload is not None and 'Content-Type' not in extra_headers:
-            extra_headers['Content-Type'] = 'application/json'
-        return self._client._request('DELETE', path, body=payload, extra_headers=extra_headers)
-
-    def auto_post_api_admin_sso_preview(self, query: Optional[Dict[str, Any]] = None, body: Any = None, headers: Optional[Dict[str, str]] = None) -> Any:
-        """[auto] POST /api/admin/sso/preview"""
-        path = "/api/admin/sso/preview"
-        if query:
-            q = urlencode({k: v for k, v in query.items() if v is not None})
-            if q:
-                path = f"{path}?{q}"
-        extra_headers = dict(headers or {})
-        payload = body
-        if payload is not None and 'Content-Type' not in extra_headers:
-            extra_headers['Content-Type'] = 'application/json'
-        return self._client._request('POST', path, body=payload, extra_headers=extra_headers)
-
-    def auto_get_api_admin_sso_status(self, query: Optional[Dict[str, Any]] = None, body: Any = None, headers: Optional[Dict[str, str]] = None) -> Any:
-        """[auto] GET /api/admin/sso/status"""
-        path = "/api/admin/sso/status"
-        if query:
-            q = urlencode({k: v for k, v in query.items() if v is not None})
-            if q:
-                path = f"{path}?{q}"
-        extra_headers = dict(headers or {})
-        payload = body
-        if payload is not None and 'Content-Type' not in extra_headers:
-            extra_headers['Content-Type'] = 'application/json'
-        return self._client._request('GET', path, body=payload, extra_headers=extra_headers)
-
-    def auto_post_api_admin_sso_sync(self, query: Optional[Dict[str, Any]] = None, body: Any = None, headers: Optional[Dict[str, str]] = None) -> Any:
-        """[auto] POST /api/admin/sso/sync"""
-        path = "/api/admin/sso/sync"
         if query:
             q = urlencode({k: v for k, v in query.items() if v is not None})
             if q:
@@ -871,32 +650,6 @@ class RoteiroGeneratedApi:
         if payload is not None and 'Content-Type' not in extra_headers:
             extra_headers['Content-Type'] = 'application/json'
         return self._client._request('POST', path, body=payload, extra_headers=extra_headers)
-
-    def sso_callback(self, query: Optional[Dict[str, Any]] = None, body: Any = None, headers: Optional[Dict[str, str]] = None) -> Any:
-        """SSO/OIDC callback endpoint"""
-        path = "/api/auth/sso/callback"
-        if query:
-            q = urlencode({k: v for k, v in query.items() if v is not None})
-            if q:
-                path = f"{path}?{q}"
-        extra_headers = dict(headers or {})
-        payload = body
-        if payload is not None and 'Content-Type' not in extra_headers:
-            extra_headers['Content-Type'] = 'application/json'
-        return self._client._request('GET', path, body=payload, extra_headers=extra_headers)
-
-    def sso_login(self, query: Optional[Dict[str, Any]] = None, body: Any = None, headers: Optional[Dict[str, str]] = None) -> Any:
-        """Initiate SSO/OIDC login flow"""
-        path = "/api/auth/sso/login"
-        if query:
-            q = urlencode({k: v for k, v in query.items() if v is not None})
-            if q:
-                path = f"{path}?{q}"
-        extra_headers = dict(headers or {})
-        payload = body
-        if payload is not None and 'Content-Type' not in extra_headers:
-            extra_headers['Content-Type'] = 'application/json'
-        return self._client._request('GET', path, body=payload, extra_headers=extra_headers)
 
     def auto_post_api_auth_verify_2fa(self, query: Optional[Dict[str, Any]] = None, body: Any = None, headers: Optional[Dict[str, str]] = None) -> Any:
         """[auto] POST /api/auth/verify-2fa"""
@@ -2042,19 +1795,6 @@ class RoteiroGeneratedApi:
             extra_headers['Content-Type'] = 'application/json'
         return self._client._request('DELETE', path, body=payload, extra_headers=extra_headers)
 
-    def auto_get_api_classrooms_id_my_role(self, id: str, query: Optional[Dict[str, Any]] = None, body: Any = None, headers: Optional[Dict[str, str]] = None) -> Any:
-        """[auto] GET /api/classrooms/{id}/my-role"""
-        path = f"/api/classrooms/{_quote_path_value(id)}/my-role"
-        if query:
-            q = urlencode({k: v for k, v in query.items() if v is not None})
-            if q:
-                path = f"{path}?{q}"
-        extra_headers = dict(headers or {})
-        payload = body
-        if payload is not None and 'Content-Type' not in extra_headers:
-            extra_headers['Content-Type'] = 'application/json'
-        return self._client._request('GET', path, body=payload, extra_headers=extra_headers)
-
     def auto_get_api_classrooms_id_my_submissions(self, id: str, query: Optional[Dict[str, Any]] = None, body: Any = None, headers: Optional[Dict[str, str]] = None) -> Any:
         """[auto] GET /api/classrooms/{id}/my-submissions"""
         path = f"/api/classrooms/{_quote_path_value(id)}/my-submissions"
@@ -2262,6 +2002,19 @@ class RoteiroGeneratedApi:
         if payload is not None and 'Content-Type' not in extra_headers:
             extra_headers['Content-Type'] = 'application/json'
         return self._client._request('GET', path, body=payload, extra_headers=extra_headers)
+
+    def auto_post_api_collections_id_items_export(self, id: str, query: Optional[Dict[str, Any]] = None, body: Any = None, headers: Optional[Dict[str, str]] = None) -> Any:
+        """[auto] POST /api/collections/{id}/items/export"""
+        path = f"/api/collections/{_quote_path_value(id)}/items/export"
+        if query:
+            q = urlencode({k: v for k, v in query.items() if v is not None})
+            if q:
+                path = f"{path}?{q}"
+        extra_headers = dict(headers or {})
+        payload = body
+        if payload is not None and 'Content-Type' not in extra_headers:
+            extra_headers['Content-Type'] = 'application/json'
+        return self._client._request('POST', path, body=payload, extra_headers=extra_headers)
 
     def auto_get_api_collections_id_items_feature_id_comments(self, id: str, featureId: str, query: Optional[Dict[str, Any]] = None, body: Any = None, headers: Optional[Dict[str, str]] = None) -> Any:
         """[auto] GET /api/collections/{id}/items/{featureId}/comments"""
@@ -2666,19 +2419,6 @@ class RoteiroGeneratedApi:
             extra_headers['Content-Type'] = 'application/json'
         return self._client._request('POST', path, body=payload, extra_headers=extra_headers)
 
-    def auto_get_api_discover(self, query: Optional[Dict[str, Any]] = None, body: Any = None, headers: Optional[Dict[str, str]] = None) -> Any:
-        """[auto] GET /api/discover"""
-        path = "/api/discover"
-        if query:
-            q = urlencode({k: v for k, v in query.items() if v is not None})
-            if q:
-                path = f"{path}?{q}"
-        extra_headers = dict(headers or {})
-        payload = body
-        if payload is not None and 'Content-Type' not in extra_headers:
-            extra_headers['Content-Type'] = 'application/json'
-        return self._client._request('GET', path, body=payload, extra_headers=extra_headers)
-
     def get_swagger_ui(self, query: Optional[Dict[str, Any]] = None, body: Any = None, headers: Optional[Dict[str, str]] = None) -> Any:
         """API documentation UI"""
         path = "/api/docs"
@@ -3003,6 +2743,32 @@ class RoteiroGeneratedApi:
         if payload is not None and 'Content-Type' not in extra_headers:
             extra_headers['Content-Type'] = 'application/json'
         return self._client._request('GET', path, body=payload, extra_headers=extra_headers)
+
+    def auto_post_api_geodesic_area(self, query: Optional[Dict[str, Any]] = None, body: Any = None, headers: Optional[Dict[str, str]] = None) -> Any:
+        """[auto] POST /api/geodesic/area"""
+        path = "/api/geodesic/area"
+        if query:
+            q = urlencode({k: v for k, v in query.items() if v is not None})
+            if q:
+                path = f"{path}?{q}"
+        extra_headers = dict(headers or {})
+        payload = body
+        if payload is not None and 'Content-Type' not in extra_headers:
+            extra_headers['Content-Type'] = 'application/json'
+        return self._client._request('POST', path, body=payload, extra_headers=extra_headers)
+
+    def auto_post_api_geodesic_length(self, query: Optional[Dict[str, Any]] = None, body: Any = None, headers: Optional[Dict[str, str]] = None) -> Any:
+        """[auto] POST /api/geodesic/length"""
+        path = "/api/geodesic/length"
+        if query:
+            q = urlencode({k: v for k, v in query.items() if v is not None})
+            if q:
+                path = f"{path}?{q}"
+        extra_headers = dict(headers or {})
+        payload = body
+        if payload is not None and 'Content-Type' not in extra_headers:
+            extra_headers['Content-Type'] = 'application/json'
+        return self._client._request('POST', path, body=payload, extra_headers=extra_headers)
 
     def list_buildings(self, query: Optional[Dict[str, Any]] = None, body: Any = None, headers: Optional[Dict[str, str]] = None) -> Any:
         """List all buildings"""
@@ -4200,58 +3966,6 @@ class RoteiroGeneratedApi:
             extra_headers['Content-Type'] = 'application/json'
         return self._client._request('POST', path, body=payload, extra_headers=extra_headers)
 
-    def auto_get_api_lti_well_known_jwks_json(self, query: Optional[Dict[str, Any]] = None, body: Any = None, headers: Optional[Dict[str, str]] = None) -> Any:
-        """[auto] GET /api/lti/.well-known/jwks.json"""
-        path = "/api/lti/.well-known/jwks.json"
-        if query:
-            q = urlencode({k: v for k, v in query.items() if v is not None})
-            if q:
-                path = f"{path}?{q}"
-        extra_headers = dict(headers or {})
-        payload = body
-        if payload is not None and 'Content-Type' not in extra_headers:
-            extra_headers['Content-Type'] = 'application/json'
-        return self._client._request('GET', path, body=payload, extra_headers=extra_headers)
-
-    def auto_post_api_lti_deeplink(self, query: Optional[Dict[str, Any]] = None, body: Any = None, headers: Optional[Dict[str, str]] = None) -> Any:
-        """[auto] POST /api/lti/deeplink"""
-        path = "/api/lti/deeplink"
-        if query:
-            q = urlencode({k: v for k, v in query.items() if v is not None})
-            if q:
-                path = f"{path}?{q}"
-        extra_headers = dict(headers or {})
-        payload = body
-        if payload is not None and 'Content-Type' not in extra_headers:
-            extra_headers['Content-Type'] = 'application/json'
-        return self._client._request('POST', path, body=payload, extra_headers=extra_headers)
-
-    def auto_post_api_lti_launch(self, query: Optional[Dict[str, Any]] = None, body: Any = None, headers: Optional[Dict[str, str]] = None) -> Any:
-        """[auto] POST /api/lti/launch"""
-        path = "/api/lti/launch"
-        if query:
-            q = urlencode({k: v for k, v in query.items() if v is not None})
-            if q:
-                path = f"{path}?{q}"
-        extra_headers = dict(headers or {})
-        payload = body
-        if payload is not None and 'Content-Type' not in extra_headers:
-            extra_headers['Content-Type'] = 'application/json'
-        return self._client._request('POST', path, body=payload, extra_headers=extra_headers)
-
-    def auto_get_api_lti_login(self, query: Optional[Dict[str, Any]] = None, body: Any = None, headers: Optional[Dict[str, str]] = None) -> Any:
-        """[auto] GET /api/lti/login"""
-        path = "/api/lti/login"
-        if query:
-            q = urlencode({k: v for k, v in query.items() if v is not None})
-            if q:
-                path = f"{path}?{q}"
-        extra_headers = dict(headers or {})
-        payload = body
-        if payload is not None and 'Content-Type' not in extra_headers:
-            extra_headers['Content-Type'] = 'application/json'
-        return self._client._request('GET', path, body=payload, extra_headers=extra_headers)
-
     def compute_curvature(self, query: Optional[Dict[str, Any]] = None, body: Any = None, headers: Optional[Dict[str, str]] = None) -> Any:
         """Terrain curvature analysis"""
         path = "/api/manifold/curvature"
@@ -5305,6 +5019,19 @@ class RoteiroGeneratedApi:
             extra_headers['Content-Type'] = 'application/json'
         return self._client._request('PUT', path, body=payload, extra_headers=extra_headers)
 
+    def auto_post_api_plugins_marketplace_id_approve(self, id: str, query: Optional[Dict[str, Any]] = None, body: Any = None, headers: Optional[Dict[str, str]] = None) -> Any:
+        """[auto] POST /api/plugins/marketplace/{id}/approve"""
+        path = f"/api/plugins/marketplace/{_quote_path_value(id)}/approve"
+        if query:
+            q = urlencode({k: v for k, v in query.items() if v is not None})
+            if q:
+                path = f"{path}?{q}"
+        extra_headers = dict(headers or {})
+        payload = body
+        if payload is not None and 'Content-Type' not in extra_headers:
+            extra_headers['Content-Type'] = 'application/json'
+        return self._client._request('POST', path, body=payload, extra_headers=extra_headers)
+
     def auto_put_api_plugins_marketplace_id_config(self, id: str, query: Optional[Dict[str, Any]] = None, body: Any = None, headers: Optional[Dict[str, str]] = None) -> Any:
         """[auto] PUT /api/plugins/marketplace/{id}/config"""
         path = f"/api/plugins/marketplace/{_quote_path_value(id)}/config"
@@ -5708,6 +5435,19 @@ class RoteiroGeneratedApi:
             extra_headers['Content-Type'] = 'application/json'
         return self._client._request('POST', path, body=payload, extra_headers=extra_headers)
 
+    def auto_get_api_projects_id_datasets_details(self, id: str, query: Optional[Dict[str, Any]] = None, body: Any = None, headers: Optional[Dict[str, str]] = None) -> Any:
+        """[auto] GET /api/projects/{id}/datasets/details"""
+        path = f"/api/projects/{_quote_path_value(id)}/datasets/details"
+        if query:
+            q = urlencode({k: v for k, v in query.items() if v is not None})
+            if q:
+                path = f"{path}?{q}"
+        extra_headers = dict(headers or {})
+        payload = body
+        if payload is not None and 'Content-Type' not in extra_headers:
+            extra_headers['Content-Type'] = 'application/json'
+        return self._client._request('GET', path, body=payload, extra_headers=extra_headers)
+
     def remove_project_dataset(self, id: str, name: str, query: Optional[Dict[str, Any]] = None, body: Any = None, headers: Optional[Dict[str, str]] = None) -> Any:
         """Remove dataset from project"""
         path = f"/api/projects/{_quote_path_value(id)}/datasets/{_quote_path_value(name)}"
@@ -5759,6 +5499,32 @@ class RoteiroGeneratedApi:
         if payload is not None and 'Content-Type' not in extra_headers:
             extra_headers['Content-Type'] = 'application/json'
         return self._client._request('DELETE', path, body=payload, extra_headers=extra_headers)
+
+    def auto_get_api_projects_id_workspace(self, id: str, query: Optional[Dict[str, Any]] = None, body: Any = None, headers: Optional[Dict[str, str]] = None) -> Any:
+        """[auto] GET /api/projects/{id}/workspace"""
+        path = f"/api/projects/{_quote_path_value(id)}/workspace"
+        if query:
+            q = urlencode({k: v for k, v in query.items() if v is not None})
+            if q:
+                path = f"{path}?{q}"
+        extra_headers = dict(headers or {})
+        payload = body
+        if payload is not None and 'Content-Type' not in extra_headers:
+            extra_headers['Content-Type'] = 'application/json'
+        return self._client._request('GET', path, body=payload, extra_headers=extra_headers)
+
+    def auto_put_api_projects_id_workspace(self, id: str, query: Optional[Dict[str, Any]] = None, body: Any = None, headers: Optional[Dict[str, str]] = None) -> Any:
+        """[auto] PUT /api/projects/{id}/workspace"""
+        path = f"/api/projects/{_quote_path_value(id)}/workspace"
+        if query:
+            q = urlencode({k: v for k, v in query.items() if v is not None})
+            if q:
+                path = f"{path}?{q}"
+        extra_headers = dict(headers or {})
+        payload = body
+        if payload is not None and 'Content-Type' not in extra_headers:
+            extra_headers['Content-Type'] = 'application/json'
+        return self._client._request('PUT', path, body=payload, extra_headers=extra_headers)
 
     def auto_get_api_projects_project_id_annotations(self, projectId: str, query: Optional[Dict[str, Any]] = None, body: Any = None, headers: Optional[Dict[str, str]] = None) -> Any:
         """[auto] GET /api/projects/{projectId}/annotations"""
@@ -5967,6 +5733,58 @@ class RoteiroGeneratedApi:
         if payload is not None and 'Content-Type' not in extra_headers:
             extra_headers['Content-Type'] = 'application/json'
         return self._client._request('DELETE', path, body=payload, extra_headers=extra_headers)
+
+    def auto_post_api_raster_classify_isodata(self, query: Optional[Dict[str, Any]] = None, body: Any = None, headers: Optional[Dict[str, str]] = None) -> Any:
+        """[auto] POST /api/raster/classify/isodata"""
+        path = "/api/raster/classify/isodata"
+        if query:
+            q = urlencode({k: v for k, v in query.items() if v is not None})
+            if q:
+                path = f"{path}?{q}"
+        extra_headers = dict(headers or {})
+        payload = body
+        if payload is not None and 'Content-Type' not in extra_headers:
+            extra_headers['Content-Type'] = 'application/json'
+        return self._client._request('POST', path, body=payload, extra_headers=extra_headers)
+
+    def auto_post_api_raster_classify_kmeans(self, query: Optional[Dict[str, Any]] = None, body: Any = None, headers: Optional[Dict[str, str]] = None) -> Any:
+        """[auto] POST /api/raster/classify/kmeans"""
+        path = "/api/raster/classify/kmeans"
+        if query:
+            q = urlencode({k: v for k, v in query.items() if v is not None})
+            if q:
+                path = f"{path}?{q}"
+        extra_headers = dict(headers or {})
+        payload = body
+        if payload is not None and 'Content-Type' not in extra_headers:
+            extra_headers['Content-Type'] = 'application/json'
+        return self._client._request('POST', path, body=payload, extra_headers=extra_headers)
+
+    def auto_post_api_raster_classify_ml(self, query: Optional[Dict[str, Any]] = None, body: Any = None, headers: Optional[Dict[str, str]] = None) -> Any:
+        """[auto] POST /api/raster/classify/ml"""
+        path = "/api/raster/classify/ml"
+        if query:
+            q = urlencode({k: v for k, v in query.items() if v is not None})
+            if q:
+                path = f"{path}?{q}"
+        extra_headers = dict(headers or {})
+        payload = body
+        if payload is not None and 'Content-Type' not in extra_headers:
+            extra_headers['Content-Type'] = 'application/json'
+        return self._client._request('POST', path, body=payload, extra_headers=extra_headers)
+
+    def auto_post_api_raster_classify_rf(self, query: Optional[Dict[str, Any]] = None, body: Any = None, headers: Optional[Dict[str, str]] = None) -> Any:
+        """[auto] POST /api/raster/classify/rf"""
+        path = "/api/raster/classify/rf"
+        if query:
+            q = urlencode({k: v for k, v in query.items() if v is not None})
+            if q:
+                path = f"{path}?{q}"
+        extra_headers = dict(headers or {})
+        payload = body
+        if payload is not None and 'Content-Type' not in extra_headers:
+            extra_headers['Content-Type'] = 'application/json'
+        return self._client._request('POST', path, body=payload, extra_headers=extra_headers)
 
     def auto_post_api_raster_kde(self, query: Optional[Dict[str, Any]] = None, body: Any = None, headers: Optional[Dict[str, str]] = None) -> Any:
         """[auto] POST /api/raster/kde"""
@@ -6423,6 +6241,32 @@ class RoteiroGeneratedApi:
             extra_headers['Content-Type'] = 'application/json'
         return self._client._request('POST', path, body=payload, extra_headers=extra_headers)
 
+    def auto_get_api_sql_datasets(self, query: Optional[Dict[str, Any]] = None, body: Any = None, headers: Optional[Dict[str, str]] = None) -> Any:
+        """[auto] GET /api/sql/datasets"""
+        path = "/api/sql/datasets"
+        if query:
+            q = urlencode({k: v for k, v in query.items() if v is not None})
+            if q:
+                path = f"{path}?{q}"
+        extra_headers = dict(headers or {})
+        payload = body
+        if payload is not None and 'Content-Type' not in extra_headers:
+            extra_headers['Content-Type'] = 'application/json'
+        return self._client._request('GET', path, body=payload, extra_headers=extra_headers)
+
+    def auto_get_api_sql_datasets_name_columns(self, name: str, query: Optional[Dict[str, Any]] = None, body: Any = None, headers: Optional[Dict[str, str]] = None) -> Any:
+        """[auto] GET /api/sql/datasets/{name}/columns"""
+        path = f"/api/sql/datasets/{_quote_path_value(name)}/columns"
+        if query:
+            q = urlencode({k: v for k, v in query.items() if v is not None})
+            if q:
+                path = f"{path}?{q}"
+        extra_headers = dict(headers or {})
+        payload = body
+        if payload is not None and 'Content-Type' not in extra_headers:
+            extra_headers['Content-Type'] = 'application/json'
+        return self._client._request('GET', path, body=payload, extra_headers=extra_headers)
+
     def auto_post_api_sql_query(self, query: Optional[Dict[str, Any]] = None, body: Any = None, headers: Optional[Dict[str, str]] = None) -> Any:
         """[auto] POST /api/sql/query"""
         path = "/api/sql/query"
@@ -6435,32 +6279,6 @@ class RoteiroGeneratedApi:
         if payload is not None and 'Content-Type' not in extra_headers:
             extra_headers['Content-Type'] = 'application/json'
         return self._client._request('POST', path, body=payload, extra_headers=extra_headers)
-
-    def auto_get_api_sql_tables(self, query: Optional[Dict[str, Any]] = None, body: Any = None, headers: Optional[Dict[str, str]] = None) -> Any:
-        """[auto] GET /api/sql/tables"""
-        path = "/api/sql/tables"
-        if query:
-            q = urlencode({k: v for k, v in query.items() if v is not None})
-            if q:
-                path = f"{path}?{q}"
-        extra_headers = dict(headers or {})
-        payload = body
-        if payload is not None and 'Content-Type' not in extra_headers:
-            extra_headers['Content-Type'] = 'application/json'
-        return self._client._request('GET', path, body=payload, extra_headers=extra_headers)
-
-    def auto_get_api_sql_tables_schema_table_columns(self, schema: str, table: str, query: Optional[Dict[str, Any]] = None, body: Any = None, headers: Optional[Dict[str, str]] = None) -> Any:
-        """[auto] GET /api/sql/tables/{schema}/{table}/columns"""
-        path = f"/api/sql/tables/{_quote_path_value(schema)}/{_quote_path_value(table)}/columns"
-        if query:
-            q = urlencode({k: v for k, v in query.items() if v is not None})
-            if q:
-                path = f"{path}?{q}"
-        extra_headers = dict(headers or {})
-        payload = body
-        if payload is not None and 'Content-Type' not in extra_headers:
-            extra_headers['Content-Type'] = 'application/json'
-        return self._client._request('GET', path, body=payload, extra_headers=extra_headers)
 
     def auto_get_api_stac_credentials(self, query: Optional[Dict[str, Any]] = None, body: Any = None, headers: Optional[Dict[str, str]] = None) -> Any:
         """[auto] GET /api/stac/credentials"""
@@ -7255,97 +7073,6 @@ class RoteiroGeneratedApi:
             extra_headers['Content-Type'] = 'application/json'
         return self._client._request('GET', path, body=payload, extra_headers=extra_headers)
 
-    def list_webhooks(self, query: Optional[Dict[str, Any]] = None, body: Any = None, headers: Optional[Dict[str, str]] = None) -> Any:
-        """List webhooks"""
-        path = "/api/webhooks"
-        if query:
-            q = urlencode({k: v for k, v in query.items() if v is not None})
-            if q:
-                path = f"{path}?{q}"
-        extra_headers = dict(headers or {})
-        payload = body
-        if payload is not None and 'Content-Type' not in extra_headers:
-            extra_headers['Content-Type'] = 'application/json'
-        return self._client._request('GET', path, body=payload, extra_headers=extra_headers)
-
-    def create_webhook(self, query: Optional[Dict[str, Any]] = None, body: Any = None, headers: Optional[Dict[str, str]] = None) -> Any:
-        """Create a webhook"""
-        path = "/api/webhooks"
-        if query:
-            q = urlencode({k: v for k, v in query.items() if v is not None})
-            if q:
-                path = f"{path}?{q}"
-        extra_headers = dict(headers or {})
-        payload = body
-        if payload is not None and 'Content-Type' not in extra_headers:
-            extra_headers['Content-Type'] = 'application/json'
-        return self._client._request('POST', path, body=payload, extra_headers=extra_headers)
-
-    def update_webhook(self, id: str, query: Optional[Dict[str, Any]] = None, body: Any = None, headers: Optional[Dict[str, str]] = None) -> Any:
-        """Update a webhook (admin only)"""
-        path = f"/api/webhooks/{_quote_path_value(id)}"
-        if query:
-            q = urlencode({k: v for k, v in query.items() if v is not None})
-            if q:
-                path = f"{path}?{q}"
-        extra_headers = dict(headers or {})
-        payload = body
-        if payload is not None and 'Content-Type' not in extra_headers:
-            extra_headers['Content-Type'] = 'application/json'
-        return self._client._request('PUT', path, body=payload, extra_headers=extra_headers)
-
-    def delete_webhook(self, id: str, query: Optional[Dict[str, Any]] = None, body: Any = None, headers: Optional[Dict[str, str]] = None) -> Any:
-        """Delete a webhook (admin only)"""
-        path = f"/api/webhooks/{_quote_path_value(id)}"
-        if query:
-            q = urlencode({k: v for k, v in query.items() if v is not None})
-            if q:
-                path = f"{path}?{q}"
-        extra_headers = dict(headers or {})
-        payload = body
-        if payload is not None and 'Content-Type' not in extra_headers:
-            extra_headers['Content-Type'] = 'application/json'
-        return self._client._request('DELETE', path, body=payload, extra_headers=extra_headers)
-
-    def auto_get_api_webhooks_id_deliveries(self, id: str, query: Optional[Dict[str, Any]] = None, body: Any = None, headers: Optional[Dict[str, str]] = None) -> Any:
-        """[auto] GET /api/webhooks/{id}/deliveries"""
-        path = f"/api/webhooks/{_quote_path_value(id)}/deliveries"
-        if query:
-            q = urlencode({k: v for k, v in query.items() if v is not None})
-            if q:
-                path = f"{path}?{q}"
-        extra_headers = dict(headers or {})
-        payload = body
-        if payload is not None and 'Content-Type' not in extra_headers:
-            extra_headers['Content-Type'] = 'application/json'
-        return self._client._request('GET', path, body=payload, extra_headers=extra_headers)
-
-    def auto_post_api_webhooks_id_regenerate(self, id: str, query: Optional[Dict[str, Any]] = None, body: Any = None, headers: Optional[Dict[str, str]] = None) -> Any:
-        """[auto] POST /api/webhooks/{id}/regenerate"""
-        path = f"/api/webhooks/{_quote_path_value(id)}/regenerate"
-        if query:
-            q = urlencode({k: v for k, v in query.items() if v is not None})
-            if q:
-                path = f"{path}?{q}"
-        extra_headers = dict(headers or {})
-        payload = body
-        if payload is not None and 'Content-Type' not in extra_headers:
-            extra_headers['Content-Type'] = 'application/json'
-        return self._client._request('POST', path, body=payload, extra_headers=extra_headers)
-
-    def test_webhook(self, id: str, query: Optional[Dict[str, Any]] = None, body: Any = None, headers: Optional[Dict[str, str]] = None) -> Any:
-        """Send a test event to a webhook (admin only)"""
-        path = f"/api/webhooks/{_quote_path_value(id)}/test"
-        if query:
-            q = urlencode({k: v for k, v in query.items() if v is not None})
-            if q:
-                path = f"{path}?{q}"
-        extra_headers = dict(headers or {})
-        payload = body
-        if payload is not None and 'Content-Type' not in extra_headers:
-            extra_headers['Content-Type'] = 'application/json'
-        return self._client._request('POST', path, body=payload, extra_headers=extra_headers)
-
     def auto_get_api_whitelabel(self, query: Optional[Dict[str, Any]] = None, body: Any = None, headers: Optional[Dict[str, str]] = None) -> Any:
         """[auto] GET /api/whitelabel"""
         path = "/api/whitelabel"
@@ -7645,6 +7372,19 @@ class RoteiroGeneratedApi:
             extra_headers['Content-Type'] = 'application/json'
         return self._client._request('GET', path, body=payload, extra_headers=extra_headers)
 
+    def auto_post_raster_name_aspect(self, name: str, query: Optional[Dict[str, Any]] = None, body: Any = None, headers: Optional[Dict[str, str]] = None) -> Any:
+        """[auto] POST /raster/{name}/aspect"""
+        path = f"/raster/{_quote_path_value(name)}/aspect"
+        if query:
+            q = urlencode({k: v for k, v in query.items() if v is not None})
+            if q:
+                path = f"{path}?{q}"
+        extra_headers = dict(headers or {})
+        payload = body
+        if payload is not None and 'Content-Type' not in extra_headers:
+            extra_headers['Content-Type'] = 'application/json'
+        return self._client._request('POST', path, body=payload, extra_headers=extra_headers)
+
     def raster_band_math(self, name: str, query: Optional[Dict[str, Any]] = None, body: Any = None, headers: Optional[Dict[str, str]] = None) -> Any:
         """Apply band math expression"""
         path = f"/raster/{_quote_path_value(name)}/band-math"
@@ -7801,6 +7541,19 @@ class RoteiroGeneratedApi:
             extra_headers['Content-Type'] = 'application/json'
         return self._client._request('POST', path, body=payload, extra_headers=extra_headers)
 
+    def auto_post_raster_name_slope(self, name: str, query: Optional[Dict[str, Any]] = None, body: Any = None, headers: Optional[Dict[str, str]] = None) -> Any:
+        """[auto] POST /raster/{name}/slope"""
+        path = f"/raster/{_quote_path_value(name)}/slope"
+        if query:
+            q = urlencode({k: v for k, v in query.items() if v is not None})
+            if q:
+                path = f"{path}?{q}"
+        extra_headers = dict(headers or {})
+        payload = body
+        if payload is not None and 'Content-Type' not in extra_headers:
+            extra_headers['Content-Type'] = 'application/json'
+        return self._client._request('POST', path, body=payload, extra_headers=extra_headers)
+
     def get_raster_stats(self, name: str, query: Optional[Dict[str, Any]] = None, body: Any = None, headers: Optional[Dict[str, str]] = None) -> Any:
         """Get raster band statistics"""
         path = f"/raster/{_quote_path_value(name)}/stats"
@@ -7869,58 +7622,6 @@ class RoteiroGeneratedApi:
     def auto_get_s_token(self, token: str, query: Optional[Dict[str, Any]] = None, body: Any = None, headers: Optional[Dict[str, str]] = None) -> Any:
         """[auto] GET /s/{token}"""
         path = f"/s/{_quote_path_value(token)}"
-        if query:
-            q = urlencode({k: v for k, v in query.items() if v is not None})
-            if q:
-                path = f"{path}?{q}"
-        extra_headers = dict(headers or {})
-        payload = body
-        if payload is not None and 'Content-Type' not in extra_headers:
-            extra_headers['Content-Type'] = 'application/json'
-        return self._client._request('GET', path, body=payload, extra_headers=extra_headers)
-
-    def auto_post_saml_acs(self, query: Optional[Dict[str, Any]] = None, body: Any = None, headers: Optional[Dict[str, str]] = None) -> Any:
-        """[auto] POST /saml/acs"""
-        path = "/saml/acs"
-        if query:
-            q = urlencode({k: v for k, v in query.items() if v is not None})
-            if q:
-                path = f"{path}?{q}"
-        extra_headers = dict(headers or {})
-        payload = body
-        if payload is not None and 'Content-Type' not in extra_headers:
-            extra_headers['Content-Type'] = 'application/json'
-        return self._client._request('POST', path, body=payload, extra_headers=extra_headers)
-
-    def auto_get_saml_login(self, query: Optional[Dict[str, Any]] = None, body: Any = None, headers: Optional[Dict[str, str]] = None) -> Any:
-        """[auto] GET /saml/login"""
-        path = "/saml/login"
-        if query:
-            q = urlencode({k: v for k, v in query.items() if v is not None})
-            if q:
-                path = f"{path}?{q}"
-        extra_headers = dict(headers or {})
-        payload = body
-        if payload is not None and 'Content-Type' not in extra_headers:
-            extra_headers['Content-Type'] = 'application/json'
-        return self._client._request('GET', path, body=payload, extra_headers=extra_headers)
-
-    def auto_get_saml_logout(self, query: Optional[Dict[str, Any]] = None, body: Any = None, headers: Optional[Dict[str, str]] = None) -> Any:
-        """[auto] GET /saml/logout"""
-        path = "/saml/logout"
-        if query:
-            q = urlencode({k: v for k, v in query.items() if v is not None})
-            if q:
-                path = f"{path}?{q}"
-        extra_headers = dict(headers or {})
-        payload = body
-        if payload is not None and 'Content-Type' not in extra_headers:
-            extra_headers['Content-Type'] = 'application/json'
-        return self._client._request('GET', path, body=payload, extra_headers=extra_headers)
-
-    def auto_get_saml_metadata(self, query: Optional[Dict[str, Any]] = None, body: Any = None, headers: Optional[Dict[str, str]] = None) -> Any:
-        """[auto] GET /saml/metadata"""
-        path = "/saml/metadata"
         if query:
             q = urlencode({k: v for k, v in query.items() if v is not None})
             if q:

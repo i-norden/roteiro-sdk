@@ -53,102 +53,6 @@ export class RoteiroGeneratedApi {
     });
   }
 
-  /** List audit log entries (admin only) */
-  async listauditlog(options: GeneratedRequestOptions = {}): Promise<unknown> {
-    const path = withQuery('/api/admin/audit', options.query);
-    const headers: Record<string, string> = { ...(options.headers ?? {}) };
-    let body: BodyInit | undefined;
-    if (options.body !== undefined) {
-      body = JSON.stringify(options.body);
-      if (!headers['Content-Type']) headers['Content-Type'] = 'application/json';
-    }
-    return this.client.request(path, {
-      method: 'GET',
-      headers,
-      body,
-    });
-  }
-
-  /** [auto] GET /api/admin/audit-log */
-  async autoGetApiAdminAuditLog(options: GeneratedRequestOptions = {}): Promise<unknown> {
-    const path = withQuery('/api/admin/audit-log', options.query);
-    const headers: Record<string, string> = { ...(options.headers ?? {}) };
-    let body: BodyInit | undefined;
-    if (options.body !== undefined) {
-      body = JSON.stringify(options.body);
-      if (!headers['Content-Type']) headers['Content-Type'] = 'application/json';
-    }
-    return this.client.request(path, {
-      method: 'GET',
-      headers,
-      body,
-    });
-  }
-
-  /** [auto] GET /api/admin/audit-log/actions */
-  async autoGetApiAdminAuditLogActions(options: GeneratedRequestOptions = {}): Promise<unknown> {
-    const path = withQuery('/api/admin/audit-log/actions', options.query);
-    const headers: Record<string, string> = { ...(options.headers ?? {}) };
-    let body: BodyInit | undefined;
-    if (options.body !== undefined) {
-      body = JSON.stringify(options.body);
-      if (!headers['Content-Type']) headers['Content-Type'] = 'application/json';
-    }
-    return this.client.request(path, {
-      method: 'GET',
-      headers,
-      body,
-    });
-  }
-
-  /** [auto] POST /api/admin/audit-log/archive */
-  async autoPostApiAdminAuditLogArchive(options: GeneratedRequestOptions = {}): Promise<unknown> {
-    const path = withQuery('/api/admin/audit-log/archive', options.query);
-    const headers: Record<string, string> = { ...(options.headers ?? {}) };
-    let body: BodyInit | undefined;
-    if (options.body !== undefined) {
-      body = JSON.stringify(options.body);
-      if (!headers['Content-Type']) headers['Content-Type'] = 'application/json';
-    }
-    return this.client.request(path, {
-      method: 'POST',
-      headers,
-      body,
-    });
-  }
-
-  /** [auto] GET /api/admin/audit-log/export */
-  async autoGetApiAdminAuditLogExport(options: GeneratedRequestOptions = {}): Promise<unknown> {
-    const path = withQuery('/api/admin/audit-log/export', options.query);
-    const headers: Record<string, string> = { ...(options.headers ?? {}) };
-    let body: BodyInit | undefined;
-    if (options.body !== undefined) {
-      body = JSON.stringify(options.body);
-      if (!headers['Content-Type']) headers['Content-Type'] = 'application/json';
-    }
-    return this.client.request(path, {
-      method: 'GET',
-      headers,
-      body,
-    });
-  }
-
-  /** [auto] POST /api/admin/audit-log/verify */
-  async autoPostApiAdminAuditLogVerify(options: GeneratedRequestOptions = {}): Promise<unknown> {
-    const path = withQuery('/api/admin/audit-log/verify', options.query);
-    const headers: Record<string, string> = { ...(options.headers ?? {}) };
-    let body: BodyInit | undefined;
-    if (options.body !== undefined) {
-      body = JSON.stringify(options.body);
-      if (!headers['Content-Type']) headers['Content-Type'] = 'application/json';
-    }
-    return this.client.request(path, {
-      method: 'POST',
-      headers,
-      body,
-    });
-  }
-
   /** [auto] POST /api/admin/backup */
   async autoPostApiAdminBackup(options: GeneratedRequestOptions = {}): Promise<unknown> {
     const path = withQuery('/api/admin/backup', options.query);
@@ -197,9 +101,9 @@ export class RoteiroGeneratedApi {
     });
   }
 
-  /** [auto] GET /api/admin/compliance/status */
-  async autoGetApiAdminComplianceStatus(options: GeneratedRequestOptions = {}): Promise<unknown> {
-    const path = withQuery('/api/admin/compliance/status', options.query);
+  /** [auto] GET /api/admin/billing/tenants */
+  async autoGetApiAdminBillingTenants(options: GeneratedRequestOptions = {}): Promise<unknown> {
+    const path = withQuery('/api/admin/billing/tenants', options.query);
     const headers: Record<string, string> = { ...(options.headers ?? {}) };
     let body: BodyInit | undefined;
     if (options.body !== undefined) {
@@ -208,6 +112,38 @@ export class RoteiroGeneratedApi {
     }
     return this.client.request(path, {
       method: 'GET',
+      headers,
+      body,
+    });
+  }
+
+  /** [auto] GET /api/admin/billing/tenants/{id} */
+  async autoGetApiAdminBillingTenantsId(pathParams: { id: string }, options: GeneratedRequestOptions = {}): Promise<unknown> {
+    const path = withQuery(`/api/admin/billing/tenants/${encodeURIComponent(String(pathParams.id))}`, options.query);
+    const headers: Record<string, string> = { ...(options.headers ?? {}) };
+    let body: BodyInit | undefined;
+    if (options.body !== undefined) {
+      body = JSON.stringify(options.body);
+      if (!headers['Content-Type']) headers['Content-Type'] = 'application/json';
+    }
+    return this.client.request(path, {
+      method: 'GET',
+      headers,
+      body,
+    });
+  }
+
+  /** [auto] POST /api/admin/billing/tenants/{id}/reconcile */
+  async autoPostApiAdminBillingTenantsIdReconcile(pathParams: { id: string }, options: GeneratedRequestOptions = {}): Promise<unknown> {
+    const path = withQuery(`/api/admin/billing/tenants/${encodeURIComponent(String(pathParams.id))}/reconcile`, options.query);
+    const headers: Record<string, string> = { ...(options.headers ?? {}) };
+    let body: BodyInit | undefined;
+    if (options.body !== undefined) {
+      body = JSON.stringify(options.body);
+      if (!headers['Content-Type']) headers['Content-Type'] = 'application/json';
+    }
+    return this.client.request(path, {
+      method: 'POST',
       headers,
       body,
     });
@@ -261,102 +197,6 @@ export class RoteiroGeneratedApi {
     });
   }
 
-  /** [auto] GET /api/admin/lti/keys */
-  async autoGetApiAdminLtiKeys(options: GeneratedRequestOptions = {}): Promise<unknown> {
-    const path = withQuery('/api/admin/lti/keys', options.query);
-    const headers: Record<string, string> = { ...(options.headers ?? {}) };
-    let body: BodyInit | undefined;
-    if (options.body !== undefined) {
-      body = JSON.stringify(options.body);
-      if (!headers['Content-Type']) headers['Content-Type'] = 'application/json';
-    }
-    return this.client.request(path, {
-      method: 'GET',
-      headers,
-      body,
-    });
-  }
-
-  /** [auto] POST /api/admin/lti/keys */
-  async autoPostApiAdminLtiKeys(options: GeneratedRequestOptions = {}): Promise<unknown> {
-    const path = withQuery('/api/admin/lti/keys', options.query);
-    const headers: Record<string, string> = { ...(options.headers ?? {}) };
-    let body: BodyInit | undefined;
-    if (options.body !== undefined) {
-      body = JSON.stringify(options.body);
-      if (!headers['Content-Type']) headers['Content-Type'] = 'application/json';
-    }
-    return this.client.request(path, {
-      method: 'POST',
-      headers,
-      body,
-    });
-  }
-
-  /** [auto] GET /api/admin/lti/platforms */
-  async autoGetApiAdminLtiPlatforms(options: GeneratedRequestOptions = {}): Promise<unknown> {
-    const path = withQuery('/api/admin/lti/platforms', options.query);
-    const headers: Record<string, string> = { ...(options.headers ?? {}) };
-    let body: BodyInit | undefined;
-    if (options.body !== undefined) {
-      body = JSON.stringify(options.body);
-      if (!headers['Content-Type']) headers['Content-Type'] = 'application/json';
-    }
-    return this.client.request(path, {
-      method: 'GET',
-      headers,
-      body,
-    });
-  }
-
-  /** [auto] POST /api/admin/lti/platforms */
-  async autoPostApiAdminLtiPlatforms(options: GeneratedRequestOptions = {}): Promise<unknown> {
-    const path = withQuery('/api/admin/lti/platforms', options.query);
-    const headers: Record<string, string> = { ...(options.headers ?? {}) };
-    let body: BodyInit | undefined;
-    if (options.body !== undefined) {
-      body = JSON.stringify(options.body);
-      if (!headers['Content-Type']) headers['Content-Type'] = 'application/json';
-    }
-    return this.client.request(path, {
-      method: 'POST',
-      headers,
-      body,
-    });
-  }
-
-  /** [auto] PUT /api/admin/lti/platforms/{id} */
-  async autoPutApiAdminLtiPlatformsId(pathParams: { id: string }, options: GeneratedRequestOptions = {}): Promise<unknown> {
-    const path = withQuery(`/api/admin/lti/platforms/${encodeURIComponent(String(pathParams.id))}`, options.query);
-    const headers: Record<string, string> = { ...(options.headers ?? {}) };
-    let body: BodyInit | undefined;
-    if (options.body !== undefined) {
-      body = JSON.stringify(options.body);
-      if (!headers['Content-Type']) headers['Content-Type'] = 'application/json';
-    }
-    return this.client.request(path, {
-      method: 'PUT',
-      headers,
-      body,
-    });
-  }
-
-  /** [auto] DELETE /api/admin/lti/platforms/{id} */
-  async autoDeleteApiAdminLtiPlatformsId(pathParams: { id: string }, options: GeneratedRequestOptions = {}): Promise<unknown> {
-    const path = withQuery(`/api/admin/lti/platforms/${encodeURIComponent(String(pathParams.id))}`, options.query);
-    const headers: Record<string, string> = { ...(options.headers ?? {}) };
-    let body: BodyInit | undefined;
-    if (options.body !== undefined) {
-      body = JSON.stringify(options.body);
-      if (!headers['Content-Type']) headers['Content-Type'] = 'application/json';
-    }
-    return this.client.request(path, {
-      method: 'DELETE',
-      headers,
-      body,
-    });
-  }
-
   /** Onboarding funnel analytics (admin only) */
   async getadminonboardinganalytics(options: GeneratedRequestOptions = {}): Promise<unknown> {
     const path = withQuery('/api/admin/onboarding-analytics', options.query);
@@ -376,118 +216,6 @@ export class RoteiroGeneratedApi {
   /** [auto] POST /api/admin/restore */
   async autoPostApiAdminRestore(options: GeneratedRequestOptions = {}): Promise<unknown> {
     const path = withQuery('/api/admin/restore', options.query);
-    const headers: Record<string, string> = { ...(options.headers ?? {}) };
-    let body: BodyInit | undefined;
-    if (options.body !== undefined) {
-      body = JSON.stringify(options.body);
-      if (!headers['Content-Type']) headers['Content-Type'] = 'application/json';
-    }
-    return this.client.request(path, {
-      method: 'POST',
-      headers,
-      body,
-    });
-  }
-
-  /** [auto] GET /api/admin/sso/group-mappings */
-  async autoGetApiAdminSsoGroupMappings(options: GeneratedRequestOptions = {}): Promise<unknown> {
-    const path = withQuery('/api/admin/sso/group-mappings', options.query);
-    const headers: Record<string, string> = { ...(options.headers ?? {}) };
-    let body: BodyInit | undefined;
-    if (options.body !== undefined) {
-      body = JSON.stringify(options.body);
-      if (!headers['Content-Type']) headers['Content-Type'] = 'application/json';
-    }
-    return this.client.request(path, {
-      method: 'GET',
-      headers,
-      body,
-    });
-  }
-
-  /** [auto] POST /api/admin/sso/group-mappings */
-  async autoPostApiAdminSsoGroupMappings(options: GeneratedRequestOptions = {}): Promise<unknown> {
-    const path = withQuery('/api/admin/sso/group-mappings', options.query);
-    const headers: Record<string, string> = { ...(options.headers ?? {}) };
-    let body: BodyInit | undefined;
-    if (options.body !== undefined) {
-      body = JSON.stringify(options.body);
-      if (!headers['Content-Type']) headers['Content-Type'] = 'application/json';
-    }
-    return this.client.request(path, {
-      method: 'POST',
-      headers,
-      body,
-    });
-  }
-
-  /** [auto] PUT /api/admin/sso/group-mappings/{id} */
-  async autoPutApiAdminSsoGroupMappingsId(pathParams: { id: string }, options: GeneratedRequestOptions = {}): Promise<unknown> {
-    const path = withQuery(`/api/admin/sso/group-mappings/${encodeURIComponent(String(pathParams.id))}`, options.query);
-    const headers: Record<string, string> = { ...(options.headers ?? {}) };
-    let body: BodyInit | undefined;
-    if (options.body !== undefined) {
-      body = JSON.stringify(options.body);
-      if (!headers['Content-Type']) headers['Content-Type'] = 'application/json';
-    }
-    return this.client.request(path, {
-      method: 'PUT',
-      headers,
-      body,
-    });
-  }
-
-  /** [auto] DELETE /api/admin/sso/group-mappings/{id} */
-  async autoDeleteApiAdminSsoGroupMappingsId(pathParams: { id: string }, options: GeneratedRequestOptions = {}): Promise<unknown> {
-    const path = withQuery(`/api/admin/sso/group-mappings/${encodeURIComponent(String(pathParams.id))}`, options.query);
-    const headers: Record<string, string> = { ...(options.headers ?? {}) };
-    let body: BodyInit | undefined;
-    if (options.body !== undefined) {
-      body = JSON.stringify(options.body);
-      if (!headers['Content-Type']) headers['Content-Type'] = 'application/json';
-    }
-    return this.client.request(path, {
-      method: 'DELETE',
-      headers,
-      body,
-    });
-  }
-
-  /** [auto] POST /api/admin/sso/preview */
-  async autoPostApiAdminSsoPreview(options: GeneratedRequestOptions = {}): Promise<unknown> {
-    const path = withQuery('/api/admin/sso/preview', options.query);
-    const headers: Record<string, string> = { ...(options.headers ?? {}) };
-    let body: BodyInit | undefined;
-    if (options.body !== undefined) {
-      body = JSON.stringify(options.body);
-      if (!headers['Content-Type']) headers['Content-Type'] = 'application/json';
-    }
-    return this.client.request(path, {
-      method: 'POST',
-      headers,
-      body,
-    });
-  }
-
-  /** [auto] GET /api/admin/sso/status */
-  async autoGetApiAdminSsoStatus(options: GeneratedRequestOptions = {}): Promise<unknown> {
-    const path = withQuery('/api/admin/sso/status', options.query);
-    const headers: Record<string, string> = { ...(options.headers ?? {}) };
-    let body: BodyInit | undefined;
-    if (options.body !== undefined) {
-      body = JSON.stringify(options.body);
-      if (!headers['Content-Type']) headers['Content-Type'] = 'application/json';
-    }
-    return this.client.request(path, {
-      method: 'GET',
-      headers,
-      body,
-    });
-  }
-
-  /** [auto] POST /api/admin/sso/sync */
-  async autoPostApiAdminSsoSync(options: GeneratedRequestOptions = {}): Promise<unknown> {
-    const path = withQuery('/api/admin/sso/sync', options.query);
     const headers: Record<string, string> = { ...(options.headers ?? {}) };
     let body: BodyInit | undefined;
     if (options.body !== undefined) {
@@ -1072,38 +800,6 @@ export class RoteiroGeneratedApi {
     }
     return this.client.request(path, {
       method: 'POST',
-      headers,
-      body,
-    });
-  }
-
-  /** SSO/OIDC callback endpoint */
-  async ssocallback(options: GeneratedRequestOptions = {}): Promise<unknown> {
-    const path = withQuery('/api/auth/sso/callback', options.query);
-    const headers: Record<string, string> = { ...(options.headers ?? {}) };
-    let body: BodyInit | undefined;
-    if (options.body !== undefined) {
-      body = JSON.stringify(options.body);
-      if (!headers['Content-Type']) headers['Content-Type'] = 'application/json';
-    }
-    return this.client.request(path, {
-      method: 'GET',
-      headers,
-      body,
-    });
-  }
-
-  /** Initiate SSO/OIDC login flow */
-  async ssologin(options: GeneratedRequestOptions = {}): Promise<unknown> {
-    const path = withQuery('/api/auth/sso/login', options.query);
-    const headers: Record<string, string> = { ...(options.headers ?? {}) };
-    let body: BodyInit | undefined;
-    if (options.body !== undefined) {
-      body = JSON.stringify(options.body);
-      if (!headers['Content-Type']) headers['Content-Type'] = 'application/json';
-    }
-    return this.client.request(path, {
-      method: 'GET',
       headers,
       body,
     });
@@ -2517,22 +2213,6 @@ export class RoteiroGeneratedApi {
     });
   }
 
-  /** [auto] GET /api/classrooms/{id}/my-role */
-  async autoGetApiClassroomsIdMyRole(pathParams: { id: string }, options: GeneratedRequestOptions = {}): Promise<unknown> {
-    const path = withQuery(`/api/classrooms/${encodeURIComponent(String(pathParams.id))}/my-role`, options.query);
-    const headers: Record<string, string> = { ...(options.headers ?? {}) };
-    let body: BodyInit | undefined;
-    if (options.body !== undefined) {
-      body = JSON.stringify(options.body);
-      if (!headers['Content-Type']) headers['Content-Type'] = 'application/json';
-    }
-    return this.client.request(path, {
-      method: 'GET',
-      headers,
-      body,
-    });
-  }
-
   /** [auto] GET /api/classrooms/{id}/my-submissions */
   async autoGetApiClassroomsIdMySubmissions(pathParams: { id: string }, options: GeneratedRequestOptions = {}): Promise<unknown> {
     const path = withQuery(`/api/classrooms/${encodeURIComponent(String(pathParams.id))}/my-submissions`, options.query);
@@ -2784,6 +2464,22 @@ export class RoteiroGeneratedApi {
     }
     return this.client.request(path, {
       method: 'GET',
+      headers,
+      body,
+    });
+  }
+
+  /** [auto] POST /api/collections/{id}/items/export */
+  async autoPostApiCollectionsIdItemsExport(pathParams: { id: string }, options: GeneratedRequestOptions = {}): Promise<unknown> {
+    const path = withQuery(`/api/collections/${encodeURIComponent(String(pathParams.id))}/items/export`, options.query);
+    const headers: Record<string, string> = { ...(options.headers ?? {}) };
+    let body: BodyInit | undefined;
+    if (options.body !== undefined) {
+      body = JSON.stringify(options.body);
+      if (!headers['Content-Type']) headers['Content-Type'] = 'application/json';
+    }
+    return this.client.request(path, {
+      method: 'POST',
       headers,
       body,
     });
@@ -3285,22 +2981,6 @@ export class RoteiroGeneratedApi {
     });
   }
 
-  /** [auto] GET /api/discover */
-  async autoGetApiDiscover(options: GeneratedRequestOptions = {}): Promise<unknown> {
-    const path = withQuery('/api/discover', options.query);
-    const headers: Record<string, string> = { ...(options.headers ?? {}) };
-    let body: BodyInit | undefined;
-    if (options.body !== undefined) {
-      body = JSON.stringify(options.body);
-      if (!headers['Content-Type']) headers['Content-Type'] = 'application/json';
-    }
-    return this.client.request(path, {
-      method: 'GET',
-      headers,
-      body,
-    });
-  }
-
   /** API documentation UI */
   async getswaggerui(options: GeneratedRequestOptions = {}): Promise<unknown> {
     const path = withQuery('/api/docs', options.query);
@@ -3696,6 +3376,38 @@ export class RoteiroGeneratedApi {
     }
     return this.client.request(path, {
       method: 'GET',
+      headers,
+      body,
+    });
+  }
+
+  /** [auto] POST /api/geodesic/area */
+  async autoPostApiGeodesicArea(options: GeneratedRequestOptions = {}): Promise<unknown> {
+    const path = withQuery('/api/geodesic/area', options.query);
+    const headers: Record<string, string> = { ...(options.headers ?? {}) };
+    let body: BodyInit | undefined;
+    if (options.body !== undefined) {
+      body = JSON.stringify(options.body);
+      if (!headers['Content-Type']) headers['Content-Type'] = 'application/json';
+    }
+    return this.client.request(path, {
+      method: 'POST',
+      headers,
+      body,
+    });
+  }
+
+  /** [auto] POST /api/geodesic/length */
+  async autoPostApiGeodesicLength(options: GeneratedRequestOptions = {}): Promise<unknown> {
+    const path = withQuery('/api/geodesic/length', options.query);
+    const headers: Record<string, string> = { ...(options.headers ?? {}) };
+    let body: BodyInit | undefined;
+    if (options.body !== undefined) {
+      body = JSON.stringify(options.body);
+      if (!headers['Content-Type']) headers['Content-Type'] = 'application/json';
+    }
+    return this.client.request(path, {
+      method: 'POST',
       headers,
       body,
     });
@@ -5173,70 +4885,6 @@ export class RoteiroGeneratedApi {
     });
   }
 
-  /** [auto] GET /api/lti/.well-known/jwks.json */
-  async autoGetApiLtiWellKnownJwksJson(options: GeneratedRequestOptions = {}): Promise<unknown> {
-    const path = withQuery('/api/lti/.well-known/jwks.json', options.query);
-    const headers: Record<string, string> = { ...(options.headers ?? {}) };
-    let body: BodyInit | undefined;
-    if (options.body !== undefined) {
-      body = JSON.stringify(options.body);
-      if (!headers['Content-Type']) headers['Content-Type'] = 'application/json';
-    }
-    return this.client.request(path, {
-      method: 'GET',
-      headers,
-      body,
-    });
-  }
-
-  /** [auto] POST /api/lti/deeplink */
-  async autoPostApiLtiDeeplink(options: GeneratedRequestOptions = {}): Promise<unknown> {
-    const path = withQuery('/api/lti/deeplink', options.query);
-    const headers: Record<string, string> = { ...(options.headers ?? {}) };
-    let body: BodyInit | undefined;
-    if (options.body !== undefined) {
-      body = JSON.stringify(options.body);
-      if (!headers['Content-Type']) headers['Content-Type'] = 'application/json';
-    }
-    return this.client.request(path, {
-      method: 'POST',
-      headers,
-      body,
-    });
-  }
-
-  /** [auto] POST /api/lti/launch */
-  async autoPostApiLtiLaunch(options: GeneratedRequestOptions = {}): Promise<unknown> {
-    const path = withQuery('/api/lti/launch', options.query);
-    const headers: Record<string, string> = { ...(options.headers ?? {}) };
-    let body: BodyInit | undefined;
-    if (options.body !== undefined) {
-      body = JSON.stringify(options.body);
-      if (!headers['Content-Type']) headers['Content-Type'] = 'application/json';
-    }
-    return this.client.request(path, {
-      method: 'POST',
-      headers,
-      body,
-    });
-  }
-
-  /** [auto] GET /api/lti/login */
-  async autoGetApiLtiLogin(options: GeneratedRequestOptions = {}): Promise<unknown> {
-    const path = withQuery('/api/lti/login', options.query);
-    const headers: Record<string, string> = { ...(options.headers ?? {}) };
-    let body: BodyInit | undefined;
-    if (options.body !== undefined) {
-      body = JSON.stringify(options.body);
-      if (!headers['Content-Type']) headers['Content-Type'] = 'application/json';
-    }
-    return this.client.request(path, {
-      method: 'GET',
-      headers,
-      body,
-    });
-  }
-
   /** Terrain curvature analysis */
   async computecurvature(options: GeneratedRequestOptions = {}): Promise<unknown> {
     const path = withQuery('/api/manifold/curvature', options.query);
@@ -6533,6 +6181,22 @@ export class RoteiroGeneratedApi {
     });
   }
 
+  /** [auto] POST /api/plugins/marketplace/{id}/approve */
+  async autoPostApiPluginsMarketplaceIdApprove(pathParams: { id: string }, options: GeneratedRequestOptions = {}): Promise<unknown> {
+    const path = withQuery(`/api/plugins/marketplace/${encodeURIComponent(String(pathParams.id))}/approve`, options.query);
+    const headers: Record<string, string> = { ...(options.headers ?? {}) };
+    let body: BodyInit | undefined;
+    if (options.body !== undefined) {
+      body = JSON.stringify(options.body);
+      if (!headers['Content-Type']) headers['Content-Type'] = 'application/json';
+    }
+    return this.client.request(path, {
+      method: 'POST',
+      headers,
+      body,
+    });
+  }
+
   /** [auto] PUT /api/plugins/marketplace/{id}/config */
   async autoPutApiPluginsMarketplaceIdConfig(pathParams: { id: string }, options: GeneratedRequestOptions = {}): Promise<unknown> {
     const path = withQuery(`/api/plugins/marketplace/${encodeURIComponent(String(pathParams.id))}/config`, options.query);
@@ -7029,6 +6693,22 @@ export class RoteiroGeneratedApi {
     });
   }
 
+  /** [auto] GET /api/projects/{id}/datasets/details */
+  async autoGetApiProjectsIdDatasetsDetails(pathParams: { id: string }, options: GeneratedRequestOptions = {}): Promise<unknown> {
+    const path = withQuery(`/api/projects/${encodeURIComponent(String(pathParams.id))}/datasets/details`, options.query);
+    const headers: Record<string, string> = { ...(options.headers ?? {}) };
+    let body: BodyInit | undefined;
+    if (options.body !== undefined) {
+      body = JSON.stringify(options.body);
+      if (!headers['Content-Type']) headers['Content-Type'] = 'application/json';
+    }
+    return this.client.request(path, {
+      method: 'GET',
+      headers,
+      body,
+    });
+  }
+
   /** Remove dataset from project */
   async removeprojectdataset(pathParams: { id: string, name: string }, options: GeneratedRequestOptions = {}): Promise<unknown> {
     const path = withQuery(`/api/projects/${encodeURIComponent(String(pathParams.id))}/datasets/${encodeURIComponent(String(pathParams.name))}`, options.query);
@@ -7088,6 +6768,38 @@ export class RoteiroGeneratedApi {
     }
     return this.client.request(path, {
       method: 'DELETE',
+      headers,
+      body,
+    });
+  }
+
+  /** [auto] GET /api/projects/{id}/workspace */
+  async autoGetApiProjectsIdWorkspace(pathParams: { id: string }, options: GeneratedRequestOptions = {}): Promise<unknown> {
+    const path = withQuery(`/api/projects/${encodeURIComponent(String(pathParams.id))}/workspace`, options.query);
+    const headers: Record<string, string> = { ...(options.headers ?? {}) };
+    let body: BodyInit | undefined;
+    if (options.body !== undefined) {
+      body = JSON.stringify(options.body);
+      if (!headers['Content-Type']) headers['Content-Type'] = 'application/json';
+    }
+    return this.client.request(path, {
+      method: 'GET',
+      headers,
+      body,
+    });
+  }
+
+  /** [auto] PUT /api/projects/{id}/workspace */
+  async autoPutApiProjectsIdWorkspace(pathParams: { id: string }, options: GeneratedRequestOptions = {}): Promise<unknown> {
+    const path = withQuery(`/api/projects/${encodeURIComponent(String(pathParams.id))}/workspace`, options.query);
+    const headers: Record<string, string> = { ...(options.headers ?? {}) };
+    let body: BodyInit | undefined;
+    if (options.body !== undefined) {
+      body = JSON.stringify(options.body);
+      if (!headers['Content-Type']) headers['Content-Type'] = 'application/json';
+    }
+    return this.client.request(path, {
+      method: 'PUT',
       headers,
       body,
     });
@@ -7344,6 +7056,70 @@ export class RoteiroGeneratedApi {
     }
     return this.client.request(path, {
       method: 'DELETE',
+      headers,
+      body,
+    });
+  }
+
+  /** [auto] POST /api/raster/classify/isodata */
+  async autoPostApiRasterClassifyIsodata(options: GeneratedRequestOptions = {}): Promise<unknown> {
+    const path = withQuery('/api/raster/classify/isodata', options.query);
+    const headers: Record<string, string> = { ...(options.headers ?? {}) };
+    let body: BodyInit | undefined;
+    if (options.body !== undefined) {
+      body = JSON.stringify(options.body);
+      if (!headers['Content-Type']) headers['Content-Type'] = 'application/json';
+    }
+    return this.client.request(path, {
+      method: 'POST',
+      headers,
+      body,
+    });
+  }
+
+  /** [auto] POST /api/raster/classify/kmeans */
+  async autoPostApiRasterClassifyKmeans(options: GeneratedRequestOptions = {}): Promise<unknown> {
+    const path = withQuery('/api/raster/classify/kmeans', options.query);
+    const headers: Record<string, string> = { ...(options.headers ?? {}) };
+    let body: BodyInit | undefined;
+    if (options.body !== undefined) {
+      body = JSON.stringify(options.body);
+      if (!headers['Content-Type']) headers['Content-Type'] = 'application/json';
+    }
+    return this.client.request(path, {
+      method: 'POST',
+      headers,
+      body,
+    });
+  }
+
+  /** [auto] POST /api/raster/classify/ml */
+  async autoPostApiRasterClassifyMl(options: GeneratedRequestOptions = {}): Promise<unknown> {
+    const path = withQuery('/api/raster/classify/ml', options.query);
+    const headers: Record<string, string> = { ...(options.headers ?? {}) };
+    let body: BodyInit | undefined;
+    if (options.body !== undefined) {
+      body = JSON.stringify(options.body);
+      if (!headers['Content-Type']) headers['Content-Type'] = 'application/json';
+    }
+    return this.client.request(path, {
+      method: 'POST',
+      headers,
+      body,
+    });
+  }
+
+  /** [auto] POST /api/raster/classify/rf */
+  async autoPostApiRasterClassifyRf(options: GeneratedRequestOptions = {}): Promise<unknown> {
+    const path = withQuery('/api/raster/classify/rf', options.query);
+    const headers: Record<string, string> = { ...(options.headers ?? {}) };
+    let body: BodyInit | undefined;
+    if (options.body !== undefined) {
+      body = JSON.stringify(options.body);
+      if (!headers['Content-Type']) headers['Content-Type'] = 'application/json';
+    }
+    return this.client.request(path, {
+      method: 'POST',
       headers,
       body,
     });
@@ -7909,6 +7685,38 @@ export class RoteiroGeneratedApi {
     });
   }
 
+  /** [auto] GET /api/sql/datasets */
+  async autoGetApiSqlDatasets(options: GeneratedRequestOptions = {}): Promise<unknown> {
+    const path = withQuery('/api/sql/datasets', options.query);
+    const headers: Record<string, string> = { ...(options.headers ?? {}) };
+    let body: BodyInit | undefined;
+    if (options.body !== undefined) {
+      body = JSON.stringify(options.body);
+      if (!headers['Content-Type']) headers['Content-Type'] = 'application/json';
+    }
+    return this.client.request(path, {
+      method: 'GET',
+      headers,
+      body,
+    });
+  }
+
+  /** [auto] GET /api/sql/datasets/{name}/columns */
+  async autoGetApiSqlDatasetsNameColumns(pathParams: { name: string }, options: GeneratedRequestOptions = {}): Promise<unknown> {
+    const path = withQuery(`/api/sql/datasets/${encodeURIComponent(String(pathParams.name))}/columns`, options.query);
+    const headers: Record<string, string> = { ...(options.headers ?? {}) };
+    let body: BodyInit | undefined;
+    if (options.body !== undefined) {
+      body = JSON.stringify(options.body);
+      if (!headers['Content-Type']) headers['Content-Type'] = 'application/json';
+    }
+    return this.client.request(path, {
+      method: 'GET',
+      headers,
+      body,
+    });
+  }
+
   /** [auto] POST /api/sql/query */
   async autoPostApiSqlQuery(options: GeneratedRequestOptions = {}): Promise<unknown> {
     const path = withQuery('/api/sql/query', options.query);
@@ -7920,38 +7728,6 @@ export class RoteiroGeneratedApi {
     }
     return this.client.request(path, {
       method: 'POST',
-      headers,
-      body,
-    });
-  }
-
-  /** [auto] GET /api/sql/tables */
-  async autoGetApiSqlTables(options: GeneratedRequestOptions = {}): Promise<unknown> {
-    const path = withQuery('/api/sql/tables', options.query);
-    const headers: Record<string, string> = { ...(options.headers ?? {}) };
-    let body: BodyInit | undefined;
-    if (options.body !== undefined) {
-      body = JSON.stringify(options.body);
-      if (!headers['Content-Type']) headers['Content-Type'] = 'application/json';
-    }
-    return this.client.request(path, {
-      method: 'GET',
-      headers,
-      body,
-    });
-  }
-
-  /** [auto] GET /api/sql/tables/{schema}/{table}/columns */
-  async autoGetApiSqlTablesSchemaTableColumns(pathParams: { schema: string, table: string }, options: GeneratedRequestOptions = {}): Promise<unknown> {
-    const path = withQuery(`/api/sql/tables/${encodeURIComponent(String(pathParams.schema))}/${encodeURIComponent(String(pathParams.table))}/columns`, options.query);
-    const headers: Record<string, string> = { ...(options.headers ?? {}) };
-    let body: BodyInit | undefined;
-    if (options.body !== undefined) {
-      body = JSON.stringify(options.body);
-      if (!headers['Content-Type']) headers['Content-Type'] = 'application/json';
-    }
-    return this.client.request(path, {
-      method: 'GET',
       headers,
       body,
     });
@@ -8933,118 +8709,6 @@ export class RoteiroGeneratedApi {
     });
   }
 
-  /** List webhooks */
-  async listwebhooks(options: GeneratedRequestOptions = {}): Promise<unknown> {
-    const path = withQuery('/api/webhooks', options.query);
-    const headers: Record<string, string> = { ...(options.headers ?? {}) };
-    let body: BodyInit | undefined;
-    if (options.body !== undefined) {
-      body = JSON.stringify(options.body);
-      if (!headers['Content-Type']) headers['Content-Type'] = 'application/json';
-    }
-    return this.client.request(path, {
-      method: 'GET',
-      headers,
-      body,
-    });
-  }
-
-  /** Create a webhook */
-  async createwebhook(options: GeneratedRequestOptions = {}): Promise<unknown> {
-    const path = withQuery('/api/webhooks', options.query);
-    const headers: Record<string, string> = { ...(options.headers ?? {}) };
-    let body: BodyInit | undefined;
-    if (options.body !== undefined) {
-      body = JSON.stringify(options.body);
-      if (!headers['Content-Type']) headers['Content-Type'] = 'application/json';
-    }
-    return this.client.request(path, {
-      method: 'POST',
-      headers,
-      body,
-    });
-  }
-
-  /** Update a webhook (admin only) */
-  async updatewebhook(pathParams: { id: string }, options: GeneratedRequestOptions = {}): Promise<unknown> {
-    const path = withQuery(`/api/webhooks/${encodeURIComponent(String(pathParams.id))}`, options.query);
-    const headers: Record<string, string> = { ...(options.headers ?? {}) };
-    let body: BodyInit | undefined;
-    if (options.body !== undefined) {
-      body = JSON.stringify(options.body);
-      if (!headers['Content-Type']) headers['Content-Type'] = 'application/json';
-    }
-    return this.client.request(path, {
-      method: 'PUT',
-      headers,
-      body,
-    });
-  }
-
-  /** Delete a webhook (admin only) */
-  async deletewebhook(pathParams: { id: string }, options: GeneratedRequestOptions = {}): Promise<unknown> {
-    const path = withQuery(`/api/webhooks/${encodeURIComponent(String(pathParams.id))}`, options.query);
-    const headers: Record<string, string> = { ...(options.headers ?? {}) };
-    let body: BodyInit | undefined;
-    if (options.body !== undefined) {
-      body = JSON.stringify(options.body);
-      if (!headers['Content-Type']) headers['Content-Type'] = 'application/json';
-    }
-    return this.client.request(path, {
-      method: 'DELETE',
-      headers,
-      body,
-    });
-  }
-
-  /** [auto] GET /api/webhooks/{id}/deliveries */
-  async autoGetApiWebhooksIdDeliveries(pathParams: { id: string }, options: GeneratedRequestOptions = {}): Promise<unknown> {
-    const path = withQuery(`/api/webhooks/${encodeURIComponent(String(pathParams.id))}/deliveries`, options.query);
-    const headers: Record<string, string> = { ...(options.headers ?? {}) };
-    let body: BodyInit | undefined;
-    if (options.body !== undefined) {
-      body = JSON.stringify(options.body);
-      if (!headers['Content-Type']) headers['Content-Type'] = 'application/json';
-    }
-    return this.client.request(path, {
-      method: 'GET',
-      headers,
-      body,
-    });
-  }
-
-  /** [auto] POST /api/webhooks/{id}/regenerate */
-  async autoPostApiWebhooksIdRegenerate(pathParams: { id: string }, options: GeneratedRequestOptions = {}): Promise<unknown> {
-    const path = withQuery(`/api/webhooks/${encodeURIComponent(String(pathParams.id))}/regenerate`, options.query);
-    const headers: Record<string, string> = { ...(options.headers ?? {}) };
-    let body: BodyInit | undefined;
-    if (options.body !== undefined) {
-      body = JSON.stringify(options.body);
-      if (!headers['Content-Type']) headers['Content-Type'] = 'application/json';
-    }
-    return this.client.request(path, {
-      method: 'POST',
-      headers,
-      body,
-    });
-  }
-
-  /** Send a test event to a webhook (admin only) */
-  async testwebhook(pathParams: { id: string }, options: GeneratedRequestOptions = {}): Promise<unknown> {
-    const path = withQuery(`/api/webhooks/${encodeURIComponent(String(pathParams.id))}/test`, options.query);
-    const headers: Record<string, string> = { ...(options.headers ?? {}) };
-    let body: BodyInit | undefined;
-    if (options.body !== undefined) {
-      body = JSON.stringify(options.body);
-      if (!headers['Content-Type']) headers['Content-Type'] = 'application/json';
-    }
-    return this.client.request(path, {
-      method: 'POST',
-      headers,
-      body,
-    });
-  }
-
   /** [auto] GET /api/whitelabel */
   async autoGetApiWhitelabel(options: GeneratedRequestOptions = {}): Promise<unknown> {
     const path = withQuery('/api/whitelabel', options.query);
@@ -9413,6 +9077,22 @@ export class RoteiroGeneratedApi {
     });
   }
 
+  /** [auto] POST /raster/{name}/aspect */
+  async autoPostRasterNameAspect(pathParams: { name: string }, options: GeneratedRequestOptions = {}): Promise<unknown> {
+    const path = withQuery(`/raster/${encodeURIComponent(String(pathParams.name))}/aspect`, options.query);
+    const headers: Record<string, string> = { ...(options.headers ?? {}) };
+    let body: BodyInit | undefined;
+    if (options.body !== undefined) {
+      body = JSON.stringify(options.body);
+      if (!headers['Content-Type']) headers['Content-Type'] = 'application/json';
+    }
+    return this.client.request(path, {
+      method: 'POST',
+      headers,
+      body,
+    });
+  }
+
   /** Apply band math expression */
   async rasterbandmath(pathParams: { name: string }, options: GeneratedRequestOptions = {}): Promise<unknown> {
     const path = withQuery(`/raster/${encodeURIComponent(String(pathParams.name))}/band-math`, options.query);
@@ -9605,6 +9285,22 @@ export class RoteiroGeneratedApi {
     });
   }
 
+  /** [auto] POST /raster/{name}/slope */
+  async autoPostRasterNameSlope(pathParams: { name: string }, options: GeneratedRequestOptions = {}): Promise<unknown> {
+    const path = withQuery(`/raster/${encodeURIComponent(String(pathParams.name))}/slope`, options.query);
+    const headers: Record<string, string> = { ...(options.headers ?? {}) };
+    let body: BodyInit | undefined;
+    if (options.body !== undefined) {
+      body = JSON.stringify(options.body);
+      if (!headers['Content-Type']) headers['Content-Type'] = 'application/json';
+    }
+    return this.client.request(path, {
+      method: 'POST',
+      headers,
+      body,
+    });
+  }
+
   /** Get raster band statistics */
   async getrasterstats(pathParams: { name: string }, options: GeneratedRequestOptions = {}): Promise<unknown> {
     const path = withQuery(`/raster/${encodeURIComponent(String(pathParams.name))}/stats`, options.query);
@@ -9688,70 +9384,6 @@ export class RoteiroGeneratedApi {
   /** [auto] GET /s/{token} */
   async autoGetSToken(pathParams: { token: string }, options: GeneratedRequestOptions = {}): Promise<unknown> {
     const path = withQuery(`/s/${encodeURIComponent(String(pathParams.token))}`, options.query);
-    const headers: Record<string, string> = { ...(options.headers ?? {}) };
-    let body: BodyInit | undefined;
-    if (options.body !== undefined) {
-      body = JSON.stringify(options.body);
-      if (!headers['Content-Type']) headers['Content-Type'] = 'application/json';
-    }
-    return this.client.request(path, {
-      method: 'GET',
-      headers,
-      body,
-    });
-  }
-
-  /** [auto] POST /saml/acs */
-  async autoPostSamlAcs(options: GeneratedRequestOptions = {}): Promise<unknown> {
-    const path = withQuery('/saml/acs', options.query);
-    const headers: Record<string, string> = { ...(options.headers ?? {}) };
-    let body: BodyInit | undefined;
-    if (options.body !== undefined) {
-      body = JSON.stringify(options.body);
-      if (!headers['Content-Type']) headers['Content-Type'] = 'application/json';
-    }
-    return this.client.request(path, {
-      method: 'POST',
-      headers,
-      body,
-    });
-  }
-
-  /** [auto] GET /saml/login */
-  async autoGetSamlLogin(options: GeneratedRequestOptions = {}): Promise<unknown> {
-    const path = withQuery('/saml/login', options.query);
-    const headers: Record<string, string> = { ...(options.headers ?? {}) };
-    let body: BodyInit | undefined;
-    if (options.body !== undefined) {
-      body = JSON.stringify(options.body);
-      if (!headers['Content-Type']) headers['Content-Type'] = 'application/json';
-    }
-    return this.client.request(path, {
-      method: 'GET',
-      headers,
-      body,
-    });
-  }
-
-  /** [auto] GET /saml/logout */
-  async autoGetSamlLogout(options: GeneratedRequestOptions = {}): Promise<unknown> {
-    const path = withQuery('/saml/logout', options.query);
-    const headers: Record<string, string> = { ...(options.headers ?? {}) };
-    let body: BodyInit | undefined;
-    if (options.body !== undefined) {
-      body = JSON.stringify(options.body);
-      if (!headers['Content-Type']) headers['Content-Type'] = 'application/json';
-    }
-    return this.client.request(path, {
-      method: 'GET',
-      headers,
-      body,
-    });
-  }
-
-  /** [auto] GET /saml/metadata */
-  async autoGetSamlMetadata(options: GeneratedRequestOptions = {}): Promise<unknown> {
-    const path = withQuery('/saml/metadata', options.query);
     const headers: Record<string, string> = { ...(options.headers ?? {}) };
     let body: BodyInit | undefined;
     if (options.body !== undefined) {

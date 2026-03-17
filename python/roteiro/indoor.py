@@ -22,6 +22,17 @@ if TYPE_CHECKING:
     from .client import RoteiroClient
 
 
+def _infer_import_format(file_path: str) -> str:
+    lower = file_path.lower()
+    if lower.endswith(".ifc"):
+        return "ifc"
+    if lower.endswith(".gml") or lower.endswith(".xml"):
+        return "indoorgml"
+    if lower.endswith(".imdf.zip") or lower.endswith(".zip"):
+        return "imdf"
+    return ""
+
+
 # ---------------------------------------------------------------------------
 # Building CRUD
 # ---------------------------------------------------------------------------
@@ -351,8 +362,7 @@ def parse_indoor_gml(client: RoteiroClient, file_path: str) -> IndoorModel:
     Returns:
         An IndoorModel containing the parsed building.
     """
-    data = client._upload_file("/api/indoor/import", file_path)
-    return IndoorModel.from_dict(data)
+    return import_indoor_file(client, file_path)
 
 
 def import_ifc(client: RoteiroClient, file_path: str) -> IndoorModel:
@@ -368,8 +378,29 @@ def import_ifc(client: RoteiroClient, file_path: str) -> IndoorModel:
     Returns:
         An IndoorModel containing the parsed building.
     """
+    return import_indoor_file(client, file_path)
+
+
+def import_imdf(client: RoteiroClient, file_path: str) -> IndoorModel:
+    """Import and parse an IMDF archive.
+
+    Args:
+        client: An initialised RoteiroClient instance.
+        file_path: Local path to the IMDF ZIP archive.
+
+    Returns:
+        An IndoorModel containing the imported building.
+    """
+    return import_indoor_file(client, file_path)
+
+
+def import_indoor_file(client: RoteiroClient, file_path: str) -> IndoorModel:
+    """Import an IFC, IndoorGML, or IMDF file via Cairn's multipart endpoint."""
     data = client._upload_file("/api/indoor/import", file_path)
-    return IndoorModel.from_dict(data)
+    return IndoorModel(
+        building=IndoorBuilding.from_dict(data),
+        source_format=_infer_import_format(file_path),
+    )
 
 
 # ---------------------------------------------------------------------------

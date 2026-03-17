@@ -27,6 +27,7 @@ export interface ClientOptions {
 export interface HealthStatus {
   status: string;
   version?: string;
+  uptime?: number;
   uptime_seconds?: number;
   database?: { status: string; latency_ms?: number };
   storage?: { status: string };
@@ -47,13 +48,22 @@ export interface Dataset {
   path: string;
   format: string;
   crs: string;
+  status?: string;
   feature_count?: number;
   bounds?: [number, number, number, number];
+  description?: string;
 }
 
 // ---------------------------------------------------------------------------
 // Collections & Features (OGC API)
 // ---------------------------------------------------------------------------
+
+export interface Link {
+  href: string;
+  rel: string;
+  type?: string;
+  title?: string;
+}
 
 export interface Collection {
   id: string;
@@ -61,11 +71,15 @@ export interface Collection {
   path: string;
   format: string;
   crs: string;
+  storage_type?: string;
+  feature_count?: number;
+  geometryType?: string;
   title?: string;
   description?: string;
   extent?: {
-    spatial?: { bbox?: number[][] };
+    spatial?: { bbox?: number[][]; crs?: string };
   };
+  links?: Link[];
 }
 
 export interface GeoJSONGeometry {
@@ -85,6 +99,7 @@ export interface FeatureCollection {
   features: Feature[];
   numberMatched?: number;
   numberReturned?: number;
+  links?: Link[];
 }
 
 export interface QueryParams {
@@ -307,10 +322,12 @@ export interface DiffResult {
 
 export interface IndoorBuilding {
   id: string;
+  campus_id?: string;
   name: string;
   address?: string;
   metadata?: Record<string, string>;
   bounds?: unknown;
+  created_by?: number;
   created_at: string;
   updated_at: string;
   floors?: IndoorFloor[];
@@ -325,6 +342,8 @@ export interface IndoorFloor {
   elevation: number;
   height: number;
   outline?: unknown;
+  plan_image?: string;
+  plan_bounds?: [number, number, number, number];
   created_at: string;
 }
 
@@ -360,8 +379,13 @@ export interface IndoorAsset {
   floor_id: string;
   space_id: string;
   asset_type?: string;
+  asset_category?: 'person' | 'equipment' | 'furniture' | string;
   position?: unknown;
   properties?: Record<string, unknown>;
+  status?: 'active' | 'inactive' | 'maintenance' | 'missing' | string;
+  last_seen?: string;
+  created_at?: string;
+  updated_at?: string;
 }
 
 export interface NavigationStep {
@@ -387,9 +411,45 @@ export interface IndoorModel {
   source_format?: string;
 }
 
+export interface OccupancySpaceSummary {
+  space_id: string;
+  space_name: string;
+  floor_id: string;
+  floor_level: number;
+  space_type: string;
+  capacity: number;
+  current_count: number;
+  utilization: number;
+  status: 'low' | 'medium' | 'high';
+}
+
+export interface OccupancyFloorSummary {
+  floor_id: string;
+  floor_name: string;
+  level: number;
+  capacity: number;
+  occupants: number;
+  utilization: number;
+  space_count: number;
+}
+
+export interface OccupancyTypeSummary {
+  space_type: string;
+  count: number;
+  capacity: number;
+  occupants: number;
+  utilization: number;
+}
+
 export interface OccupancyData {
   building_id: string;
-  floors: Record<string, unknown>[];
+  total_capacity?: number;
+  total_occupants?: number;
+  overall_utilization?: number;
+  spaces?: OccupancySpaceSummary[];
+  floor_summary?: OccupancyFloorSummary[];
+  type_summary?: OccupancyTypeSummary[];
+  floors?: Record<string, unknown>[];
   [key: string]: unknown;
 }
 
@@ -401,13 +461,24 @@ export interface HostedLayer {
   id: string;
   name: string;
   description?: string;
-  format?: string;
+  owner_id?: number;
   status?: string;
-  path?: string;
+  source_format?: string;
+  source_path?: string;
+  published_path?: string;
   feature_count?: number;
-  bounds?: [number, number, number, number];
+  bbox?: [number, number, number, number];
+  crs?: string;
+  properties?: Record<string, unknown>;
+  style?: Record<string, unknown>;
+  tags?: string[];
   created_at?: string;
   updated_at?: string;
+  published_at?: string;
+  error_message?: string;
+  format?: string;
+  path?: string;
+  bounds?: [number, number, number, number];
 }
 
 // ---------------------------------------------------------------------------
@@ -420,8 +491,14 @@ export interface Attachment {
   feature_id?: string;
   filename: string;
   content_type: string;
-  size: number;
+  size?: number;
+  size_bytes?: number;
+  description?: string;
+  metadata?: Record<string, unknown>;
+  uploaded_by?: number;
   created_at?: string;
+  download_url?: string;
+  thumbnail_url?: string;
 }
 
 // ---------------------------------------------------------------------------
