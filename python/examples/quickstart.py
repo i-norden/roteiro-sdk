@@ -6,7 +6,6 @@ This script demonstrates the major features of the Roteiro Python SDK:
   - Querying features with filters
   - Running spatial processing pipelines
   - Using the VCS (version control) API
-  - Working with indoor GIS buildings
   - Performing raster analysis
 
 Prerequisites:
@@ -104,40 +103,7 @@ from roteiro import vcs
 #     print(f"  [{c.id[:8]}] {c.message}")
 
 # ---------------------------------------------------------------------------
-# 6. Indoor GIS
-# ---------------------------------------------------------------------------
-
-from roteiro import indoor
-
-# List buildings
-buildings = indoor.list_buildings(client)
-print(f"\n{len(buildings)} indoor buildings")
-
-# Create a building with floors and spaces
-# building = indoor.create_building(client, {
-#     "id": "office-hq",
-#     "name": "Headquarters",
-#     "address": "123 Main St",
-#     "floors": [
-#         {
-#             "id": "floor-1",
-#             "name": "Ground Floor",
-#             "level": 0,
-#             "spaces": [
-#                 {"id": "lobby", "name": "Lobby", "space_type": "corridor", "navigable": True},
-#                 {"id": "room-101", "name": "Conference Room", "space_type": "room"},
-#             ],
-#         },
-#     ],
-# })
-# print(f"Created building: {building.name}")
-
-# Find a path between spaces
-# route = indoor.find_path(client, "office-hq", "lobby", "room-101")
-# print(f"Route: {len(route.path)} steps, {route.total_distance:.1f}m")
-
-# ---------------------------------------------------------------------------
-# 7. Raster Analysis
+# 6. Raster Analysis
 # ---------------------------------------------------------------------------
 
 from roteiro import raster
@@ -154,7 +120,7 @@ from roteiro import raster
 # result = raster.band_math(client, "sentinel2", "(b4 - b3) / (b4 + b3)")
 
 # ---------------------------------------------------------------------------
-# 8. Tile URL helpers (for MapLibre / Leaflet integration)
+# 7. Tile URL helpers (for MapLibre / Leaflet integration)
 # ---------------------------------------------------------------------------
 
 print("\nTile URL templates:")

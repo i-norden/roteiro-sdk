@@ -12,7 +12,7 @@ requires-python = ">=3.9"
 authors = [
     {name = "roteiro contributors"}
 ]
-keywords = ["gis", "geospatial", "ogc", "maps", "indoor"]
+keywords = ["gis", "geospatial", "ogc", "maps"]
 classifiers = [
     "Development Status :: 3 - Alpha",
     "Intended Audience :: Developers",

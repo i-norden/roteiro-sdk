@@ -3,7 +3,7 @@
 The TypeScript SDK exposes the Cairn/Roteiro API through the same three layers used by the Python SDK:
 
 1. `RoteiroClient` for the handwritten, high-traffic workflows.
-2. Domain namespaces such as `analysis`, `attachments`, `collections`, `indoor`, `layers`, `raster`, and `vcs`.
+2. Domain namespaces such as `analysis`, `attachments`, `collections`, `layers`, `raster`, and `vcs`.
 3. `RoteiroGeneratedApi` for full parity with the server OpenAPI spec and the generated operation map in [`generated-operations.md`](./generated-operations.md).
 
 ## SDK Shape
@@ -11,7 +11,7 @@ The TypeScript SDK exposes the Cairn/Roteiro API through the same three layers u
 | Layer | Export | Use it for |
 |------|--------|------------|
 | Handwritten client | `RoteiroClient` | Health, datasets, collections, processing jobs, uploads, raster workflow helpers, and tile URL helpers |
-| Domain helpers | `analysis`, `collections`, `attachments`, `layers`, `vcs`, `raster`, `indoor`, `Pipeline` | Focused helpers grouped by domain; these are namespace exports, not instance methods on `RoteiroClient` |
+| Domain helpers | `analysis`, `collections`, `attachments`, `layers`, `vcs`, `raster`, `Pipeline` | Focused helpers grouped by domain; these are namespace exports, not instance methods on `RoteiroClient` |
 | Full API coverage | `RoteiroGeneratedApi` | Endpoints that are only available in the generated OpenAPI client |
 
 ## Installation
@@ -161,7 +161,6 @@ import {
   analysis,
   attachments,
   collections,
-  indoor,
   layers,
   raster,
   vcs,
@@ -176,7 +175,6 @@ import {
 | `layers` | `uploadLayer`, `listLayers`, `getLayer`, `updateLayer`, `publishLayer`, `archiveLayer`, `uploadLayerData`, `deleteLayer`, `previewLayer` |
 | `vcs` | `initRepo`, `commit`, `log`, `diff`, `checkout` |
 | `raster` | `getRasterInfo`, `getRasterStats`, `getRasterHistogram`, `getRasterDimensions`, `getRasterBandValues`, `bandMath`, `ndvi`, `hillshade`, `zonalStats`, `exportRaster`, `contour`, `viewshed`, `elevationProfile`, `kde`, `process`, `mosaic`, `getMosaicInfo` |
-| `indoor` | `listBuildings`, `getBuilding`, `createBuilding`, `updateBuilding`, `deleteBuilding`, `listFloors`, `createFloor`, `listSpaces`, `createSpace`, `getSpace`, `listAssets`, `createAsset`, `findPath`, `parseIndoorGml`, `importIfc`, `importIndoorFile`, `importImdf`, `getOccupancy`, `getEvacuationRoutes` |
 
 ### Example: analysis helpers
 
@@ -218,22 +216,6 @@ const info = await raster.getRasterInfo(client, 'dem');
 const stats = await raster.getRasterStats(client, 'dem', 0);
 const ndvi = await raster.ndvi(client, 'landsat_scene', 4, 3);
 const contours = await raster.contour(client, 'dem', { interval: 5 });
-```
-
-### Example: indoor helpers
-
-```typescript
-import { indoor } from '@roteiro/sdk';
-
-const buildings = await indoor.listBuildings(client);
-
-const route = await indoor.findPath(
-  client,
-  'hq',
-  'lobby',
-  'room-201',
-  true,
-);
 ```
 
 ## Pipeline Builder

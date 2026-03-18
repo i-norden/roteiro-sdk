@@ -51,7 +51,7 @@ console.log(health.status, collections.length, features.features.length, areas.l
 | Layer | Export | Notes |
 |------|--------|-------|
 | Handwritten client | `RoteiroClient` | Health, datasets, collections, processing jobs, uploads, raster workflow helpers, and tile URL helpers |
-| Domain helpers | `analysis`, `collections`, `attachments`, `layers`, `vcs`, `raster`, `indoor`, `Pipeline` | Namespace exports, not instance methods on `RoteiroClient` |
+| Domain helpers | `analysis`, `collections`, `attachments`, `layers`, `vcs`, `raster`, `Pipeline` | Namespace exports, not instance methods on `RoteiroClient` |
 | Full API coverage | `RoteiroGeneratedApi` | Generated from the server OpenAPI spec |
 
 ## Core Client Surface
@@ -74,7 +74,6 @@ console.log(health.status, collections.length, features.features.length, areas.l
 | `layers` | `uploadLayer`, `listLayers`, `getLayer`, `updateLayer`, `publishLayer`, `archiveLayer`, `uploadLayerData`, `deleteLayer`, `previewLayer` |
 | `vcs` | `initRepo`, `commit`, `log`, `diff`, `checkout` |
 | `raster` | `getRasterInfo`, `getRasterStats`, `getRasterHistogram`, `getRasterDimensions`, `getRasterBandValues`, `bandMath`, `ndvi`, `hillshade`, `zonalStats`, `exportRaster`, `contour`, `viewshed`, `elevationProfile`, `kde`, `process`, `mosaic`, `getMosaicInfo` |
-| `indoor` | `listBuildings`, `getBuilding`, `createBuilding`, `updateBuilding`, `deleteBuilding`, `listFloors`, `createFloor`, `listSpaces`, `createSpace`, `getSpace`, `listAssets`, `createAsset`, `findPath`, `parseIndoorGml`, `importIfc`, `importIndoorFile`, `importImdf`, `getOccupancy`, `getEvacuationRoutes` |
 
 ## Full API Coverage
 

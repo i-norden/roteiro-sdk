@@ -7,7 +7,6 @@
  *   - Querying features with filters
  *   - Running spatial processing pipelines
  *   - Using the VCS (version control) API
- *   - Working with indoor GIS buildings
  *   - Performing raster analysis
  *
  * Prerequisites:
@@ -19,7 +18,6 @@ import {
   RoteiroClient,
   Pipeline,
   vcs,
-  indoor,
   raster,
   layers,
 } from '../src/index';
@@ -110,36 +108,7 @@ async function main() {
   // }
 
   // -----------------------------------------------------------------------
-  // 6. Indoor GIS
-  // -----------------------------------------------------------------------
-
-  // Uncomment if indoor GIS is enabled:
-  // const buildings = await indoor.listBuildings(client);
-  // console.log(`\n${buildings.length} indoor buildings`);
-  //
-  // const building = await indoor.createBuilding(client, {
-  //   id: 'office-hq',
-  //   name: 'Headquarters',
-  //   address: '123 Main St',
-  //   floors: [
-  //     {
-  //       id: 'floor-1',
-  //       name: 'Ground Floor',
-  //       level: 0,
-  //       spaces: [
-  //         { id: 'lobby', name: 'Lobby', space_type: 'corridor', navigable: true },
-  //         { id: 'room-101', name: 'Conference Room', space_type: 'room' },
-  //       ],
-  //     },
-  //   ],
-  // });
-  // console.log(`Created building: ${building.name}`);
-  //
-  // const route = await indoor.findPath(client, 'office-hq', 'lobby', 'room-101');
-  // console.log(`Route: ${route.path.length} steps, ${route.totalDistance}m`);
-
-  // -----------------------------------------------------------------------
-  // 7. Raster Analysis
+  // 6. Raster Analysis
   // -----------------------------------------------------------------------
 
   // Uncomment for raster operations:
@@ -150,7 +119,7 @@ async function main() {
   // console.log('Band stats:', stats);
 
   // -----------------------------------------------------------------------
-  // 8. Tile URL helpers (for MapLibre / Leaflet)
+  // 7. Tile URL helpers (for MapLibre / Leaflet)
   // -----------------------------------------------------------------------
 
   console.log('\nTile URL templates:');

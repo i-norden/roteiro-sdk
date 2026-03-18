@@ -4,7 +4,7 @@ Provides a ``RoteiroClient`` class with automatic retry, exponential back-off,
 custom error handling, and typed helper methods for the core handwritten SDK
 surface. Domain-specific helpers also live in separate modules
 (``collections``, ``layers``, ``vcs``, ``pipeline``, ``attachments``,
-``raster``, ``indoor``) which accept a ``RoteiroClient`` instance.
+``raster``) which accept a ``RoteiroClient`` instance.
 """
 
 from __future__ import annotations
@@ -28,15 +28,10 @@ from .models import (
     FeatureCollection,
     HealthStatus,
     HostedLayer,
-    IndoorBuilding,
-    IndoorFloor,
-    IndoorModel,
-    IndoorSpace,
     RasterMosaicInfo,
     ProcessBatchSubmitResponse,
     ProcessJobRecord,
     ProcessPreflightResult,
-    NavigationResult,
     ProcessResult,
     RasterExportResult,
     RasterBandValues,
