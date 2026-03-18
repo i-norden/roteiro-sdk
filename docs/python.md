@@ -3,7 +3,7 @@
 The Python SDK exposes the Cairn/Roteiro API through the same three layers used by the TypeScript SDK:
 
 1. `RoteiroClient` for the handwritten, high-traffic workflows.
-2. Domain modules such as `analysis`, `attachments`, `collections`, `indoor`, `layers`, `raster`, and `vcs`.
+2. Domain modules such as `analysis`, `attachments`, `collections`, `layers`, `raster`, and `vcs`.
 3. `RoteiroGeneratedApi` for full parity with the server OpenAPI spec and the generated operation map in [`generated-operations.md`](./generated-operations.md).
 
 ## SDK Shape
@@ -11,7 +11,7 @@ The Python SDK exposes the Cairn/Roteiro API through the same three layers used 
 | Layer | Export | Use it for |
 |------|--------|------------|
 | Handwritten client | `RoteiroClient` | Health, datasets, collections, processing jobs, uploads, raster workflow helpers, and tile URL helpers |
-| Domain helpers | `analysis`, `collections`, `attachments`, `layers`, `vcs`, `raster`, `indoor`, `Pipeline` | Focused helpers grouped by domain; these are standalone modules, not instance methods on `RoteiroClient` |
+| Domain helpers | `analysis`, `collections`, `attachments`, `layers`, `vcs`, `raster`, `Pipeline` | Focused helpers grouped by domain; these are standalone modules, not instance methods on `RoteiroClient` |
 | Full API coverage | `RoteiroGeneratedApi` | Endpoints that are only available in the generated OpenAPI client |
 
 ## Installation
@@ -152,7 +152,7 @@ print([op["name"] for op in catalog["operations"]])
 Domain helpers are standalone modules, not `RoteiroClient` instance methods.
 
 ```python
-from roteiro import analysis, attachments, collections, indoor, layers, raster, vcs
+from roteiro import analysis, attachments, collections, layers, raster, vcs
 ```
 
 | Module | Key helpers |
@@ -163,7 +163,6 @@ from roteiro import analysis, attachments, collections, indoor, layers, raster, 
 | `layers` | `upload_layer`, `list_layers`, `get_layer`, `update_layer`, `publish_layer`, `archive_layer`, `upload_layer_data`, `delete_layer`, `preview_layer` |
 | `vcs` | `init_repo`, `commit`, `log`, `diff`, `checkout` |
 | `raster` | `get_raster_info`, `get_raster_stats`, `get_raster_histogram`, `get_raster_dimensions`, `get_raster_band_values`, `band_math`, `ndvi`, `hillshade`, `zonal_stats`, `export_raster`, `contour`, `viewshed`, `elevation_profile`, `kde`, `process`, `mosaic`, `get_mosaic_info` |
-| `indoor` | `list_buildings`, `get_building`, `create_building`, `update_building`, `delete_building`, `list_floors`, `create_floor`, `list_spaces`, `create_space`, `get_space`, `list_assets`, `create_asset`, `find_path`, `parse_indoor_gml`, `import_ifc`, `import_indoor_file`, `import_imdf`, `get_occupancy`, `get_evacuation_routes` |
 
 ### Example: analysis helpers
 
@@ -209,22 +208,6 @@ info = raster.get_raster_info(client, "dem")
 stats = raster.get_raster_stats(client, "dem", band=0)
 ndvi = raster.ndvi(client, "landsat_scene", nir_band=4, red_band=3)
 contours = raster.contour(client, "dem", interval=5)
-```
-
-### Example: indoor helpers
-
-```python
-from roteiro import indoor
-
-buildings = indoor.list_buildings(client)
-
-route = indoor.find_path(
-    client,
-    "hq",
-    "lobby",
-    "room-201",
-    accessible_only=True,
-)
 ```
 
 ## Pipeline Builder

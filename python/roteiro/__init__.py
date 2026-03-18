@@ -42,15 +42,7 @@ from .models import (
     FeatureCollection,
     HealthStatus,
     HostedLayer,
-    IndoorAsset,
-    IndoorBuilding,
-    IndoorFloor,
-    IndoorModel,
-    IndoorSpace,
-    IndoorTransition,
     Link,
-    NavigationResult,
-    NavigationStep,
     ProcessBatchSubmitResponse,
     ProcessJobRecord,
     ProcessPreflightResult,
@@ -99,15 +91,7 @@ __all__ = [
     "FeatureCollection",
     "HealthStatus",
     "HostedLayer",
-    "IndoorAsset",
-    "IndoorBuilding",
-    "IndoorFloor",
-    "IndoorModel",
-    "IndoorSpace",
-    "IndoorTransition",
     "Link",
-    "NavigationResult",
-    "NavigationStep",
     "ProcessBatchSubmitResponse",
     "ProcessJobRecord",
     "ProcessPreflightResult",
@@ -133,8 +117,7 @@ __all__ = [
     "pipeline",
     "attachments",
     "raster",
-    "indoor",
 ]
 
 # Make sub-modules importable as roteiro.collections, roteiro.vcs, etc.
-from . import analysis, attachments, collections, indoor, layers, raster, vcs
+from . import analysis, attachments, collections, layers, raster, vcs

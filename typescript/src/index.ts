@@ -8,7 +8,6 @@ export * as layers from './layers';
 export * as vcs from './vcs';
 export * as attachments from './attachments';
 export * as raster from './raster';
-export * as indoor from './indoor';
 
 // Pipeline builder
 export { Pipeline } from './pipeline';
@@ -56,19 +55,6 @@ export type {
   Repo,
   Commit,
   DiffResult,
-  // Indoor GIS
-  IndoorBuilding,
-  IndoorFloor,
-  IndoorSpace,
-  IndoorTransition,
-  IndoorAsset,
-  IndoorModel,
-  NavigationStep,
-  NavigationResult,
-  OccupancyFloorSummary,
-  OccupancySpaceSummary,
-  OccupancyData,
-  OccupancyTypeSummary,
   // Hosted Layers
   HostedLayer,
   // Attachments
