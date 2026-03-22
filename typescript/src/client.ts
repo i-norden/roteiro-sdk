@@ -16,6 +16,10 @@ import type {
   RasterMosaicRequest,
   RasterProcessRequest,
   RasterProcessResult,
+  SavedPipeline,
+  SavedPipelineCreateRequest,
+  SavedPipelineExecutionResult,
+  SavedPipelineUpdateRequest,
   ProcessingOperationsResponse,
   ProcessResult,
   QueryParams,
@@ -492,6 +496,60 @@ export class RoteiroClient {
     const q = sp.toString();
     return this.request<RasterMosaicInfo>(
       `/api/raster/mosaic/info${q ? `?${q}` : ''}`,
+    );
+  }
+
+  // -----------------------------------------------------------------------
+  // Saved Pipelines
+  // -----------------------------------------------------------------------
+
+  /** List persisted pipeline templates. */
+  async listPipelineTemplates(): Promise<SavedPipeline[]> {
+    return this.request<SavedPipeline[]>('/api/pipelines/templates');
+  }
+
+  /** List persisted pipelines for the current tenant. */
+  async listPipelines(): Promise<SavedPipeline[]> {
+    return this.request<SavedPipeline[]>('/api/pipelines');
+  }
+
+  /** Fetch a persisted pipeline by ID. */
+  async getPipeline(id: string): Promise<SavedPipeline> {
+    return this.request<SavedPipeline>(`/api/pipelines/${encodeURIComponent(id)}`);
+  }
+
+  /** Create a persisted pipeline definition. */
+  async createPipeline(params: SavedPipelineCreateRequest): Promise<SavedPipeline> {
+    return this.post<SavedPipeline>('/api/pipelines', params);
+  }
+
+  /** Update a persisted pipeline definition with optimistic concurrency. */
+  async updatePipeline(
+    id: string,
+    params: SavedPipelineUpdateRequest,
+  ): Promise<SavedPipeline> {
+    return this.put<SavedPipeline>(`/api/pipelines/${encodeURIComponent(id)}`, params);
+  }
+
+  /** Delete a persisted pipeline definition. */
+  async deletePipeline(id: string): Promise<void> {
+    await this.del(`/api/pipelines/${encodeURIComponent(id)}`);
+  }
+
+  /** Duplicate a persisted pipeline definition. */
+  async duplicatePipeline(id: string): Promise<SavedPipeline> {
+    return this.request<SavedPipeline>(`/api/pipelines/${encodeURIComponent(id)}/duplicate`, {
+      method: 'POST',
+    });
+  }
+
+  /** Submit a persisted pipeline for execution. */
+  async executePipeline(id: string): Promise<SavedPipelineExecutionResult> {
+    return this.request<SavedPipelineExecutionResult>(
+      `/api/pipelines/${encodeURIComponent(id)}/execute`,
+      {
+        method: 'POST',
+      },
     );
   }
 
