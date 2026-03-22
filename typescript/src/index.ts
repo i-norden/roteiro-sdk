@@ -85,4 +85,8 @@ export type {
   ClassifyResult,
   // Pipeline
   PipelineStep,
+  SavedPipeline,
+  SavedPipelineCreateRequest,
+  SavedPipelineExecutionResult,
+  SavedPipelineUpdateRequest,
 } from './types';

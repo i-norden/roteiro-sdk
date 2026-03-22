@@ -210,6 +210,61 @@ class RoteiroClientTests(unittest.TestCase):
         )
         self.assertEqual(jobs, [])
 
+    def test_create_and_execute_pipeline(self):
+        client = RoteiroClient("https://example.com")
+        captured = {}
+
+        def fake_post(path, body=None):
+            captured["create_path"] = path
+            captured["create_body"] = body
+            return {
+                "id": "pipe_123",
+                "name": "Suitability model",
+                "description": "Buffer and clip",
+                "graph": {"nodes": [{"id": "n1"}], "edges": []},
+                "canvas": None,
+                "version": 1,
+                "is_template": False,
+                "tenant_id": 7,
+                "created_at": "2026-03-22T00:00:00Z",
+                "updated_at": "2026-03-22T00:00:00Z",
+            }
+
+        def fake_request(method, path, body=None, extra_headers=None):
+            captured["execute_method"] = method
+            captured["execute_path"] = path
+            self.assertIsNone(body)
+            return {
+                "pipeline_id": "pipe_123",
+                "status": "submitted",
+                "node_count": 1,
+                "edge_count": 0,
+            }
+
+        client._post = fake_post  # type: ignore[method-assign]
+        client._request = fake_request  # type: ignore[method-assign]
+
+        pipeline = client.create_pipeline(
+            "Suitability model",
+            "Buffer and clip",
+            graph={"nodes": [{"id": "n1"}], "edges": []},
+        )
+        execution = client.execute_pipeline("pipe_123")
+
+        self.assertEqual(captured["create_path"], "/api/pipelines")
+        self.assertEqual(
+            captured["create_body"],
+            {
+                "name": "Suitability model",
+                "description": "Buffer and clip",
+                "graph": {"nodes": [{"id": "n1"}], "edges": []},
+            },
+        )
+        self.assertEqual(captured["execute_method"], "POST")
+        self.assertEqual(captured["execute_path"], "/api/pipelines/pipe_123/execute")
+        self.assertEqual(pipeline.id, "pipe_123")
+        self.assertEqual(execution.status, "submitted")
+
     def test_raster_process_posts_expected_body(self):
         client = RoteiroClient("https://example.com")
         captured = {}

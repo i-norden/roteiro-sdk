@@ -215,6 +215,62 @@ class ProcessResult:
 
 
 @dataclass
+class PipelineRecord:
+    """A persisted visual pipeline definition."""
+
+    id: str = ""
+    name: str = ""
+    description: str = ""
+    graph: Any = None
+    canvas: Any = None
+    version: int = 0
+    is_template: bool = False
+    template_category: Optional[str] = None
+    tenant_id: int = 0
+    created_by: Optional[int] = None
+    updated_by: Optional[int] = None
+    created_at: str = ""
+    updated_at: str = ""
+
+    @classmethod
+    def from_dict(cls, data: Dict[str, Any]) -> "PipelineRecord":
+        return cls(
+            id=data.get("id", ""),
+            name=data.get("name", ""),
+            description=data.get("description", ""),
+            graph=data.get("graph"),
+            canvas=data.get("canvas"),
+            version=data.get("version", 0),
+            is_template=data.get("is_template", False),
+            template_category=data.get("template_category"),
+            tenant_id=data.get("tenant_id", 0),
+            created_by=data.get("created_by"),
+            updated_by=data.get("updated_by"),
+            created_at=data.get("created_at", ""),
+            updated_at=data.get("updated_at", ""),
+        )
+
+
+@dataclass
+class PipelineExecutionResult:
+    """Result returned when submitting a saved pipeline for execution."""
+
+    pipeline_id: str = ""
+    status: str = ""
+    node_count: int = 0
+    edge_count: int = 0
+
+    @classmethod
+    def from_dict(cls, data: Dict[str, Any]) -> "PipelineExecutionResult":
+        return cls(
+            pipeline_id=data.get("pipeline_id", ""),
+            status=data.get("status", ""),
+            node_count=data.get("node_count", 0),
+            edge_count=data.get("edge_count", 0),
+        )
+
+
+@dataclass
 class WarningSuggestion:
     """Suggested follow-up action for a processing warning."""
 

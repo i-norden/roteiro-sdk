@@ -529,3 +529,41 @@ export interface PipelineStep {
   operation: string;
   params: Record<string, unknown>;
 }
+
+/** A persisted pipeline definition from the visual pipeline builder. */
+export interface SavedPipeline {
+  id: string;
+  name: string;
+  description: string;
+  graph: unknown;
+  canvas: unknown;
+  version: number;
+  is_template: boolean;
+  template_category?: string | null;
+  tenant_id: number;
+  created_by?: number | null;
+  updated_by?: number | null;
+  created_at: string;
+  updated_at: string;
+}
+
+/** Request body for creating a persisted pipeline. */
+export interface SavedPipelineCreateRequest {
+  name: string;
+  description?: string;
+  graph?: unknown;
+  canvas?: unknown;
+}
+
+/** Request body for updating a persisted pipeline. */
+export interface SavedPipelineUpdateRequest extends SavedPipelineCreateRequest {
+  version: number;
+}
+
+/** Result returned when submitting a saved pipeline for execution. */
+export interface SavedPipelineExecutionResult {
+  pipeline_id: string;
+  status: string;
+  node_count: number;
+  edge_count: number;
+}

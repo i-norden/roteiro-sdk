@@ -28,6 +28,8 @@ from .models import (
     FeatureCollection,
     HealthStatus,
     HostedLayer,
+    PipelineExecutionResult,
+    PipelineRecord,
     RasterMosaicInfo,
     ProcessBatchSubmitResponse,
     ProcessJobRecord,
@@ -912,6 +914,88 @@ class RoteiroClient:
             normalized_jobs.append(item)
         data = self._request("POST", "/api/process/jobs/batch", {"jobs": normalized_jobs})
         return ProcessBatchSubmitResponse.from_dict(data)
+
+    def list_pipeline_templates(self) -> List[PipelineRecord]:
+        """List persisted pipeline templates."""
+        data = self._get("/api/pipelines/templates")
+        return [PipelineRecord.from_dict(item) for item in data or []]
+
+    def list_pipelines(self) -> List[PipelineRecord]:
+        """List persisted pipelines for the current tenant."""
+        data = self._get("/api/pipelines")
+        return [PipelineRecord.from_dict(item) for item in data or []]
+
+    def get_pipeline(self, pipeline_id: str) -> PipelineRecord:
+        """Fetch a persisted pipeline by ID."""
+        data = self._get(f"/api/pipelines/{_encode_path_value(pipeline_id)}")
+        return PipelineRecord.from_dict(data)
+
+    def create_pipeline(
+        self,
+        name: str,
+        description: Optional[str] = None,
+        *,
+        graph: Any = None,
+        canvas: Any = None,
+    ) -> PipelineRecord:
+        """Create a persisted pipeline definition."""
+        body: Dict[str, Any] = {"name": name}
+        if description is not None:
+            body["description"] = description
+        if graph is not None:
+            body["graph"] = graph
+        if canvas is not None:
+            body["canvas"] = canvas
+        data = self._post("/api/pipelines", body)
+        return PipelineRecord.from_dict(data)
+
+    def update_pipeline(
+        self,
+        pipeline_id: str,
+        name: str,
+        version: int,
+        description: Optional[str] = None,
+        *,
+        graph: Any = None,
+        canvas: Any = None,
+    ) -> PipelineRecord:
+        """Update a persisted pipeline definition."""
+        body: Dict[str, Any] = {
+            "name": name,
+            "version": version,
+        }
+        if description is not None:
+            body["description"] = description
+        if graph is not None:
+            body["graph"] = graph
+        if canvas is not None:
+            body["canvas"] = canvas
+        data = self._request(
+            "PUT",
+            f"/api/pipelines/{_encode_path_value(pipeline_id)}",
+            body,
+        )
+        return PipelineRecord.from_dict(data)
+
+    def delete_pipeline(self, pipeline_id: str) -> None:
+        """Delete a persisted pipeline definition."""
+        self._delete(f"/api/pipelines/{_encode_path_value(pipeline_id)}")
+
+    def duplicate_pipeline(self, pipeline_id: str) -> PipelineRecord:
+        """Duplicate a persisted pipeline definition."""
+        data = self._request(
+            "POST",
+            f"/api/pipelines/{_encode_path_value(pipeline_id)}/duplicate",
+        )
+        return PipelineRecord.from_dict(data)
+
+    def execute_pipeline(self, pipeline_id: str) -> PipelineExecutionResult:
+        """Submit a persisted pipeline for execution."""
+        data = self._request(
+            "POST",
+            f"/api/pipelines/{_encode_path_value(pipeline_id)}/execute",
+        )
+        return PipelineExecutionResult.from_dict(data)
 
     # ------------------------------------------------------------------
     # Upload

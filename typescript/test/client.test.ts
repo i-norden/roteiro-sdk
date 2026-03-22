@@ -131,6 +131,64 @@ describe('RoteiroClient', () => {
     expect(result).toEqual([]);
   });
 
+  it('creates and executes persisted pipelines', async () => {
+    const fetchMock = vi
+      .fn()
+      .mockImplementationOnce(async (url: string, init?: RequestInit) => {
+        expect(new URL(url).pathname).toBe('/api/pipelines');
+        expect(init?.method).toBe('POST');
+        expect(JSON.parse(String(init?.body))).toEqual({
+          name: 'Suitability model',
+          description: 'Buffer and clip',
+          graph: { nodes: [{ id: 'n1' }], edges: [] },
+        });
+        return new Response(
+          JSON.stringify({
+            id: 'pipe_123',
+            name: 'Suitability model',
+            description: 'Buffer and clip',
+            graph: { nodes: [{ id: 'n1' }], edges: [] },
+            canvas: null,
+            version: 1,
+            is_template: false,
+            tenant_id: 7,
+            created_at: '2026-03-22T00:00:00Z',
+            updated_at: '2026-03-22T00:00:00Z',
+          }),
+          { status: 201 },
+        );
+      })
+      .mockImplementationOnce(async (url: string, init?: RequestInit) => {
+        expect(new URL(url).pathname).toBe('/api/pipelines/pipe_123/execute');
+        expect(init?.method).toBe('POST');
+        return new Response(
+          JSON.stringify({
+            pipeline_id: 'pipe_123',
+            status: 'submitted',
+            node_count: 1,
+            edge_count: 0,
+          }),
+          { status: 200 },
+        );
+      });
+
+    const client = new RoteiroClient({
+      baseUrl: 'https://example.com',
+      fetch: fetchMock as typeof globalThis.fetch,
+    });
+
+    const created = await client.createPipeline({
+      name: 'Suitability model',
+      description: 'Buffer and clip',
+      graph: { nodes: [{ id: 'n1' }], edges: [] },
+    });
+    const execution = await client.executePipeline(created.id);
+
+    expect(created.id).toBe('pipe_123');
+    expect(execution.status).toBe('submitted');
+    expect(fetchMock).toHaveBeenCalledTimes(2);
+  });
+
   it('uploads datasets as multipart form data', async () => {
     const fetchMock = vi.fn(async (url: string, init?: RequestInit) => {
       expect(new URL(url).pathname).toBe('/upload');
