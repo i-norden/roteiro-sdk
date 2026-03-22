@@ -1,6 +1,6 @@
 # TypeScript SDK Guide
 
-The TypeScript SDK exposes the Cairn/Roteiro API through the same three layers used by the Python SDK:
+The TypeScript SDK exposes the Roteiro API through the same three layers used by the Python SDK:
 
 1. `RoteiroClient` for the handwritten, high-traffic workflows.
 2. Domain namespaces such as `analysis`, `attachments`, `collections`, `layers`, `raster`, and `vcs`.

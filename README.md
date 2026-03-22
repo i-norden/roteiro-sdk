@@ -1,6 +1,6 @@
 # Roteiro SDKs
 
-Standalone SDK repository for the Cairn/Roteiro API clients and public plugin-development documentation.
+Standalone SDK repository for the Roteiro API clients and public plugin-development documentation.
 
 ## Packages
 
