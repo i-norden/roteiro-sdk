@@ -1,10 +1,10 @@
 # roteiro
 
-Python SDK for the Cairn/Roteiro API. It mirrors the TypeScript SDK in structure: a handwritten client for common workflows, domain modules for focused helpers, and a generated client for full OpenAPI coverage.
+Python SDK for the Roteiro API. It mirrors the TypeScript SDK in structure: a handwritten client for common workflows, domain modules for focused helpers, and a generated client for full OpenAPI coverage.
 
 Full guide: [`../docs/python.md`](../docs/python.md)
 
-Set `project_id` on `RoteiroClient` when you want requests and tile helpers scoped to a specific Cairn project.
+Set `project_id` on `RoteiroClient` when you want requests and tile helpers scoped to a specific Roteiro project.
 
 ## Install
 

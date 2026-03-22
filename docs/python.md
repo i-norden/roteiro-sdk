@@ -1,6 +1,6 @@
 # Python SDK Guide
 
-The Python SDK exposes the Cairn/Roteiro API through the same three layers used by the TypeScript SDK:
+The Python SDK exposes the Roteiro API through the same three layers used by the TypeScript SDK:
 
 1. `RoteiroClient` for the handwritten, high-traffic workflows.
 2. Domain modules such as `analysis`, `attachments`, `collections`, `layers`, `raster`, and `vcs`.
