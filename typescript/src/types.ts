@@ -291,8 +291,15 @@ export interface DiffSummary {
 // ---------------------------------------------------------------------------
 
 export interface Repo {
-  path: string;
-  status: string;
+  id: string;
+  name: string;
+  tenant_id: number;
+  project_id?: number | null;
+  dataset_name?: string | null;
+  created_by?: number | null;
+  created_at: string;
+  path?: string;
+  status?: string;
 }
 
 export interface Commit {
@@ -300,6 +307,7 @@ export interface Commit {
   message: string;
   timestamp: string;
   parent?: string;
+  blob_id?: string;
   blob_hash?: string;
   feature_count?: number;
 }

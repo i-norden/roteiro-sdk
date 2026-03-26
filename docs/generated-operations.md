@@ -358,7 +358,6 @@ Auto-generated from the server OpenAPI spec. Each operation is available in both
 | DELETE | `/api/vcs/branches/{name}` | `autoDeleteApiVcsBranchesName` | `auto_delete_api_vcs_branches_name` |
 | POST | `/api/vcs/commit` | `vcscommit` | `vcs_commit` |
 | GET | `/api/vcs/diff` | `vcsdiff` | `vcs_diff` |
-| POST | `/api/vcs/init` | `vcsinit` | `vcs_init` |
 | GET | `/api/vcs/log` | `vcslog` | `vcs_log` |
 | GET | `/api/vcs/log/dataset/{name}` | `autoGetApiVcsLogDatasetName` | `auto_get_api_vcs_log_dataset_name` |
 | GET | `/api/vcs/prs` | `autoGetApiVcsPrs` | `auto_get_api_vcs_prs` |
@@ -369,6 +368,8 @@ Auto-generated from the server OpenAPI spec. Each operation is available in both
 | GET | `/api/vcs/prs/{id}/conflicts` | `autoGetApiVcsPrsIdConflicts` | `auto_get_api_vcs_prs_id_conflicts` |
 | POST | `/api/vcs/prs/{id}/merge` | `autoPostApiVcsPrsIdMerge` | `auto_post_api_vcs_prs_id_merge` |
 | POST | `/api/vcs/prs/{id}/reviews` | `autoPostApiVcsPrsIdReviews` | `auto_post_api_vcs_prs_id_reviews` |
+| GET | `/api/vcs/repos` | `vcslistrepos` | `vcs_list_repos` |
+| POST | `/api/vcs/repos` | `vcscreaterepo` | `vcs_create_repo` |
 | GET | `/api/vcs/tags` | `autoGetApiVcsTags` | `auto_get_api_vcs_tags` |
 | POST | `/api/vcs/tags` | `autoPostApiVcsTags` | `auto_post_api_vcs_tags` |
 | DELETE | `/api/vcs/tags/{name}` | `autoDeleteApiVcsTagsName` | `auto_delete_api_vcs_tags_name` |

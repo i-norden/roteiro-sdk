@@ -89,16 +89,16 @@ if collections:
 
 from roteiro import vcs
 
-# Initialise a new spatial repository
-# repo = vcs.init_repo(client, "/tmp/my-spatial-repo")
-# print(f"VCS repo initialised at {repo.path}")
+# Create a managed repository
+# repo = vcs.create_repo(client, "roads-history", dataset_name="roads")
+# print(f"Managed repo {repo.id}: {repo.name}")
 
 # Create a commit
-# commit_obj = vcs.commit(client, "/tmp/my-spatial-repo", "/data/buildings.geojson", "Initial import")
+# commit_obj = vcs.commit(client, repo.id, "/data/buildings.geojson", "Initial import")
 # print(f"Commit {commit_obj.id}: {commit_obj.message}")
 
 # View commit history
-# commits = vcs.log(client, "/tmp/my-spatial-repo")
+# commits = vcs.log(client, repo.id)
 # for c in commits:
 #     print(f"  [{c.id[:8]}] {c.message}")
 

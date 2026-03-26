@@ -111,6 +111,11 @@ export class RoteiroClient {
     return `${path}${separator}project_id=${encodeURIComponent(String(this.projectId))}`;
   }
 
+  /** Return the client's configured default project scope, if any. */
+  getProjectId(): number | undefined {
+    return this.projectId;
+  }
+
   /**
    * Execute an HTTP request with automatic retry and exponential back-off.
    *

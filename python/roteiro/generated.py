@@ -4616,19 +4616,6 @@ class RoteiroGeneratedApi:
             extra_headers['Content-Type'] = 'application/json'
         return self._client._request('GET', path, body=payload, extra_headers=extra_headers)
 
-    def vcs_init(self, query: Optional[Dict[str, Any]] = None, body: Any = None, headers: Optional[Dict[str, str]] = None) -> Any:
-        """Initialize spatial version control for a dataset"""
-        path = "/api/vcs/init"
-        if query:
-            q = urlencode({k: v for k, v in query.items() if v is not None})
-            if q:
-                path = f"{path}?{q}"
-        extra_headers = dict(headers or {})
-        payload = body
-        if payload is not None and 'Content-Type' not in extra_headers:
-            extra_headers['Content-Type'] = 'application/json'
-        return self._client._request('POST', path, body=payload, extra_headers=extra_headers)
-
     def vcs_log(self, query: Optional[Dict[str, Any]] = None, body: Any = None, headers: Optional[Dict[str, str]] = None) -> Any:
         """View version history"""
         path = "/api/vcs/log"
@@ -4749,6 +4736,32 @@ class RoteiroGeneratedApi:
     def auto_post_api_vcs_prs_id_reviews(self, id: str, query: Optional[Dict[str, Any]] = None, body: Any = None, headers: Optional[Dict[str, str]] = None) -> Any:
         """[auto] POST /api/vcs/prs/{id}/reviews"""
         path = f"/api/vcs/prs/{_quote_path_value(id)}/reviews"
+        if query:
+            q = urlencode({k: v for k, v in query.items() if v is not None})
+            if q:
+                path = f"{path}?{q}"
+        extra_headers = dict(headers or {})
+        payload = body
+        if payload is not None and 'Content-Type' not in extra_headers:
+            extra_headers['Content-Type'] = 'application/json'
+        return self._client._request('POST', path, body=payload, extra_headers=extra_headers)
+
+    def vcs_list_repos(self, query: Optional[Dict[str, Any]] = None, body: Any = None, headers: Optional[Dict[str, str]] = None) -> Any:
+        """List managed VCS repositories"""
+        path = "/api/vcs/repos"
+        if query:
+            q = urlencode({k: v for k, v in query.items() if v is not None})
+            if q:
+                path = f"{path}?{q}"
+        extra_headers = dict(headers or {})
+        payload = body
+        if payload is not None and 'Content-Type' not in extra_headers:
+            extra_headers['Content-Type'] = 'application/json'
+        return self._client._request('GET', path, body=payload, extra_headers=extra_headers)
+
+    def vcs_create_repo(self, query: Optional[Dict[str, Any]] = None, body: Any = None, headers: Optional[Dict[str, str]] = None) -> Any:
+        """Create a managed VCS repository"""
+        path = "/api/vcs/repos"
         if query:
             q = urlencode({k: v for k, v in query.items() if v is not None})
             if q:

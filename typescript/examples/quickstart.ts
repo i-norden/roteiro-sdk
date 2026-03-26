@@ -94,15 +94,17 @@ async function main() {
   // -----------------------------------------------------------------------
 
   // Uncomment to use VCS:
-  // const repo = await vcs.initRepo(client, '/tmp/my-spatial-repo');
-  // console.log(`VCS repo initialised at ${repo.path}`);
+  // const repo = await vcs.createRepo(client, 'roads-history', {
+  //   datasetName: 'roads',
+  // });
+  // console.log(`Managed repo ${repo.id}: ${repo.name}`);
   //
   // const commitObj = await vcs.commit(
-  //   client, '/tmp/my-spatial-repo', '/data/buildings.geojson', 'Initial import'
+  //   client, repo.id, '/data/buildings.geojson', 'Initial import'
   // );
   // console.log(`Commit ${commitObj.id}: ${commitObj.message}`);
   //
-  // const commits = await vcs.log(client, '/tmp/my-spatial-repo');
+  // const commits = await vcs.log(client, repo.id);
   // for (const c of commits) {
   //   console.log(`  [${c.id.slice(0, 8)}] ${c.message}`);
   // }

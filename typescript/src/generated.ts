@@ -5685,22 +5685,6 @@ export class RoteiroGeneratedApi {
     });
   }
 
-  /** Initialize spatial version control for a dataset */
-  async vcsinit(options: GeneratedRequestOptions = {}): Promise<unknown> {
-    const path = withQuery('/api/vcs/init', options.query);
-    const headers: Record<string, string> = { ...(options.headers ?? {}) };
-    let body: BodyInit | undefined;
-    if (options.body !== undefined) {
-      body = JSON.stringify(options.body);
-      if (!headers['Content-Type']) headers['Content-Type'] = 'application/json';
-    }
-    return this.client.request(path, {
-      method: 'POST',
-      headers,
-      body,
-    });
-  }
-
   /** View version history */
   async vcslog(options: GeneratedRequestOptions = {}): Promise<unknown> {
     const path = withQuery('/api/vcs/log', options.query);
@@ -5848,6 +5832,38 @@ export class RoteiroGeneratedApi {
   /** [auto] POST /api/vcs/prs/{id}/reviews */
   async autoPostApiVcsPrsIdReviews(pathParams: { id: string }, options: GeneratedRequestOptions = {}): Promise<unknown> {
     const path = withQuery(`/api/vcs/prs/${encodeURIComponent(String(pathParams.id))}/reviews`, options.query);
+    const headers: Record<string, string> = { ...(options.headers ?? {}) };
+    let body: BodyInit | undefined;
+    if (options.body !== undefined) {
+      body = JSON.stringify(options.body);
+      if (!headers['Content-Type']) headers['Content-Type'] = 'application/json';
+    }
+    return this.client.request(path, {
+      method: 'POST',
+      headers,
+      body,
+    });
+  }
+
+  /** List managed VCS repositories */
+  async vcslistrepos(options: GeneratedRequestOptions = {}): Promise<unknown> {
+    const path = withQuery('/api/vcs/repos', options.query);
+    const headers: Record<string, string> = { ...(options.headers ?? {}) };
+    let body: BodyInit | undefined;
+    if (options.body !== undefined) {
+      body = JSON.stringify(options.body);
+      if (!headers['Content-Type']) headers['Content-Type'] = 'application/json';
+    }
+    return this.client.request(path, {
+      method: 'GET',
+      headers,
+      body,
+    });
+  }
+
+  /** Create a managed VCS repository */
+  async vcscreaterepo(options: GeneratedRequestOptions = {}): Promise<unknown> {
+    const path = withQuery('/api/vcs/repos', options.query);
     const headers: Record<string, string> = { ...(options.headers ?? {}) };
     let body: BodyInit | undefined;
     if (options.body !== undefined) {
