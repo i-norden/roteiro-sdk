@@ -32,7 +32,7 @@ describe('vcs helpers', () => {
       fetch: fetchMock as typeof globalThis.fetch,
     });
 
-    const repo = await vcs.initRepo(client, 'roads-history', {
+    const repo = await vcs.createRepo(client, 'roads-history', {
       datasetName: 'roads',
     });
 

@@ -42,21 +42,6 @@ def create_repo(
     return Repo.from_dict(data)
 
 
-def init_repo(
-    client: RoteiroClient,
-    name: str,
-    project_id: Optional[int] = None,
-    dataset_name: Optional[str] = None,
-) -> Repo:
-    """Backward-compatible alias for ``create_repo``."""
-    return create_repo(
-        client,
-        name,
-        project_id=project_id,
-        dataset_name=dataset_name,
-    )
-
-
 def list_repos(
     client: RoteiroClient,
     project_id: Optional[int] = None,

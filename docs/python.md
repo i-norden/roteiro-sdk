@@ -161,7 +161,7 @@ from roteiro import analysis, attachments, collections, layers, raster, vcs
 | `collections` | `list_collections`, `get_collection`, `get_items`, `get_item`, `create_item`, `update_item`, `delete_item` |
 | `attachments` | `upload_attachment`, `list_attachments`, `download_attachment`, `delete_attachment` |
 | `layers` | `upload_layer`, `list_layers`, `get_layer`, `update_layer`, `publish_layer`, `archive_layer`, `upload_layer_data`, `delete_layer`, `preview_layer` |
-| `vcs` | `create_repo`, `list_repos`, `get_repo`, `delete_repo`, `init_repo`, `commit`, `log`, `log_for_dataset`, `diff`, `checkout` |
+| `vcs` | `create_repo`, `list_repos`, `get_repo`, `delete_repo`, `commit`, `log`, `log_for_dataset`, `diff`, `checkout` |
 | `raster` | `get_raster_info`, `get_raster_stats`, `get_raster_histogram`, `get_raster_dimensions`, `get_raster_band_values`, `band_math`, `ndvi`, `hillshade`, `zonal_stats`, `export_raster`, `contour`, `viewshed`, `elevation_profile`, `kde`, `process`, `mosaic`, `get_mosaic_info` |
 
 ### Example: analysis helpers

@@ -5,7 +5,7 @@ from roteiro.client import RoteiroClient
 
 
 class VCSTests(unittest.TestCase):
-    def test_init_repo_creates_managed_repo(self):
+    def test_create_repo_creates_managed_repo(self):
         client = RoteiroClient("https://example.com", project_id=42)
         captured = {}
 
@@ -24,7 +24,7 @@ class VCSTests(unittest.TestCase):
 
         client._post = fake_post  # type: ignore[method-assign]
 
-        repo = vcs.init_repo(client, "roads-history", dataset_name="roads")
+        repo = vcs.create_repo(client, "roads-history", dataset_name="roads")
 
         self.assertEqual(captured["path"], "/api/vcs/repos")
         self.assertEqual(

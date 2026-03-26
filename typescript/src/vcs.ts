@@ -53,21 +53,6 @@ export async function createRepo(
 }
 
 /**
- * Backward-compatible alias for {@link createRepo}.
- *
- * Older SDK versions used `initRepo` for a filesystem-path-based flow that is
- * no longer exposed by the server. The current API creates managed
- * repositories by name instead.
- */
-export async function initRepo(
-  client: RoteiroClient,
-  name: string,
-  options: CreateRepoOptions = {},
-): Promise<Repo> {
-  return createRepo(client, name, options);
-}
-
-/**
  * List managed VCS repositories visible to the current tenant.
  */
 export async function listRepos(
