@@ -528,14 +528,28 @@ class DiffSummary:
 
 @dataclass
 class Repo:
-    """A spatial VCS repository."""
+    """A managed spatial VCS repository."""
 
-    path: str
+    id: str = ""
+    name: str = ""
+    tenant_id: Optional[int] = None
+    project_id: Optional[int] = None
+    dataset_name: Optional[str] = None
+    created_by: Optional[int] = None
+    created_at: str = ""
+    path: str = ""
     status: str = ""
 
     @classmethod
     def from_dict(cls, data: Dict[str, Any]) -> "Repo":
         return cls(
+            id=data.get("id", ""),
+            name=data.get("name", ""),
+            tenant_id=data.get("tenant_id"),
+            project_id=data.get("project_id"),
+            dataset_name=data.get("dataset_name"),
+            created_by=data.get("created_by"),
+            created_at=data.get("created_at", ""),
             path=data.get("path", ""),
             status=data.get("status", ""),
         )
@@ -549,6 +563,7 @@ class Commit:
     message: str = ""
     timestamp: str = ""
     parent: Optional[str] = None
+    blob_id: Optional[str] = None
     blob_hash: Optional[str] = None
     feature_count: Optional[int] = None
 
@@ -559,6 +574,7 @@ class Commit:
             message=data.get("message", ""),
             timestamp=data.get("timestamp", ""),
             parent=data.get("parent"),
+            blob_id=data.get("blob_id"),
             blob_hash=data.get("blob_hash"),
             feature_count=data.get("feature_count"),
         )

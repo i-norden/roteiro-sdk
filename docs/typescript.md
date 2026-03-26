@@ -173,7 +173,7 @@ import {
 | `collections` | `listCollections`, `getCollection`, `getItems`, `getItem`, `createItem`, `updateItem`, `deleteItem` |
 | `attachments` | `uploadAttachment`, `listAttachments`, `downloadAttachment`, `deleteAttachment` |
 | `layers` | `uploadLayer`, `listLayers`, `getLayer`, `updateLayer`, `publishLayer`, `archiveLayer`, `uploadLayerData`, `deleteLayer`, `previewLayer` |
-| `vcs` | `initRepo`, `commit`, `log`, `diff`, `checkout` |
+| `vcs` | `createRepo`, `listRepos`, `getRepo`, `deleteRepo`, `initRepo`, `commit`, `log`, `logForDataset`, `diff`, `checkout` |
 | `raster` | `getRasterInfo`, `getRasterStats`, `getRasterHistogram`, `getRasterDimensions`, `getRasterBandValues`, `bandMath`, `ndvi`, `hillshade`, `zonalStats`, `exportRaster`, `contour`, `viewshed`, `elevationProfile`, `kde`, `process`, `mosaic`, `getMosaicInfo` |
 
 ### Example: analysis helpers
