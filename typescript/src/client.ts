@@ -237,13 +237,6 @@ export class RoteiroClient {
     return this.request<Dataset[]>('/datasets');
   }
 
-  /** Register a new dataset. */
-  async registerDataset(
-    dataset: Partial<Dataset> & { project_id?: number },
-  ): Promise<Dataset> {
-    return this.post<Dataset>('/datasets', this.withDefaultProjectId(dataset));
-  }
-
   /** Delete a dataset registration. */
   async deleteDataset(name: string): Promise<void> {
     return this.del(`/datasets/${encodeURIComponent(name)}`);

@@ -416,35 +416,6 @@ class RoteiroClient:
         data = self._get("/datasets")
         return [Dataset.from_dict(d) for d in data]
 
-    def register_dataset(
-        self,
-        name: str,
-        path: str,
-        fmt: str = "",
-        crs: str = "",
-        project_id: Optional[int] = None,
-    ) -> Dataset:
-        """Register a new dataset.
-
-        Args:
-            name: Dataset name.
-            path: Filesystem path to the data file.
-            fmt: Data format (e.g. ``geojson``, ``parquet``).
-            crs: Coordinate reference system identifier.
-            project_id: Optional project to attach the dataset to.
-
-        Returns:
-            The registered Dataset.
-        """
-        data = self._post(
-            "/datasets",
-            self._with_project_id(
-                {"name": name, "path": path, "format": fmt, "crs": crs},
-                project_id=project_id,
-            ),
-        )
-        return Dataset.from_dict(data)
-
     def delete_dataset(self, name: str) -> None:
         """Delete a dataset registration.
 

@@ -6,7 +6,6 @@ Auto-generated from the server OpenAPI spec. Each operation is available in both
 |--------|------|-----------|---------------|
 | GET | `/` | `getlandingpage` | `get_landing_page` |
 | GET | `/api/3dtiles` | `autoGetApi3dtiles` | `auto_get_api_3dtiles` |
-| POST | `/api/3dtiles/register` | `autoPostApi3dtilesRegister` | `auto_post_api_3dtiles_register` |
 | GET | `/api/3dtiles/{dataset}/tileset.json` | `autoGetApi3dtilesDatasetTilesetJson` | `auto_get_api_3dtiles_dataset_tileset_json` |
 | GET | `/api/3dtiles/{dataset}/{path...}` | `autoGetApi3dtilesDatasetPath` | `auto_get_api_3dtiles_dataset_path` |
 | GET | `/api/activity` | `autoGetApiActivity` | `auto_get_api_activity` |
@@ -58,12 +57,13 @@ Auto-generated from the server OpenAPI spec. Each operation is available in both
 | POST | `/api/auth/verify-2fa` | `verifytwofactor` | `verify_two_factor` |
 | POST | `/api/auth/verify-email` | `verifyemail` | `verify_email` |
 | POST | `/api/billing/academic-verify` | `autoPostApiBillingAcademicVerify` | `auto_post_api_billing_academic_verify` |
+| POST | `/api/billing/checkout` | `autoPostApiBillingCheckout` | `auto_post_api_billing_checkout` |
 | GET | `/api/billing/invoices` | `autoGetApiBillingInvoices` | `auto_get_api_billing_invoices` |
 | GET | `/api/billing/plan` | `getcurrentplan` | `get_current_plan` |
 | GET | `/api/billing/plans` | `listplans` | `list_plans` |
 | POST | `/api/billing/portal` | `autoPostApiBillingPortal` | `auto_post_api_billing_portal` |
+| POST | `/api/billing/quote` | `autoPostApiBillingQuote` | `auto_post_api_billing_quote` |
 | GET | `/api/billing/status` | `autoGetApiBillingStatus` | `auto_get_api_billing_status` |
-| POST | `/api/billing/upgrade` | `upgradeplan` | `upgrade_plan` |
 | GET | `/api/billing/usage` | `getbillingusage` | `get_billing_usage` |
 | GET | `/api/billing/usage/history` | `autoGetApiBillingUsageHistory` | `auto_get_api_billing_usage_history` |
 | POST | `/api/billing/webhook` | `autoPostApiBillingWebhook` | `auto_post_api_billing_webhook` |
@@ -103,6 +103,7 @@ Auto-generated from the server OpenAPI spec. Each operation is available in both
 | GET | `/api/comments/{commentId}/replies` | `autoGetApiCommentsCommentIdReplies` | `auto_get_api_comments_comment_id_replies` |
 | POST | `/api/convert` | `convertdataset` | `convert_dataset` |
 | POST | `/api/datasets/register-remote` | `autoPostApiDatasetsRegisterRemote` | `auto_post_api_datasets_register_remote` |
+| GET | `/api/datasets/status` | `autoGetApiDatasetsStatus` | `auto_get_api_datasets_status` |
 | GET | `/api/datasets/{id}/lineage` | `autoGetApiDatasetsIdLineage` | `auto_get_api_datasets_id_lineage` |
 | GET | `/api/datasets/{name}/metadata` | `autoGetApiDatasetsNameMetadata` | `auto_get_api_datasets_name_metadata` |
 | PATCH | `/api/datasets/{name}/metadata` | `autoPatchApiDatasetsNameMetadata` | `auto_patch_api_datasets_name_metadata` |
@@ -136,6 +137,10 @@ Auto-generated from the server OpenAPI spec. Each operation is available in both
 | GET | `/api/geocode/reverse` | `reversegeocode` | `reverse_geocode` |
 | POST | `/api/geodesic/area` | `autoPostApiGeodesicArea` | `auto_post_api_geodesic_area` |
 | POST | `/api/geodesic/length` | `autoPostApiGeodesicLength` | `auto_post_api_geodesic_length` |
+| POST | `/api/invitations` | `autoPostApiInvitations` | `auto_post_api_invitations` |
+| POST | `/api/invitations/accept` | `autoPostApiInvitationsAccept` | `auto_post_api_invitations_accept` |
+| DELETE | `/api/invitations/{id}` | `autoDeleteApiInvitationsId` | `auto_delete_api_invitations_id` |
+| GET | `/api/invitations/{type}/{id}` | `autoGetApiInvitationsTypeId` | `auto_get_api_invitations_type_id` |
 | GET | `/api/jobs` | `autoGetApiJobs` | `auto_get_api_jobs` |
 | POST | `/api/jobs` | `autoPostApiJobs` | `auto_post_api_jobs` |
 | GET | `/api/jobs/{id}` | `autoGetApiJobsId` | `auto_get_api_jobs_id` |
@@ -212,6 +217,7 @@ Auto-generated from the server OpenAPI spec. Each operation is available in both
 | POST | `/api/permissions/check` | `autoPostApiPermissionsCheck` | `auto_post_api_permissions_check` |
 | DELETE | `/api/permissions/{id}` | `autoDeleteApiPermissionsId` | `auto_delete_api_permissions_id` |
 | POST | `/api/pipeline` | `runpipeline` | `run_pipeline` |
+| GET | `/api/pipeline-runs/{runId}` | `autoGetApiPipelineRunsRunId` | `auto_get_api_pipeline_runs_run_id` |
 | GET | `/api/pipeline/operations` | `listpipelineoperations` | `list_pipeline_operations` |
 | GET | `/api/pipelines` | `autoGetApiPipelines` | `auto_get_api_pipelines` |
 | POST | `/api/pipelines` | `autoPostApiPipelines` | `auto_post_api_pipelines` |
@@ -221,6 +227,7 @@ Auto-generated from the server OpenAPI spec. Each operation is available in both
 | DELETE | `/api/pipelines/{id}` | `autoDeleteApiPipelinesId` | `auto_delete_api_pipelines_id` |
 | POST | `/api/pipelines/{id}/duplicate` | `autoPostApiPipelinesIdDuplicate` | `auto_post_api_pipelines_id_duplicate` |
 | POST | `/api/pipelines/{id}/execute` | `autoPostApiPipelinesIdExecute` | `auto_post_api_pipelines_id_execute` |
+| GET | `/api/pipelines/{id}/runs` | `autoGetApiPipelinesIdRuns` | `auto_get_api_pipelines_id_runs` |
 | GET | `/api/plugins` | `listplugins` | `list_plugins` |
 | GET | `/api/plugins/catalog` | `plugincatalog` | `plugin_catalog` |
 | POST | `/api/plugins/install` | `installplugin` | `install_plugin` |
@@ -336,11 +343,11 @@ Auto-generated from the server OpenAPI spec. Each operation is available in both
 | POST | `/api/stories/{id}/slides/reorder` | `reorderslides` | `reorder_slides` |
 | PUT | `/api/stories/{id}/slides/{sid}` | `updateslide` | `update_slide` |
 | DELETE | `/api/stories/{id}/slides/{sid}` | `deleteslide` | `delete_slide` |
-| POST | `/api/sync/diff` | `autoPostApiSyncDiff` | `auto_post_api_sync_diff` |
-| POST | `/api/sync/download` | `autoPostApiSyncDownload` | `auto_post_api_sync_download` |
-| POST | `/api/sync/merge` | `autoPostApiSyncMerge` | `auto_post_api_sync_merge` |
-| GET | `/api/sync/status/{collection_id}` | `autoGetApiSyncStatusCollectionId` | `auto_get_api_sync_status_collection_id` |
-| POST | `/api/sync/upload` | `autoPostApiSyncUpload` | `auto_post_api_sync_upload` |
+| POST | `/api/sync/diff` | `syncdiff` | `sync_diff` |
+| POST | `/api/sync/download` | `syncdownload` | `sync_download` |
+| POST | `/api/sync/merge` | `syncmerge` | `sync_merge` |
+| GET | `/api/sync/status/{collection_id}` | `syncstatus` | `sync_status` |
+| POST | `/api/sync/upload` | `syncupload` | `sync_upload` |
 | GET | `/api/templates` | `autoGetApiTemplates` | `auto_get_api_templates` |
 | POST | `/api/templates` | `autoPostApiTemplates` | `auto_post_api_templates` |
 | GET | `/api/templates/{slug}` | `autoGetApiTemplatesSlug` | `auto_get_api_templates_slug` |
@@ -352,6 +359,7 @@ Auto-generated from the server OpenAPI spec. Each operation is available in both
 | POST | `/api/topology/homology` | `computepersistenthomology` | `compute_persistent_homology` |
 | POST | `/api/topology/spatiotemporal` | `computespatiotemporal` | `compute_spatiotemporal` |
 | POST | `/api/topology/wasserstein` | `computewassersteindistance` | `compute_wasserstein_distance` |
+| GET | `/api/users/search` | `autoGetApiUsersSearch` | `auto_get_api_users_search` |
 | GET | `/api/vcs/branches` | `autoGetApiVcsBranches` | `auto_get_api_vcs_branches` |
 | POST | `/api/vcs/branches` | `autoPostApiVcsBranches` | `auto_post_api_vcs_branches` |
 | POST | `/api/vcs/branches/switch` | `autoPostApiVcsBranchesSwitch` | `auto_post_api_vcs_branches_switch` |
@@ -370,6 +378,8 @@ Auto-generated from the server OpenAPI spec. Each operation is available in both
 | POST | `/api/vcs/prs/{id}/reviews` | `autoPostApiVcsPrsIdReviews` | `auto_post_api_vcs_prs_id_reviews` |
 | GET | `/api/vcs/repos` | `vcslistrepos` | `vcs_list_repos` |
 | POST | `/api/vcs/repos` | `vcscreaterepo` | `vcs_create_repo` |
+| GET | `/api/vcs/repos/{id}` | `autoGetApiVcsReposId` | `auto_get_api_vcs_repos_id` |
+| DELETE | `/api/vcs/repos/{id}` | `autoDeleteApiVcsReposId` | `auto_delete_api_vcs_repos_id` |
 | GET | `/api/vcs/tags` | `autoGetApiVcsTags` | `auto_get_api_vcs_tags` |
 | POST | `/api/vcs/tags` | `autoPostApiVcsTags` | `auto_post_api_vcs_tags` |
 | DELETE | `/api/vcs/tags/{name}` | `autoDeleteApiVcsTagsName` | `auto_delete_api_vcs_tags_name` |
@@ -379,9 +389,6 @@ Auto-generated from the server OpenAPI spec. Each operation is available in both
 | GET | `/api/watch/{resourceType}/{resourceId}/watchers` | `autoGetApiWatchResourceTypeResourceIdWatchers` | `auto_get_api_watch_resource_type_resource_id_watchers` |
 | GET | `/api/watches` | `autoGetApiWatches` | `auto_get_api_watches` |
 | GET | `/api/whitelabel` | `autoGetApiWhitelabel` | `auto_get_api_whitelabel` |
-| GET | `/basemap/fonts/{path...}` | `autoGetBasemapFontsPath` | `auto_get_basemap_fonts_path` |
-| GET | `/basemap/sprite/{name...}` | `autoGetBasemapSpriteName` | `auto_get_basemap_sprite_name` |
-| GET | `/basemap/style/{name...}` | `autoGetBasemapStyleName` | `auto_get_basemap_style_name` |
 | GET | `/collections` | `getcollections` | `get_collections` |
 | GET | `/collections/{id}` | `getcollection` | `get_collection` |
 | GET | `/collections/{id}/items` | `getfeatures` | `get_features` |
@@ -392,7 +399,6 @@ Auto-generated from the server OpenAPI spec. Each operation is available in both
 | GET | `/collections/{id}/queryables` | `getqueryables` | `get_queryables` |
 | GET | `/conformance` | `getconformance` | `get_conformance` |
 | GET | `/datasets` | `listdatasets` | `list_datasets` |
-| POST | `/datasets` | `registerdataset` | `register_dataset` |
 | DELETE | `/datasets/{name}` | `deletedataset` | `delete_dataset` |
 | GET | `/graphql` | `graphqlget` | `graphql_get` |
 | POST | `/graphql` | `graphqlpost` | `graphql_post` |
@@ -431,6 +437,7 @@ Auto-generated from the server OpenAPI spec. Each operation is available in both
 | GET | `/stac/collections` | `staclistcollections` | `stac_list_collections` |
 | GET | `/stac/collections/{id}` | `stacgetcollection` | `stac_get_collection` |
 | GET | `/stac/collections/{id}/items` | `staclistitems` | `stac_list_items` |
+| GET | `/stac/collections/{id}/items/{itemID}` | `autoGetStacCollectionsIdItemsItemID` | `auto_get_stac_collections_id_items_item_id` |
 | GET | `/stac/queryables` | `autoGetStacQueryables` | `auto_get_stac_queryables` |
 | GET | `/stac/search` | `stacsearch` | `stac_search` |
 | POST | `/stac/search` | `autoPostStacSearch` | `auto_post_stac_search` |

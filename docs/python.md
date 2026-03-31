@@ -71,7 +71,7 @@ Set `project_id` when you want the client to scope requests to a workspace proje
 
 | Area | Methods |
 |------|---------|
-| Health and datasets | `health`, `list_datasets`, `register_dataset`, `delete_dataset`, `upload` |
+| Health and datasets | `health`, `list_datasets`, `delete_dataset`, `upload` |
 | Collections and features | `list_collections`, `get_collection`, `get_items`, `query_features`, `get_item`, `get_feature`, `create_item`, `create_feature`, `update_item`, `update_feature`, `delete_item`, `delete_feature` |
 | Processing | `convert`, `process`, `diff`, `list_operations`, `preflight_process`, `submit_process_job`, `submit_process_batch`, `list_process_jobs`, `get_process_job`, `cancel_process_job`, `rerun_process_job` |
 | Raster workflow helpers | `raster_process`, `raster_mosaic`, `get_raster_mosaic_info` |
@@ -83,13 +83,6 @@ Set `project_id` when you want the client to scope requests to a workspace proje
 health = client.health()
 
 datasets = client.list_datasets()
-
-parcels = client.register_dataset(
-    name="parcels",
-    path="/data/parcels.geojson",
-    fmt="geojson",
-    crs="EPSG:4326",
-)
 
 uploaded = client.upload("./data/empty.geojson", name="empty")
 
