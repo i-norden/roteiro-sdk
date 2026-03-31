@@ -53,22 +53,6 @@ export class RoteiroGeneratedApi {
     });
   }
 
-  /** [auto] POST /api/3dtiles/register */
-  async autoPostApi3dtilesRegister(options: GeneratedRequestOptions = {}): Promise<unknown> {
-    const path = withQuery('/api/3dtiles/register', options.query);
-    const headers: Record<string, string> = { ...(options.headers ?? {}) };
-    let body: BodyInit | undefined;
-    if (options.body !== undefined) {
-      body = JSON.stringify(options.body);
-      if (!headers['Content-Type']) headers['Content-Type'] = 'application/json';
-    }
-    return this.client.request(path, {
-      method: 'POST',
-      headers,
-      body,
-    });
-  }
-
   /** [auto] GET /api/3dtiles/{dataset}/tileset.json */
   async autoGetApi3dtilesDatasetTilesetJson(pathParams: { dataset: string }, options: GeneratedRequestOptions = {}): Promise<unknown> {
     const path = withQuery(`/api/3dtiles/${encodeURIComponent(String(pathParams.dataset))}/tileset.json`, options.query);
@@ -885,6 +869,22 @@ export class RoteiroGeneratedApi {
     });
   }
 
+  /** [auto] POST /api/billing/checkout */
+  async autoPostApiBillingCheckout(options: GeneratedRequestOptions = {}): Promise<unknown> {
+    const path = withQuery('/api/billing/checkout', options.query);
+    const headers: Record<string, string> = { ...(options.headers ?? {}) };
+    let body: BodyInit | undefined;
+    if (options.body !== undefined) {
+      body = JSON.stringify(options.body);
+      if (!headers['Content-Type']) headers['Content-Type'] = 'application/json';
+    }
+    return this.client.request(path, {
+      method: 'POST',
+      headers,
+      body,
+    });
+  }
+
   /** [auto] GET /api/billing/invoices */
   async autoGetApiBillingInvoices(options: GeneratedRequestOptions = {}): Promise<unknown> {
     const path = withQuery('/api/billing/invoices', options.query);
@@ -949,6 +949,22 @@ export class RoteiroGeneratedApi {
     });
   }
 
+  /** [auto] POST /api/billing/quote */
+  async autoPostApiBillingQuote(options: GeneratedRequestOptions = {}): Promise<unknown> {
+    const path = withQuery('/api/billing/quote', options.query);
+    const headers: Record<string, string> = { ...(options.headers ?? {}) };
+    let body: BodyInit | undefined;
+    if (options.body !== undefined) {
+      body = JSON.stringify(options.body);
+      if (!headers['Content-Type']) headers['Content-Type'] = 'application/json';
+    }
+    return this.client.request(path, {
+      method: 'POST',
+      headers,
+      body,
+    });
+  }
+
   /** [auto] GET /api/billing/status */
   async autoGetApiBillingStatus(options: GeneratedRequestOptions = {}): Promise<unknown> {
     const path = withQuery('/api/billing/status', options.query);
@@ -960,22 +976,6 @@ export class RoteiroGeneratedApi {
     }
     return this.client.request(path, {
       method: 'GET',
-      headers,
-      body,
-    });
-  }
-
-  /** Upgrade to a paid plan (creates Stripe checkout) */
-  async upgradeplan(options: GeneratedRequestOptions = {}): Promise<unknown> {
-    const path = withQuery('/api/billing/upgrade', options.query);
-    const headers: Record<string, string> = { ...(options.headers ?? {}) };
-    let body: BodyInit | undefined;
-    if (options.body !== undefined) {
-      body = JSON.stringify(options.body);
-      if (!headers['Content-Type']) headers['Content-Type'] = 'application/json';
-    }
-    return this.client.request(path, {
-      method: 'POST',
       headers,
       body,
     });
@@ -1605,6 +1605,22 @@ export class RoteiroGeneratedApi {
     });
   }
 
+  /** [auto] GET /api/datasets/status */
+  async autoGetApiDatasetsStatus(options: GeneratedRequestOptions = {}): Promise<unknown> {
+    const path = withQuery('/api/datasets/status', options.query);
+    const headers: Record<string, string> = { ...(options.headers ?? {}) };
+    let body: BodyInit | undefined;
+    if (options.body !== undefined) {
+      body = JSON.stringify(options.body);
+      if (!headers['Content-Type']) headers['Content-Type'] = 'application/json';
+    }
+    return this.client.request(path, {
+      method: 'GET',
+      headers,
+      body,
+    });
+  }
+
   /** [auto] GET /api/datasets/{id}/lineage */
   async autoGetApiDatasetsIdLineage(pathParams: { id: string }, options: GeneratedRequestOptions = {}): Promise<unknown> {
     const path = withQuery(`/api/datasets/${encodeURIComponent(String(pathParams.id))}/lineage`, options.query);
@@ -2128,6 +2144,70 @@ export class RoteiroGeneratedApi {
     }
     return this.client.request(path, {
       method: 'POST',
+      headers,
+      body,
+    });
+  }
+
+  /** [auto] POST /api/invitations */
+  async autoPostApiInvitations(options: GeneratedRequestOptions = {}): Promise<unknown> {
+    const path = withQuery('/api/invitations', options.query);
+    const headers: Record<string, string> = { ...(options.headers ?? {}) };
+    let body: BodyInit | undefined;
+    if (options.body !== undefined) {
+      body = JSON.stringify(options.body);
+      if (!headers['Content-Type']) headers['Content-Type'] = 'application/json';
+    }
+    return this.client.request(path, {
+      method: 'POST',
+      headers,
+      body,
+    });
+  }
+
+  /** [auto] POST /api/invitations/accept */
+  async autoPostApiInvitationsAccept(options: GeneratedRequestOptions = {}): Promise<unknown> {
+    const path = withQuery('/api/invitations/accept', options.query);
+    const headers: Record<string, string> = { ...(options.headers ?? {}) };
+    let body: BodyInit | undefined;
+    if (options.body !== undefined) {
+      body = JSON.stringify(options.body);
+      if (!headers['Content-Type']) headers['Content-Type'] = 'application/json';
+    }
+    return this.client.request(path, {
+      method: 'POST',
+      headers,
+      body,
+    });
+  }
+
+  /** [auto] DELETE /api/invitations/{id} */
+  async autoDeleteApiInvitationsId(pathParams: { id: string }, options: GeneratedRequestOptions = {}): Promise<unknown> {
+    const path = withQuery(`/api/invitations/${encodeURIComponent(String(pathParams.id))}`, options.query);
+    const headers: Record<string, string> = { ...(options.headers ?? {}) };
+    let body: BodyInit | undefined;
+    if (options.body !== undefined) {
+      body = JSON.stringify(options.body);
+      if (!headers['Content-Type']) headers['Content-Type'] = 'application/json';
+    }
+    return this.client.request(path, {
+      method: 'DELETE',
+      headers,
+      body,
+    });
+  }
+
+  /** [auto] GET /api/invitations/{type}/{id} */
+  async autoGetApiInvitationsTypeId(pathParams: { type: string, id: string }, options: GeneratedRequestOptions = {}): Promise<unknown> {
+    const path = withQuery(`/api/invitations/${encodeURIComponent(String(pathParams.type))}/${encodeURIComponent(String(pathParams.id))}`, options.query);
+    const headers: Record<string, string> = { ...(options.headers ?? {}) };
+    let body: BodyInit | undefined;
+    if (options.body !== undefined) {
+      body = JSON.stringify(options.body);
+      if (!headers['Content-Type']) headers['Content-Type'] = 'application/json';
+    }
+    return this.client.request(path, {
+      method: 'GET',
       headers,
       body,
     });
@@ -3349,6 +3429,22 @@ export class RoteiroGeneratedApi {
     });
   }
 
+  /** [auto] GET /api/pipeline-runs/{runId} */
+  async autoGetApiPipelineRunsRunId(pathParams: { runId: string }, options: GeneratedRequestOptions = {}): Promise<unknown> {
+    const path = withQuery(`/api/pipeline-runs/${encodeURIComponent(String(pathParams.runId))}`, options.query);
+    const headers: Record<string, string> = { ...(options.headers ?? {}) };
+    let body: BodyInit | undefined;
+    if (options.body !== undefined) {
+      body = JSON.stringify(options.body);
+      if (!headers['Content-Type']) headers['Content-Type'] = 'application/json';
+    }
+    return this.client.request(path, {
+      method: 'GET',
+      headers,
+      body,
+    });
+  }
+
   /** List supported pipeline operations */
   async listpipelineoperations(options: GeneratedRequestOptions = {}): Promise<unknown> {
     const path = withQuery('/api/pipeline/operations', options.query);
@@ -3488,6 +3584,22 @@ export class RoteiroGeneratedApi {
     }
     return this.client.request(path, {
       method: 'POST',
+      headers,
+      body,
+    });
+  }
+
+  /** [auto] GET /api/pipelines/{id}/runs */
+  async autoGetApiPipelinesIdRuns(pathParams: { id: string }, options: GeneratedRequestOptions = {}): Promise<unknown> {
+    const path = withQuery(`/api/pipelines/${encodeURIComponent(String(pathParams.id))}/runs`, options.query);
+    const headers: Record<string, string> = { ...(options.headers ?? {}) };
+    let body: BodyInit | undefined;
+    if (options.body !== undefined) {
+      body = JSON.stringify(options.body);
+      if (!headers['Content-Type']) headers['Content-Type'] = 'application/json';
+    }
+    return this.client.request(path, {
+      method: 'GET',
       headers,
       body,
     });
@@ -5333,8 +5445,8 @@ export class RoteiroGeneratedApi {
     });
   }
 
-  /** [auto] POST /api/sync/diff */
-  async autoPostApiSyncDiff(options: GeneratedRequestOptions = {}): Promise<unknown> {
+  /** Get differential changes since a cursor position */
+  async syncdiff(options: GeneratedRequestOptions = {}): Promise<unknown> {
     const path = withQuery('/api/sync/diff', options.query);
     const headers: Record<string, string> = { ...(options.headers ?? {}) };
     let body: BodyInit | undefined;
@@ -5349,8 +5461,8 @@ export class RoteiroGeneratedApi {
     });
   }
 
-  /** [auto] POST /api/sync/download */
-  async autoPostApiSyncDownload(options: GeneratedRequestOptions = {}): Promise<unknown> {
+  /** Download full collection data for offline use */
+  async syncdownload(options: GeneratedRequestOptions = {}): Promise<unknown> {
     const path = withQuery('/api/sync/download', options.query);
     const headers: Record<string, string> = { ...(options.headers ?? {}) };
     let body: BodyInit | undefined;
@@ -5365,8 +5477,8 @@ export class RoteiroGeneratedApi {
     });
   }
 
-  /** [auto] POST /api/sync/merge */
-  async autoPostApiSyncMerge(options: GeneratedRequestOptions = {}): Promise<unknown> {
+  /** Three-way merge for conflict resolution */
+  async syncmerge(options: GeneratedRequestOptions = {}): Promise<unknown> {
     const path = withQuery('/api/sync/merge', options.query);
     const headers: Record<string, string> = { ...(options.headers ?? {}) };
     let body: BodyInit | undefined;
@@ -5381,8 +5493,8 @@ export class RoteiroGeneratedApi {
     });
   }
 
-  /** [auto] GET /api/sync/status/{collection_id} */
-  async autoGetApiSyncStatusCollectionId(pathParams: { collection_id: string }, options: GeneratedRequestOptions = {}): Promise<unknown> {
+  /** Get sync status for a collection */
+  async syncstatus(pathParams: { collection_id: string }, options: GeneratedRequestOptions = {}): Promise<unknown> {
     const path = withQuery(`/api/sync/status/${encodeURIComponent(String(pathParams.collection_id))}`, options.query);
     const headers: Record<string, string> = { ...(options.headers ?? {}) };
     let body: BodyInit | undefined;
@@ -5397,8 +5509,8 @@ export class RoteiroGeneratedApi {
     });
   }
 
-  /** [auto] POST /api/sync/upload */
-  async autoPostApiSyncUpload(options: GeneratedRequestOptions = {}): Promise<unknown> {
+  /** Upload offline changes with conflict detection */
+  async syncupload(options: GeneratedRequestOptions = {}): Promise<unknown> {
     const path = withQuery('/api/sync/upload', options.query);
     const headers: Record<string, string> = { ...(options.headers ?? {}) };
     let body: BodyInit | undefined;
@@ -5584,6 +5696,22 @@ export class RoteiroGeneratedApi {
     }
     return this.client.request(path, {
       method: 'POST',
+      headers,
+      body,
+    });
+  }
+
+  /** [auto] GET /api/users/search */
+  async autoGetApiUsersSearch(options: GeneratedRequestOptions = {}): Promise<unknown> {
+    const path = withQuery('/api/users/search', options.query);
+    const headers: Record<string, string> = { ...(options.headers ?? {}) };
+    let body: BodyInit | undefined;
+    if (options.body !== undefined) {
+      body = JSON.stringify(options.body);
+      if (!headers['Content-Type']) headers['Content-Type'] = 'application/json';
+    }
+    return this.client.request(path, {
+      method: 'GET',
       headers,
       body,
     });
@@ -5877,6 +6005,38 @@ export class RoteiroGeneratedApi {
     });
   }
 
+  /** [auto] GET /api/vcs/repos/{id} */
+  async autoGetApiVcsReposId(pathParams: { id: string }, options: GeneratedRequestOptions = {}): Promise<unknown> {
+    const path = withQuery(`/api/vcs/repos/${encodeURIComponent(String(pathParams.id))}`, options.query);
+    const headers: Record<string, string> = { ...(options.headers ?? {}) };
+    let body: BodyInit | undefined;
+    if (options.body !== undefined) {
+      body = JSON.stringify(options.body);
+      if (!headers['Content-Type']) headers['Content-Type'] = 'application/json';
+    }
+    return this.client.request(path, {
+      method: 'GET',
+      headers,
+      body,
+    });
+  }
+
+  /** [auto] DELETE /api/vcs/repos/{id} */
+  async autoDeleteApiVcsReposId(pathParams: { id: string }, options: GeneratedRequestOptions = {}): Promise<unknown> {
+    const path = withQuery(`/api/vcs/repos/${encodeURIComponent(String(pathParams.id))}`, options.query);
+    const headers: Record<string, string> = { ...(options.headers ?? {}) };
+    let body: BodyInit | undefined;
+    if (options.body !== undefined) {
+      body = JSON.stringify(options.body);
+      if (!headers['Content-Type']) headers['Content-Type'] = 'application/json';
+    }
+    return this.client.request(path, {
+      method: 'DELETE',
+      headers,
+      body,
+    });
+  }
+
   /** [auto] GET /api/vcs/tags */
   async autoGetApiVcsTags(options: GeneratedRequestOptions = {}): Promise<unknown> {
     const path = withQuery('/api/vcs/tags', options.query);
@@ -6008,54 +6168,6 @@ export class RoteiroGeneratedApi {
   /** [auto] GET /api/whitelabel */
   async autoGetApiWhitelabel(options: GeneratedRequestOptions = {}): Promise<unknown> {
     const path = withQuery('/api/whitelabel', options.query);
-    const headers: Record<string, string> = { ...(options.headers ?? {}) };
-    let body: BodyInit | undefined;
-    if (options.body !== undefined) {
-      body = JSON.stringify(options.body);
-      if (!headers['Content-Type']) headers['Content-Type'] = 'application/json';
-    }
-    return this.client.request(path, {
-      method: 'GET',
-      headers,
-      body,
-    });
-  }
-
-  /** [auto] GET /basemap/fonts/{path...} */
-  async autoGetBasemapFontsPath(pathParams: { path: string }, options: GeneratedRequestOptions = {}): Promise<unknown> {
-    const path = withQuery(`/basemap/fonts/${encodeURIComponent(String(pathParams.path))}`, options.query);
-    const headers: Record<string, string> = { ...(options.headers ?? {}) };
-    let body: BodyInit | undefined;
-    if (options.body !== undefined) {
-      body = JSON.stringify(options.body);
-      if (!headers['Content-Type']) headers['Content-Type'] = 'application/json';
-    }
-    return this.client.request(path, {
-      method: 'GET',
-      headers,
-      body,
-    });
-  }
-
-  /** [auto] GET /basemap/sprite/{name...} */
-  async autoGetBasemapSpriteName(pathParams: { name: string }, options: GeneratedRequestOptions = {}): Promise<unknown> {
-    const path = withQuery(`/basemap/sprite/${encodeURIComponent(String(pathParams.name))}`, options.query);
-    const headers: Record<string, string> = { ...(options.headers ?? {}) };
-    let body: BodyInit | undefined;
-    if (options.body !== undefined) {
-      body = JSON.stringify(options.body);
-      if (!headers['Content-Type']) headers['Content-Type'] = 'application/json';
-    }
-    return this.client.request(path, {
-      method: 'GET',
-      headers,
-      body,
-    });
-  }
-
-  /** [auto] GET /basemap/style/{name...} */
-  async autoGetBasemapStyleName(pathParams: { name: string }, options: GeneratedRequestOptions = {}): Promise<unknown> {
-    const path = withQuery(`/basemap/style/${encodeURIComponent(String(pathParams.name))}`, options.query);
     const headers: Record<string, string> = { ...(options.headers ?? {}) };
     let body: BodyInit | undefined;
     if (options.body !== undefined) {
@@ -6224,22 +6336,6 @@ export class RoteiroGeneratedApi {
     }
     return this.client.request(path, {
       method: 'GET',
-      headers,
-      body,
-    });
-  }
-
-  /** Register a new dataset */
-  async registerdataset(options: GeneratedRequestOptions = {}): Promise<unknown> {
-    const path = withQuery('/datasets', options.query);
-    const headers: Record<string, string> = { ...(options.headers ?? {}) };
-    let body: BodyInit | undefined;
-    if (options.body !== undefined) {
-      body = JSON.stringify(options.body);
-      if (!headers['Content-Type']) headers['Content-Type'] = 'application/json';
-    }
-    return this.client.request(path, {
-      method: 'POST',
       headers,
       body,
     });
@@ -6840,6 +6936,22 @@ export class RoteiroGeneratedApi {
   /** List STAC items in a collection */
   async staclistitems(pathParams: { id: string }, options: GeneratedRequestOptions = {}): Promise<unknown> {
     const path = withQuery(`/stac/collections/${encodeURIComponent(String(pathParams.id))}/items`, options.query);
+    const headers: Record<string, string> = { ...(options.headers ?? {}) };
+    let body: BodyInit | undefined;
+    if (options.body !== undefined) {
+      body = JSON.stringify(options.body);
+      if (!headers['Content-Type']) headers['Content-Type'] = 'application/json';
+    }
+    return this.client.request(path, {
+      method: 'GET',
+      headers,
+      body,
+    });
+  }
+
+  /** [auto] GET /stac/collections/{id}/items/{itemID} */
+  async autoGetStacCollectionsIdItemsItemID(pathParams: { id: string, itemID: string }, options: GeneratedRequestOptions = {}): Promise<unknown> {
+    const path = withQuery(`/stac/collections/${encodeURIComponent(String(pathParams.id))}/items/${encodeURIComponent(String(pathParams.itemID))}`, options.query);
     const headers: Record<string, string> = { ...(options.headers ?? {}) };
     let body: BodyInit | undefined;
     if (options.body !== undefined) {

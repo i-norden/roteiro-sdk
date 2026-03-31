@@ -58,7 +58,7 @@ console.log(health.status, collections.length, features.features.length, areas.l
 
 | Area | Methods |
 |------|---------|
-| Health and datasets | `health`, `listDatasets`, `registerDataset`, `deleteDataset`, `upload` |
+| Health and datasets | `health`, `listDatasets`, `deleteDataset`, `upload` |
 | Collections and features | `listCollections`, `getCollection`, `getItems`, `queryFeatures`, `getItem`, `getFeature`, `createItem`, `createFeature`, `updateItem`, `updateFeature`, `deleteItem`, `deleteFeature` |
 | Processing | `convert`, `process`, `diff`, `listOperations`, `preflightProcess`, `submitProcessJob`, `submitProcessBatch`, `listProcessJobs`, `getProcessJob`, `cancelProcessJob`, `rerunProcessJob` |
 | Raster workflow helpers | `rasterProcess`, `rasterMosaic`, `getRasterMosaicInfo` |

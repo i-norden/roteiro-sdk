@@ -73,7 +73,7 @@ Set `projectId` when you want the client to scope requests to a workspace projec
 
 | Area | Methods |
 |------|---------|
-| Health and datasets | `health`, `listDatasets`, `registerDataset`, `deleteDataset`, `upload` |
+| Health and datasets | `health`, `listDatasets`, `deleteDataset`, `upload` |
 | Collections and features | `listCollections`, `getCollection`, `getItems`, `queryFeatures`, `getItem`, `getFeature`, `createItem`, `createFeature`, `updateItem`, `updateFeature`, `deleteItem`, `deleteFeature` |
 | Processing | `convert`, `process`, `diff`, `listOperations`, `preflightProcess`, `submitProcessJob`, `submitProcessBatch`, `listProcessJobs`, `getProcessJob`, `cancelProcessJob`, `rerunProcessJob` |
 | Raster workflow helpers | `rasterProcess`, `rasterMosaic`, `getRasterMosaicInfo` |
@@ -85,13 +85,6 @@ Set `projectId` when you want the client to scope requests to a workspace projec
 const health = await client.health();
 
 const datasets = await client.listDatasets();
-
-const parcels = await client.registerDataset({
-  name: 'parcels',
-  path: '/data/parcels.geojson',
-  format: 'geojson',
-  crs: 'EPSG:4326',
-});
 
 const uploaded = await client.upload(
   new Blob(['{"type":"FeatureCollection","features":[]}'], {

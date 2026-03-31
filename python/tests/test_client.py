@@ -148,14 +148,9 @@ class RoteiroClientTests(unittest.TestCase):
         self.assertTrue(result.valid)
         self.assertEqual(result.resolved_params["mask_path"], "/tmp/mask.geojson")
 
-    def test_register_dataset_and_upload_apply_project_scope(self):
+    def test_upload_applies_project_scope(self):
         client = RoteiroClient("https://example.com", project_id=42)
         captured = {}
-
-        def fake_post(path, body=None):
-            captured["register_path"] = path
-            captured["register_body"] = body
-            return {"name": "roads", "path": "/tmp/roads.tif", "format": "geotiff"}
 
         def fake_upload(path, file_path, field_name="file", extra_fields=None):
             captured["upload_path"] = path
@@ -163,29 +158,15 @@ class RoteiroClientTests(unittest.TestCase):
             captured["upload_extra_fields"] = extra_fields
             return {"name": "roads", "path": "/tmp/roads.geojson", "format": "geojson"}
 
-        client._post = fake_post  # type: ignore[method-assign]
         client._upload_file = fake_upload  # type: ignore[method-assign]
 
-        dataset = client.register_dataset("roads", "/tmp/roads.tif", fmt="geotiff")
         uploaded = client.upload("/tmp/roads.geojson", name="roads")
 
-        self.assertEqual(captured["register_path"], "/datasets")
-        self.assertEqual(
-            captured["register_body"],
-            {
-                "name": "roads",
-                "path": "/tmp/roads.tif",
-                "format": "geotiff",
-                "crs": "",
-                "project_id": 42,
-            },
-        )
         self.assertEqual(captured["upload_path"], "/upload")
         self.assertEqual(
             captured["upload_extra_fields"],
             {"name": "roads", "project_id": "42"},
         )
-        self.assertEqual(dataset.name, "roads")
         self.assertEqual(uploaded.name, "roads")
 
     def test_list_process_jobs_builds_expected_query_params(self):
