@@ -1,36 +1,37 @@
 import type {
+  AdhocPipelineRequest,
   ClientOptions,
   Collection,
-  ConvertResult,
   Dataset,
-  DiffSummary,
   Feature,
   FeatureCollection,
   HealthStatus,
-  ListProcessJobsParams,
-  ProcessBatchSubmitResponse,
-  ProcessJobRecord,
-  ProcessPreflightResult,
-  ProcessRequest,
-  RasterMosaicInfo,
-  RasterMosaicRequest,
-  RasterProcessRequest,
-  RasterProcessResult,
+  ImportSourceRequest,
+  ListOperationJobsParams,
+  OperationBatchSubmitResponse,
+  OperationCatalog,
+  OperationJobRecord,
+  OperationPreflightResult,
+  OperationRequest,
+  OperationResponse,
+  PipelineExecutionResult,
+  PipelineRun,
+  Project,
+  ProjectWorkspace,
+  PublishMapRequest,
+  PublishMapResult,
+  QueryDataset,
+  QueryEngineInfo,
+  QueryExecuteRequest,
+  QueryExecuteResponse,
+  QueryParams,
+  SaveSqlResultRequest,
   SavedPipeline,
   SavedPipelineCreateRequest,
-  SavedPipelineExecutionResult,
   SavedPipelineUpdateRequest,
-  ProcessingOperationsResponse,
-  ProcessResult,
-  QueryParams,
 } from './types';
 
-/**
- * Custom error class for Roteiro API errors.
- * Contains the HTTP status code from the server response.
- */
 export class RoteiroAPIError extends Error {
-  /** HTTP status code returned by the server, if available. */
   public readonly statusCode?: number;
 
   constructor(message: string, statusCode?: number) {
@@ -40,18 +41,6 @@ export class RoteiroAPIError extends Error {
   }
 }
 
-/**
- * TypeScript client for the Roteiro GIS API.
- *
- * Supports automatic retry with exponential back-off for transient errors
- * (HTTP 429, 502, 503, 504) and fetch failures.
- *
- * ```ts
- * const client = new RoteiroClient({ baseUrl: 'http://localhost:8080' });
- * const health = await client.health();
- * const collections = await client.listCollections();
- * ```
- */
 export class RoteiroClient {
   private readonly baseUrl: string;
   private readonly apiKey?: string;
@@ -61,7 +50,6 @@ export class RoteiroClient {
   private readonly backoffFactor: number;
   private readonly fetchFn: typeof globalThis.fetch;
 
-  /** Retry-eligible HTTP status codes. */
   private static readonly RETRYABLE_STATUS = new Set([429, 502, 503, 504]);
 
   constructor(options: ClientOptions) {
@@ -74,57 +62,61 @@ export class RoteiroClient {
     this.fetchFn = options.fetch ?? globalThis.fetch.bind(globalThis);
   }
 
-  // -----------------------------------------------------------------------
-  // Internal helpers
-  // -----------------------------------------------------------------------
+  getProjectId(): number | undefined {
+    return this.projectId;
+  }
 
-  /** Build default headers for a request. */
-  private buildHeaders(extra?: Record<string, string>): Record<string, string> {
-    const headers: Record<string, string> = {
-      Accept: 'application/json',
-      ...extra,
-    };
-    if (this.apiKey) {
-      headers['X-API-Key'] = this.apiKey;
+  private buildHeaders(extra?: HeadersInit): Record<string, string> {
+    const headers = new Headers(extra);
+    if (!headers.has('Accept')) {
+      headers.set('Accept', 'application/json');
     }
-    if (this.projectId !== undefined) {
-      headers['X-Project-ID'] = String(this.projectId);
+    if (this.apiKey && !headers.has('X-API-Key')) {
+      headers.set('X-API-Key', this.apiKey);
     }
-    return headers;
+    if (this.projectId !== undefined && !headers.has('X-Project-ID')) {
+      headers.set('X-Project-ID', String(this.projectId));
+    }
+    return Object.fromEntries(headers.entries());
   }
 
   private withDefaultProjectId<T extends { project_id?: number }>(body: T): T {
     if (body.project_id !== undefined || this.projectId === undefined) {
       return body;
     }
-    return {
-      ...body,
-      project_id: this.projectId,
-    };
+    return { ...body, project_id: this.projectId };
   }
 
-  private withProjectQuery(path: string): string {
-    if (this.projectId === undefined) {
+  private withProjectQuery(path: string, projectId?: number): string {
+    const scopedProjectId = projectId ?? this.projectId;
+    if (scopedProjectId === undefined) {
       return path;
     }
     const separator = path.includes('?') ? '&' : '?';
-    return `${path}${separator}project_id=${encodeURIComponent(String(this.projectId))}`;
+    return `${path}${separator}project_id=${encodeURIComponent(String(scopedProjectId))}`;
   }
 
-  /** Return the client's configured default project scope, if any. */
-  getProjectId(): number | undefined {
-    return this.projectId;
+  private buildQuery(params: object): string {
+    const search = new URLSearchParams();
+    for (const [key, value] of Object.entries(params as Record<string, unknown>)) {
+      if (value === undefined || value === null) continue;
+      if (Array.isArray(value)) {
+        for (const item of value) {
+          if (item === undefined || item === null) continue;
+          search.append(key, String(item));
+        }
+        continue;
+      }
+      search.set(key, String(value));
+    }
+    const encoded = search.toString();
+    return encoded ? `?${encoded}` : '';
   }
 
-  /**
-   * Execute an HTTP request with automatic retry and exponential back-off.
-   *
-   * @internal
-   */
   private async requestResponse(path: string, init?: RequestInit): Promise<Response> {
     let lastError: Error | undefined;
 
-    for (let attempt = 0; attempt <= this.maxRetries; attempt++) {
+    for (let attempt = 0; attempt <= this.maxRetries; attempt += 1) {
       if (attempt > 0) {
         const delay = this.backoffFactor * 2 ** (attempt - 1);
         await new Promise((resolve) => setTimeout(resolve, delay));
@@ -133,50 +125,43 @@ export class RoteiroClient {
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), this.timeout);
 
-      const headers = this.buildHeaders(init?.headers as Record<string, string>);
-
       try {
         const response = await this.fetchFn(`${this.baseUrl}${path}`, {
           ...init,
-          headers,
+          headers: this.buildHeaders(init?.headers),
           signal: controller.signal,
         });
-
         clearTimeout(timeoutId);
 
         if (!response.ok) {
           if (RoteiroClient.RETRYABLE_STATUS.has(response.status)) {
-            lastError = new RoteiroAPIError(
-              `API error: ${response.status}`,
-              response.status,
-            );
+            lastError = new RoteiroAPIError(`API error: ${response.status}`, response.status);
             continue;
           }
 
           const body = await response.text();
           let message = `API error: ${response.status}`;
           try {
-            const err = JSON.parse(body);
-            message = err.error || err.message || message;
+            const parsed = JSON.parse(body) as Record<string, unknown>;
+            if (typeof parsed.error === 'string') message = parsed.error;
+            else if (typeof parsed.message === 'string') message = parsed.message;
           } catch {
-            // ignore parse errors
+            if (body.trim()) message = body.trim();
           }
           throw new RoteiroAPIError(message, response.status);
         }
 
         return response;
-      } catch (err) {
+      } catch (error) {
         clearTimeout(timeoutId);
-        if (err instanceof RoteiroAPIError) {
-          if (RoteiroClient.RETRYABLE_STATUS.has(err.statusCode ?? 0)) {
-            lastError = err;
+        if (error instanceof RoteiroAPIError) {
+          if (RoteiroClient.RETRYABLE_STATUS.has(error.statusCode ?? 0)) {
+            lastError = error;
             continue;
           }
-          throw err;
+          throw error;
         }
-        // Network / abort errors are retryable.
-        lastError = err as Error;
-        continue;
+        lastError = error as Error;
       }
     }
 
@@ -186,9 +171,24 @@ export class RoteiroClient {
   async request<T>(path: string, init?: RequestInit): Promise<T> {
     const response = await this.requestResponse(path, init);
     if (response.status === 204) {
-      return undefined as unknown as T;
+      return undefined as T;
     }
-    return (await response.json()) as T;
+
+    const contentType = response.headers.get('content-type') ?? '';
+    if (contentType.includes('json')) {
+      return (await response.json()) as T;
+    }
+
+    const text = await response.text();
+    if (!text) {
+      return undefined as T;
+    }
+
+    try {
+      return JSON.parse(text) as T;
+    } catch {
+      return text as T;
+    }
   }
 
   async requestBlob(path: string, init?: RequestInit): Promise<Blob> {
@@ -196,7 +196,6 @@ export class RoteiroClient {
     return response.blob();
   }
 
-  /** Perform a POST request with a JSON body. */
   post<T>(path: string, body: unknown): Promise<T> {
     return this.request<T>(path, {
       method: 'POST',
@@ -205,7 +204,6 @@ export class RoteiroClient {
     });
   }
 
-  /** Perform a PUT request with a JSON body. */
   put<T>(path: string, body: unknown): Promise<T> {
     return this.request<T>(path, {
       method: 'PUT',
@@ -214,356 +212,316 @@ export class RoteiroClient {
     });
   }
 
-  /** Perform a DELETE request. */
+  patch<T>(path: string, body: unknown): Promise<T> {
+    return this.request<T>(path, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+    });
+  }
+
   async del(path: string): Promise<void> {
     await this.request<void>(path, { method: 'DELETE' });
   }
 
-  // -----------------------------------------------------------------------
-  // Health & Info
-  // -----------------------------------------------------------------------
-
-  /** Get server health status. */
   async health(): Promise<HealthStatus> {
     return this.request<HealthStatus>('/health');
   }
 
-  // -----------------------------------------------------------------------
-  // Datasets
-  // -----------------------------------------------------------------------
-
-  /** List all registered datasets. */
   async listDatasets(): Promise<Dataset[]> {
     return this.request<Dataset[]>('/datasets');
   }
 
-  /** Delete a dataset registration. */
   async deleteDataset(name: string): Promise<void> {
-    return this.del(`/datasets/${encodeURIComponent(name)}`);
+    await this.del(`/datasets/${encodeURIComponent(name)}`);
   }
 
-  // -----------------------------------------------------------------------
-  // OGC Collections & Features
-  // -----------------------------------------------------------------------
+  async getDatasetStatuses(names: string[]): Promise<Dataset[]> {
+    return this.request<Dataset[]>(`/api/v1/datasets/status${this.buildQuery({ name: names })}`);
+  }
 
-  /** List all OGC API collections. */
+  async getDatasetMetadata(name: string): Promise<Record<string, unknown>> {
+    return this.request<Record<string, unknown>>(`/api/v1/datasets/${encodeURIComponent(name)}/metadata`);
+  }
+
+  async updateDatasetMetadata(name: string, patch: Record<string, unknown>): Promise<Record<string, unknown>> {
+    return this.patch<Record<string, unknown>>(`/api/v1/datasets/${encodeURIComponent(name)}/metadata`, patch);
+  }
+
+  async getDatasetSchema(name: string): Promise<Record<string, unknown>> {
+    return this.request<Record<string, unknown>>(`/api/v1/datasets/${encodeURIComponent(name)}/schema`);
+  }
+
+  async updateDatasetSchema(name: string, schema: Record<string, unknown>): Promise<Record<string, unknown>> {
+    return this.put<Record<string, unknown>>(`/api/v1/datasets/${encodeURIComponent(name)}/schema`, schema);
+  }
+
+  async getDatasetProfile(name: string): Promise<Record<string, unknown>> {
+    return this.request<Record<string, unknown>>(`/api/v1/datasets/${encodeURIComponent(name)}/profile`);
+  }
+
+  async validateDataset(name: string, body: Record<string, unknown> = {}): Promise<Record<string, unknown>> {
+    return this.post<Record<string, unknown>>(`/api/v1/datasets/${encodeURIComponent(name)}/validate`, body);
+  }
+
+  async getValidationRules(name: string): Promise<Record<string, unknown>> {
+    return this.request<Record<string, unknown>>(`/api/v1/datasets/${encodeURIComponent(name)}/validation-rules`);
+  }
+
+  async updateValidationRules(name: string, body: Record<string, unknown>): Promise<Record<string, unknown>> {
+    return this.put<Record<string, unknown>>(`/api/v1/datasets/${encodeURIComponent(name)}/validation-rules`, body);
+  }
+
+  async importSource(request: ImportSourceRequest): Promise<Record<string, unknown>> {
+    return this.post<Record<string, unknown>>('/api/v1/datasets/import-source', this.withDefaultProjectId(request));
+  }
+
   async listCollections(): Promise<Collection[]> {
-    const resp = await this.request<{ collections: Collection[] }>('/collections');
-    return resp.collections ?? [];
+    const response = await this.request<{ collections: Collection[] }>('/collections');
+    return response.collections ?? [];
   }
 
-  /** Get a single collection. */
   async getCollection(id: string): Promise<Collection> {
     return this.request<Collection>(`/collections/${encodeURIComponent(id)}`);
   }
 
-  /** Query features from a collection with optional filters. */
-  async getItems(
-    collectionId: string,
-    params?: QueryParams,
-  ): Promise<FeatureCollection> {
-    const sp = new URLSearchParams();
-    if (params?.bbox) sp.set('bbox', params.bbox);
-    if (params?.bboxCRS) sp.set('bbox-crs', params.bboxCRS);
-    if (params?.crs) sp.set('crs', params.crs);
-    if (params?.limit) sp.set('limit', String(params.limit));
-    if (params?.filter) sp.set('filter', params.filter);
-    if (params?.datetime) sp.set('datetime', params.datetime);
-    if (params?.offset !== undefined) sp.set('offset', String(params.offset));
-    const q = sp.toString();
+  async getItems(collectionId: string, params: QueryParams = {}): Promise<FeatureCollection> {
     return this.request<FeatureCollection>(
-      `/collections/${encodeURIComponent(collectionId)}/items${q ? `?${q}` : ''}`,
+      `/collections/${encodeURIComponent(collectionId)}/items${this.buildQuery({
+        bbox: params.bbox,
+        'bbox-crs': params.bboxCRS,
+        crs: params.crs,
+        limit: params.limit,
+        filter: params.filter,
+        datetime: params.datetime,
+        offset: params.offset,
+        cursor: params.cursor,
+      })}`,
     );
   }
 
-  /** Alias of {@link getItems} for compatibility with previous SDK method names. */
-  async queryFeatures(
-    collectionId: string,
-    params?: QueryParams,
-  ): Promise<FeatureCollection> {
+  async queryFeatures(collectionId: string, params: QueryParams = {}): Promise<FeatureCollection> {
     return this.getItems(collectionId, params);
   }
 
-  /** Get a single feature from a collection. */
   async getItem(collectionId: string, featureId: string): Promise<Feature> {
-    return this.request<Feature>(
-      `/collections/${encodeURIComponent(collectionId)}/items/${encodeURIComponent(featureId)}`,
-    );
+    return this.request<Feature>(`/collections/${encodeURIComponent(collectionId)}/items/${encodeURIComponent(featureId)}`);
   }
 
-  /** Alias of {@link getItem}. */
   async getFeature(collectionId: string, featureId: string): Promise<Feature> {
     return this.getItem(collectionId, featureId);
   }
 
-  /** Create a new feature in a collection. */
   async createItem(collectionId: string, feature: Feature): Promise<Feature> {
-    return this.request<Feature>(
-      `/collections/${encodeURIComponent(collectionId)}/items`,
-      {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/geo+json' },
-        body: JSON.stringify(feature),
-      },
-    );
+    return this.request<Feature>(`/collections/${encodeURIComponent(collectionId)}/items`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/geo+json' },
+      body: JSON.stringify(feature),
+    });
   }
 
-  /** Alias of {@link createItem}. */
-  async createFeature(collectionId: string, feature: Feature): Promise<Feature> {
-    return this.createItem(collectionId, feature);
+  async updateItem(collectionId: string, featureId: string, feature: Feature): Promise<Feature> {
+    return this.request<Feature>(`/collections/${encodeURIComponent(collectionId)}/items/${encodeURIComponent(featureId)}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/geo+json' },
+      body: JSON.stringify(feature),
+    });
   }
 
-  /** Update an existing feature in a collection. */
-  async updateItem(
-    collectionId: string,
-    featureId: string,
-    feature: Feature,
-  ): Promise<Feature> {
-    return this.request<Feature>(
-      `/collections/${encodeURIComponent(collectionId)}/items/${encodeURIComponent(featureId)}`,
-      {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/geo+json' },
-        body: JSON.stringify(feature),
-      },
-    );
-  }
-
-  /** Alias of {@link updateItem}. */
-  async updateFeature(
-    collectionId: string,
-    featureId: string,
-    feature: Feature,
-  ): Promise<Feature> {
-    return this.updateItem(collectionId, featureId, feature);
-  }
-
-  /** Delete a feature from a collection. */
   async deleteItem(collectionId: string, featureId: string): Promise<void> {
-    await this.del(
-      `/collections/${encodeURIComponent(collectionId)}/items/${encodeURIComponent(featureId)}`,
-    );
+    await this.del(`/collections/${encodeURIComponent(collectionId)}/items/${encodeURIComponent(featureId)}`);
   }
 
-  /** Alias of {@link deleteItem}. */
-  async deleteFeature(collectionId: string, featureId: string): Promise<void> {
-    return this.deleteItem(collectionId, featureId);
+  async getSceneManifest(): Promise<Record<string, unknown>> {
+    return this.request<Record<string, unknown>>('/api/v1/scene-manifest');
   }
 
-  // -----------------------------------------------------------------------
-  // Processing
-  // -----------------------------------------------------------------------
-
-  /** Convert a dataset to another format. */
-  async convert(params: {
-    input: string;
-    output_format: string;
-    output_name?: string;
-    register?: boolean;
-    project_id?: number;
-  }): Promise<ConvertResult> {
-    return this.post<ConvertResult>(
-      '/api/convert',
-      this.withDefaultProjectId(params),
-    );
+  async listBodies(): Promise<Record<string, unknown>> {
+    return this.request<Record<string, unknown>>('/api/v1/bodies');
   }
 
-  /** Run a spatial processing operation. */
-  async process(params: ProcessRequest): Promise<ProcessResult> {
-    return this.post<ProcessResult>('/api/process', {
-      ...this.withDefaultProjectId(params),
-      params: params.params ?? {},
-    });
+  async getBody(slug: string): Promise<Record<string, unknown>> {
+    return this.request<Record<string, unknown>>(`/api/v1/bodies/${encodeURIComponent(slug)}`);
   }
 
-  /** Compare two datasets. */
-  async diff(params: {
-    left: string;
-    right: string;
-    match_field?: string;
-  }): Promise<DiffSummary> {
-    return this.post<DiffSummary>('/api/diff', params);
+  async getBodyRecipes(slug: string): Promise<Record<string, unknown>> {
+    return this.request<Record<string, unknown>>(`/api/v1/bodies/${encodeURIComponent(slug)}/recipes`);
   }
 
-  /** List available processing operations and output formats. */
-  async listOperations(): Promise<ProcessingOperationsResponse> {
-    return this.request<ProcessingOperationsResponse>('/api/operations');
+  async getSqlInfo(engine: string): Promise<QueryEngineInfo> {
+    return this.request<QueryEngineInfo>(`/api/v1/query/sql/info${this.buildQuery({ engine })}`);
   }
 
-  /** Validate and normalize a processing request without executing it. */
-  async preflightProcess(params: ProcessRequest): Promise<ProcessPreflightResult> {
-    return this.post<ProcessPreflightResult>('/api/process/preflight', {
-      ...this.withDefaultProjectId(params),
-      params: params.params ?? {},
-    });
+  async listSqlDatasets(engine: string): Promise<QueryDataset[]> {
+    return this.request<QueryDataset[]>(`/api/v1/query/sql/datasets${this.buildQuery({ engine })}`);
   }
 
-  /** Submit an asynchronous processing job. */
-  async submitProcessJob(params: ProcessRequest): Promise<ProcessJobRecord> {
-    const scoped = this.withDefaultProjectId(params);
-    return this.request<ProcessJobRecord>('/api/process/jobs', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        ...scoped,
-        params: params.params ?? {},
-      }),
-    });
-  }
-
-  /** Submit a batch of asynchronous processing jobs. */
-  async submitProcessBatch(params: {
-    jobs: Array<{
-      client_id?: string;
-      request: ProcessRequest;
-      depends_on?: string[];
-    }>;
-  }): Promise<ProcessBatchSubmitResponse> {
-    return this.request<ProcessBatchSubmitResponse>('/api/process/jobs/batch', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        jobs: params.jobs.map((job) => ({
-          ...job,
-          request: {
-            ...this.withDefaultProjectId(job.request),
-            params: job.request.params ?? {},
-          },
-        })),
-      }),
-    });
-  }
-
-  /** List asynchronous processing jobs for the current tenant. */
-  async listProcessJobs(params: ListProcessJobsParams = {}): Promise<ProcessJobRecord[]> {
-    const sp = new URLSearchParams();
-    if (params.status) sp.set('status', params.status);
-    if (params.search) sp.set('search', params.search);
-    if (params.limit !== undefined) sp.set('limit', String(params.limit));
-    if (params.offset !== undefined) sp.set('offset', String(params.offset));
-    const q = sp.toString();
-    return this.request<ProcessJobRecord[]>(`/api/process/jobs${q ? `?${q}` : ''}`);
-  }
-
-  /** Get a single asynchronous processing job by ID. */
-  async getProcessJob(id: string): Promise<ProcessJobRecord> {
-    return this.request<ProcessJobRecord>(
-      `/api/process/jobs/${encodeURIComponent(id)}`,
-    );
-  }
-
-  /** Cancel an asynchronous processing job. */
-  async cancelProcessJob(id: string): Promise<void> {
-    await this.del(`/api/process/jobs/${encodeURIComponent(id)}`);
-  }
-
-  /** Re-run a previously submitted asynchronous processing job. */
-  async rerunProcessJob(id: string): Promise<ProcessJobRecord> {
-    return this.request<ProcessJobRecord>(
-      `/api/process/jobs/${encodeURIComponent(id)}/rerun`,
-      {
+  async executeSql(engine: string, request: QueryExecuteRequest): Promise<QueryExecuteResponse | Blob> {
+    if (request.format === 'arrow') {
+      return this.requestBlob(`/api/v1/query/sql${this.buildQuery({ engine })}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-      },
-    );
-  }
-
-  /** Run a generic raster processing operation. */
-  async rasterProcess(params: RasterProcessRequest): Promise<RasterProcessResult> {
-    return this.post<RasterProcessResult>('/api/raster/process', {
-      ...params,
-      params: params.params ?? {},
-    });
-  }
-
-  /** Render a PNG mosaic from two or more registered raster datasets. */
-  async rasterMosaic(params: RasterMosaicRequest): Promise<Blob> {
-    return this.requestBlob('/api/raster/mosaic', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(params),
-    });
-  }
-
-  /** Fetch combined metadata for a raster mosaic request. */
-  async getRasterMosaicInfo(names: string[]): Promise<RasterMosaicInfo> {
-    const sp = new URLSearchParams();
-    for (const name of names) {
-      sp.append('name', name);
+        body: JSON.stringify(request),
+      });
     }
-    const q = sp.toString();
-    return this.request<RasterMosaicInfo>(
-      `/api/raster/mosaic/info${q ? `?${q}` : ''}`,
-    );
+    return this.post<QueryExecuteResponse>(`/api/v1/query/sql${this.buildQuery({ engine })}`, request);
   }
 
-  // -----------------------------------------------------------------------
-  // Saved Pipelines
-  // -----------------------------------------------------------------------
-
-  /** List persisted pipeline templates. */
-  async listPipelineTemplates(): Promise<SavedPipeline[]> {
-    return this.request<SavedPipeline[]>('/api/pipelines/templates');
+  async saveSqlResult(engine: string, request: SaveSqlResultRequest): Promise<Record<string, unknown>> {
+    return this.post<Record<string, unknown>>(`/api/v1/query/sql/save${this.buildQuery({ engine })}`, request);
   }
 
-  /** List persisted pipelines for the current tenant. */
-  async listPipelines(): Promise<SavedPipeline[]> {
-    return this.request<SavedPipeline[]>('/api/pipelines');
+  async listOperations(domain?: string): Promise<OperationCatalog> {
+    return this.request<OperationCatalog>(`/api/v1/ops${this.buildQuery({ domain })}`);
   }
 
-  /** Fetch a persisted pipeline by ID. */
-  async getPipeline(id: string): Promise<SavedPipeline> {
-    return this.request<SavedPipeline>(`/api/pipelines/${encodeURIComponent(id)}`);
-  }
-
-  /** Create a persisted pipeline definition. */
-  async createPipeline(params: SavedPipelineCreateRequest): Promise<SavedPipeline> {
-    return this.post<SavedPipeline>('/api/pipelines', params);
-  }
-
-  /** Update a persisted pipeline definition with optimistic concurrency. */
-  async updatePipeline(
-    id: string,
-    params: SavedPipelineUpdateRequest,
-  ): Promise<SavedPipeline> {
-    return this.put<SavedPipeline>(`/api/pipelines/${encodeURIComponent(id)}`, params);
-  }
-
-  /** Delete a persisted pipeline definition. */
-  async deletePipeline(id: string): Promise<void> {
-    await this.del(`/api/pipelines/${encodeURIComponent(id)}`);
-  }
-
-  /** Duplicate a persisted pipeline definition. */
-  async duplicatePipeline(id: string): Promise<SavedPipeline> {
-    return this.request<SavedPipeline>(`/api/pipelines/${encodeURIComponent(id)}/duplicate`, {
-      method: 'POST',
+  async preflightOperation(request: OperationRequest): Promise<OperationPreflightResult> {
+    return this.post<OperationPreflightResult>('/api/v1/ops/preflight', {
+      ...this.withDefaultProjectId(request),
+      params: request.params ?? {},
     });
   }
 
-  /** Submit a persisted pipeline for execution. */
-  async executePipeline(id: string): Promise<SavedPipelineExecutionResult> {
-    return this.request<SavedPipelineExecutionResult>(
-      `/api/pipelines/${encodeURIComponent(id)}/execute`,
-      {
-        method: 'POST',
-      },
-    );
+  async runOperation(operation: string, request: Omit<OperationRequest, 'operation'> = {}): Promise<OperationResponse | FeatureCollection | unknown> {
+    return this.post<OperationResponse | FeatureCollection | unknown>(`/api/v1/ops/${encodeURIComponent(operation)}`, {
+      ...this.withDefaultProjectId(request),
+      params: request.params ?? {},
+    });
   }
 
-  // -----------------------------------------------------------------------
-  // Upload
-  // -----------------------------------------------------------------------
+  async submitOperationJob(operation: string, request: Omit<OperationRequest, 'operation'> = {}): Promise<OperationJobRecord> {
+    return this.post<OperationJobRecord>(`/api/v1/ops/by-operation/${encodeURIComponent(operation)}/jobs`, {
+      ...this.withDefaultProjectId(request),
+      params: request.params ?? {},
+    });
+  }
 
-  /** Upload a geospatial file and register it as a dataset. */
+  async submitOperationBatch(jobs: Array<Record<string, unknown>>): Promise<OperationBatchSubmitResponse> {
+    return this.post<OperationBatchSubmitResponse>('/api/v1/ops/jobs/batch', { jobs });
+  }
+
+  async listOperationJobs(params: ListOperationJobsParams = {}): Promise<OperationJobRecord[]> {
+    return this.request<OperationJobRecord[]>(`/api/v1/ops/jobs${this.buildQuery(params)}`);
+  }
+
+  async getOperationJob(id: string): Promise<OperationJobRecord> {
+    return this.request<OperationJobRecord>(`/api/v1/ops/jobs/${encodeURIComponent(id)}`);
+  }
+
+  async cancelOperationJob(id: string): Promise<void> {
+    await this.del(`/api/v1/ops/jobs/${encodeURIComponent(id)}`);
+  }
+
+  async rerunOperationJob(id: string): Promise<OperationJobRecord> {
+    return this.post<OperationJobRecord>(`/api/v1/ops/jobs/${encodeURIComponent(id)}/rerun`, {});
+  }
+
+  operationArtifactUrl(id: string, format: string): string {
+    return `${this.baseUrl}/api/v1/ops/jobs/${encodeURIComponent(id)}/artifacts/${encodeURIComponent(format)}`;
+  }
+
+  async listPipelineOperations(): Promise<Record<string, unknown>> {
+    return this.request<Record<string, unknown>>('/api/v1/pipeline/operations');
+  }
+
+  async runPipeline(request: AdhocPipelineRequest): Promise<OperationResponse | FeatureCollection | unknown> {
+    return this.post<OperationResponse | FeatureCollection | unknown>('/api/v1/pipeline', request);
+  }
+
+  async listPipelines(): Promise<SavedPipeline[]> {
+    return this.request<SavedPipeline[]>('/api/v1/pipelines');
+  }
+
+  async getPipeline(id: string): Promise<SavedPipeline> {
+    return this.request<SavedPipeline>(`/api/v1/pipelines/${encodeURIComponent(id)}`);
+  }
+
+  async createPipeline(request: SavedPipelineCreateRequest): Promise<SavedPipeline> {
+    return this.post<SavedPipeline>('/api/v1/pipelines', request);
+  }
+
+  async updatePipeline(id: string, request: SavedPipelineUpdateRequest): Promise<SavedPipeline> {
+    return this.put<SavedPipeline>(`/api/v1/pipelines/${encodeURIComponent(id)}`, request);
+  }
+
+  async deletePipeline(id: string): Promise<void> {
+    await this.del(`/api/v1/pipelines/${encodeURIComponent(id)}`);
+  }
+
+  async duplicatePipeline(id: string): Promise<SavedPipeline> {
+    return this.post<SavedPipeline>(`/api/v1/pipelines/${encodeURIComponent(id)}/duplicate`, {});
+  }
+
+  async executePipeline(id: string): Promise<PipelineExecutionResult> {
+    return this.post<PipelineExecutionResult>(`/api/v1/pipelines/${encodeURIComponent(id)}/execute`, {});
+  }
+
+  async listPipelineRuns(id: string): Promise<PipelineRun[]> {
+    return this.request<PipelineRun[]>(`/api/v1/pipelines/${encodeURIComponent(id)}/runs`);
+  }
+
+  async getPipelineRun(runId: string): Promise<PipelineRun> {
+    return this.request<PipelineRun>(`/api/v1/pipeline-runs/${encodeURIComponent(runId)}`);
+  }
+
+  async listProjects(): Promise<Project[]> {
+    return this.request<Project[]>('/api/v1/projects');
+  }
+
+  async getProject(id: number): Promise<Project> {
+    return this.request<Project>(`/api/v1/projects/${id}`);
+  }
+
+  async createProject(name: string, description?: string): Promise<Project> {
+    return this.post<Project>('/api/v1/projects', { name, description });
+  }
+
+  async updateProject(id: number, body: { name?: string; description?: string | null }): Promise<Project> {
+    return this.put<Project>(`/api/v1/projects/${id}`, body);
+  }
+
+  async deleteProject(id: number): Promise<void> {
+    await this.del(`/api/v1/projects/${id}`);
+  }
+
+  async getProjectWorkspace(id: number): Promise<ProjectWorkspace> {
+    return this.request<ProjectWorkspace>(`/api/v1/projects/${id}/workspace`);
+  }
+
+  async setProjectWorkspace(id: number, body: { map_state: unknown; layer_styles?: unknown }): Promise<ProjectWorkspace> {
+    return this.put<ProjectWorkspace>(`/api/v1/projects/${id}/workspace`, {
+      map_state: body.map_state,
+      layer_styles: body.layer_styles ?? {},
+    });
+  }
+
+  async publishMap(request: PublishMapRequest): Promise<PublishMapResult> {
+    return this.post<PublishMapResult>('/api/v1/maps/publish', request);
+  }
+
+  async listPublishedMaps(): Promise<Array<Record<string, unknown>>> {
+    return this.request<Array<Record<string, unknown>>>('/api/v1/maps/published');
+  }
+
+  async deletePublishedMap(token: string): Promise<void> {
+    await this.del(`/api/v1/maps/published/${encodeURIComponent(token)}`);
+  }
+
+  async getPublishedMapStats(token: string): Promise<Record<string, unknown>> {
+    return this.request<Record<string, unknown>>(`/api/v1/maps/published/${encodeURIComponent(token)}/stats`);
+  }
+
+  async updatePublishedMapEmbedConfig(token: string, embedConfig: Record<string, unknown>): Promise<Record<string, unknown>> {
+    return this.put<Record<string, unknown>>(`/api/v1/maps/published/${encodeURIComponent(token)}/embed-config`, embedConfig);
+  }
+
   async upload(
     file: Blob | ArrayBuffer | ArrayBufferView,
     filename: string,
-    name?: string,
-    options: { projectId?: number } = {},
+    options: { name?: string; projectId?: number; bodyId?: string } = {},
   ): Promise<Dataset> {
-    const FormDataCtor = (globalThis as { FormData?: typeof FormData }).FormData;
-    const BlobCtor = (globalThis as { Blob?: typeof Blob }).Blob;
+    const FormDataCtor = globalThis.FormData;
+    const BlobCtor = globalThis.Blob;
     if (!FormDataCtor || !BlobCtor) {
       throw new Error('FormData/Blob not available in this runtime');
     }
@@ -576,14 +534,12 @@ export class RoteiroClient {
           ? new Uint8Array(file.buffer, file.byteOffset, file.byteLength).slice()
           : file;
     const blob = blobPart instanceof BlobCtor ? blobPart : new BlobCtor([blobPart]);
+
     form.append('file', blob, filename);
-    if (name) {
-      form.append('name', name);
-    }
-    const projectId = options.projectId ?? this.projectId;
-    if (projectId !== undefined) {
-      form.append('project_id', String(projectId));
-    }
+    if (options.name) form.append('name', options.name);
+    const scopedProjectId = options.projectId ?? this.projectId;
+    if (scopedProjectId !== undefined) form.append('project_id', String(scopedProjectId));
+    if (options.bodyId) form.append('body_id', options.bodyId);
 
     return this.request<Dataset>('/upload', {
       method: 'POST',
@@ -591,28 +547,15 @@ export class RoteiroClient {
     });
   }
 
-  // -----------------------------------------------------------------------
-  // Tile URL helpers (for MapLibre / Leaflet integration)
-  // -----------------------------------------------------------------------
-
-  /** Get the vector tiles URL template for a tileset. */
-  vectorTilesUrl(tileset: string): string {
-    return `${this.baseUrl}${this.withProjectQuery(
-      `/tiles/${encodeURIComponent(tileset)}/{z}/{x}/{y}`,
-    )}`;
+  vectorTilesUrl(tileset: string, projectId?: number): string {
+    return `${this.baseUrl}${this.withProjectQuery(`/tiles/${encodeURIComponent(tileset)}/{z}/{x}/{y}`, projectId)}`;
   }
 
-  /** Get the raster tiles URL template for a dataset. */
-  rasterTilesUrl(name: string): string {
-    return `${this.baseUrl}${this.withProjectQuery(
-      `/raster/${encodeURIComponent(name)}/tiles/{z}/{x}/{y}`,
-    )}`;
+  rasterTilesUrl(name: string, projectId?: number): string {
+    return `${this.baseUrl}${this.withProjectQuery(`/raster/${encodeURIComponent(name)}/tiles/{z}/{x}/{y}`, projectId)}`;
   }
 
-  /** Get the PMTiles URL template for an archive. */
-  pmtilesUrl(archive: string): string {
-    return `${this.baseUrl}${this.withProjectQuery(
-      `/pmtiles/${encodeURIComponent(archive)}/{z}/{x}/{y}`,
-    )}`;
+  pmtilesUrl(archive: string, projectId?: number): string {
+    return `${this.baseUrl}${this.withProjectQuery(`/pmtiles/${encodeURIComponent(archive)}/{z}/{x}/{y}`, projectId)}`;
   }
 }
