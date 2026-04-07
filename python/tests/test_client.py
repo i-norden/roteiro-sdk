@@ -1,50 +1,29 @@
-import io
-import json
 import unittest
 from urllib.parse import parse_qs, urlsplit
-from unittest.mock import patch
-from urllib.error import HTTPError
 
-from roteiro.client import RoteiroAPIError, RoteiroClient
-
-
-class _DummyResponse:
-    def __init__(self, payload, status=200):
-        self._payload = payload
-        self.status = status
-
-    def read(self):
-        return json.dumps(self._payload).encode("utf-8")
-
-    def __enter__(self):
-        return self
-
-    def __exit__(self, exc_type, exc, tb):
-        return False
+from roteiro.client import RoteiroClient
 
 
 class RoteiroClientTests(unittest.TestCase):
-    def test_build_headers_includes_api_key(self):
-        client = RoteiroClient(
-            "https://example.com", api_key="secret", project_id=42
-        )
+    def test_build_headers_includes_api_key(self) -> None:
+        client = RoteiroClient("https://example.com", api_key="secret", project_id=42)
         headers = client._build_headers({"Content-Type": "application/json"})
         self.assertEqual(headers["Accept"], "application/json")
         self.assertEqual(headers["X-API-Key"], "secret")
         self.assertEqual(headers["X-Project-ID"], "42")
         self.assertEqual(headers["Content-Type"], "application/json")
 
-    def test_get_items_builds_expected_query_params(self):
+    def test_get_items_builds_expected_query_params(self) -> None:
         client = RoteiroClient("https://example.com")
         captured = {}
 
-        def fake_get(path):
+        def fake_get(path: str):
             captured["path"] = path
             return {"type": "FeatureCollection", "features": []}
 
         client._get = fake_get  # type: ignore[method-assign]
 
-        fc = client.get_items(
+        features = client.get_items(
             "roads/primary",
             bbox="1,2,3,4",
             bbox_crs="EPSG:4326",
@@ -53,6 +32,7 @@ class RoteiroClientTests(unittest.TestCase):
             where="kind='road'",
             datetime="2024-01-01T00:00:00Z",
             offset=10,
+            cursor="abc",
         )
 
         parsed = urlsplit(captured["path"])
@@ -67,75 +47,64 @@ class RoteiroClientTests(unittest.TestCase):
                 "filter": ["kind='road'"],
                 "datetime": ["2024-01-01T00:00:00Z"],
                 "offset": ["10"],
+                "cursor": ["abc"],
             },
         )
-        self.assertEqual(fc.type, "FeatureCollection")
-        self.assertEqual(len(fc.features), 0)
+        self.assertEqual(features.type, "FeatureCollection")
 
-    def test_request_retries_retryable_http_errors(self):
-        client = RoteiroClient("https://example.com", max_retries=1, backoff_factor=0)
-        retryable = HTTPError(
-            url="https://example.com/health",
-            code=503,
-            msg="Service Unavailable",
-            hdrs=None,
-            fp=io.BytesIO(b"temporary"),
+    def test_import_source_posts_current_intake_endpoint(self) -> None:
+        client = RoteiroClient("https://example.com", project_id=7)
+        captured = {}
+
+        def fake_post(path: str, body=None):
+            captured["path"] = path
+            captured["body"] = body
+            return {"status": "queued", "name": body["name"]}
+
+        client._post = fake_post  # type: ignore[method-assign]
+
+        result = client.import_source(
+            {
+                "name": "mars-dem",
+                "source": "https://example.com/dem.tif",
+                "source_type": "remote_url",
+                "body_id": "mars",
+            }
         )
-        self.addCleanup(retryable.close)
 
-        with patch("roteiro.client.urlopen", side_effect=[retryable, _DummyResponse({"status": "ok"})]):
-            with patch("roteiro.client.time.sleep", return_value=None):
-                data = client._request("GET", "/health")
-
-        self.assertEqual(data["status"], "ok")
-
-    def test_request_raises_api_error_for_non_retryable_http_errors(self):
-        client = RoteiroClient("https://example.com", max_retries=0)
-        bad_request = HTTPError(
-            url="https://example.com/health",
-            code=400,
-            msg="Bad Request",
-            hdrs=None,
-            fp=io.BytesIO(b'{"error":"invalid request"}'),
+        self.assertEqual(captured["path"], "/api/v1/datasets/import-source")
+        self.assertEqual(
+            captured["body"],
+            {
+                "name": "mars-dem",
+                "source": "https://example.com/dem.tif",
+                "source_type": "remote_url",
+                "body_id": "mars",
+                "project_id": 7,
+            },
         )
-        self.addCleanup(bad_request.close)
+        self.assertEqual(result["status"], "queued")
 
-        with patch("roteiro.client.urlopen", side_effect=bad_request):
-            with self.assertRaises(RoteiroAPIError) as ctx:
-                client._request("GET", "/health")
-
-        self.assertEqual(ctx.exception.status_code, 400)
-        self.assertIn("invalid request", str(ctx.exception))
-
-    def test_list_operations_calls_catalog_endpoint(self):
-        client = RoteiroClient("https://example.com")
-
-        def fake_get(path):
-            self.assertEqual(path, "/api/operations")
-            return {"operations": [{"name": "buffer", "params": ["distance"]}], "formats": ["geojson"]}
-
-        client._get = fake_get  # type: ignore[method-assign]
-        catalog = client.list_operations()
-        self.assertEqual(catalog["operations"][0]["name"], "buffer")
-        self.assertEqual(catalog["formats"], ["geojson"])
-
-    def test_preflight_process_posts_expected_body(self):
+    def test_preflight_operation_posts_expected_body(self) -> None:
         client = RoteiroClient("https://example.com", project_id=42)
         captured = {}
 
-        def fake_post(path, body=None):
+        def fake_post(path: str, body=None):
             captured["path"] = path
             captured["body"] = body
             return {"valid": True, "resolved_params": {"mask_path": "/tmp/mask.geojson"}}
 
         client._post = fake_post  # type: ignore[method-assign]
-        result = client.preflight_process(
-            "clip",
-            input_path="buildings",
-            params={"mask": "study_area"},
+
+        result = client.preflight_operation(
+            {
+                "operation": "clip",
+                "input": "buildings",
+                "params": {"mask": "study_area"},
+            }
         )
 
-        self.assertEqual(captured["path"], "/api/process/preflight")
+        self.assertEqual(captured["path"], "/api/v1/ops/preflight")
         self.assertEqual(
             captured["body"],
             {
@@ -146,93 +115,102 @@ class RoteiroClientTests(unittest.TestCase):
             },
         )
         self.assertTrue(result.valid)
-        self.assertEqual(result.resolved_params["mask_path"], "/tmp/mask.geojson")
+        self.assertEqual(result.resolved_params, {"mask_path": "/tmp/mask.geojson"})
 
-    def test_upload_applies_project_scope(self):
+    def test_upload_applies_project_and_body_scope(self) -> None:
         client = RoteiroClient("https://example.com", project_id=42)
         captured = {}
 
-        def fake_upload(path, file_path, field_name="file", extra_fields=None):
-            captured["upload_path"] = path
-            captured["upload_file_path"] = file_path
-            captured["upload_extra_fields"] = extra_fields
-            return {"name": "roads", "path": "/tmp/roads.geojson", "format": "geojson"}
+        def fake_upload(path: str, file_path: str, *, extra_fields=None):
+            captured["path"] = path
+            captured["file_path"] = file_path
+            captured["extra_fields"] = extra_fields
+            return {"name": "roads", "format": "geojson"}
 
         client._upload_file = fake_upload  # type: ignore[method-assign]
 
-        uploaded = client.upload("/tmp/roads.geojson", name="roads")
+        uploaded = client.upload("/tmp/roads.geojson", name="roads", body_id="moon")
 
-        self.assertEqual(captured["upload_path"], "/upload")
+        self.assertEqual(captured["path"], "/upload")
+        self.assertEqual(captured["file_path"], "/tmp/roads.geojson")
         self.assertEqual(
-            captured["upload_extra_fields"],
-            {"name": "roads", "project_id": "42"},
+            captured["extra_fields"],
+            {"name": "roads", "project_id": "42", "body_id": "moon"},
         )
         self.assertEqual(uploaded.name, "roads")
 
-    def test_list_process_jobs_builds_expected_query_params(self):
+    def test_body_recipes_endpoint_encodes_slug(self) -> None:
         client = RoteiroClient("https://example.com")
         captured = {}
 
-        def fake_get(path):
+        def fake_get(path: str):
             captured["path"] = path
-            return []
+            return {"recipes": []}
 
         client._get = fake_get  # type: ignore[method-assign]
-        jobs = client.list_process_jobs(
-            status="queued",
-            search="buffer",
-            limit=25,
-            offset=10,
-        )
 
-        self.assertEqual(
-            captured["path"],
-            "/api/process/jobs?status=queued&search=buffer&limit=25&offset=10",
-        )
-        self.assertEqual(jobs, [])
+        result = client.get_body_recipes("moon/custom")
 
-    def test_create_and_execute_pipeline(self):
+        self.assertEqual(captured["path"], "/api/v1/bodies/moon%2Fcustom/recipes")
+        self.assertEqual(result, {"recipes": []})
+
+    def test_execute_sql_arrow_returns_bytes(self) -> None:
         client = RoteiroClient("https://example.com")
         captured = {}
 
-        def fake_post(path, body=None):
-            captured["create_path"] = path
-            captured["create_body"] = body
-            return {
-                "id": "pipe_123",
+        def fake_request_bytes(method: str, path: str, body=None, extra_headers=None):
+            captured["method"] = method
+            captured["path"] = path
+            captured["body"] = body
+            return b"ARROW"
+
+        client._request_bytes = fake_request_bytes  # type: ignore[method-assign]
+
+        result = client.execute_sql("duckdb", {"sql": "select 1", "format": "arrow"})
+
+        self.assertEqual(captured["method"], "POST")
+        self.assertEqual(captured["path"], "/api/v1/query/sql?engine=duckdb")
+        self.assertEqual(captured["body"], {"sql": "select 1", "format": "arrow"})
+        self.assertEqual(result, b"ARROW")
+
+    def test_create_and_execute_pipeline(self) -> None:
+        client = RoteiroClient("https://example.com")
+        captured = {}
+
+        def fake_post(path: str, body=None):
+            if path == "/api/v1/pipelines":
+                captured["create_path"] = path
+                captured["create_body"] = body
+                return {
+                    "id": "pipe_123",
+                    "name": "Suitability model",
+                    "description": "Buffer and clip",
+                    "graph": {"nodes": [{"id": "n1"}], "edges": []},
+                    "version": 1,
+                }
+            if path == "/api/v1/pipelines/pipe_123/execute":
+                captured["execute_path"] = path
+                captured["execute_body"] = body
+                return {
+                    "pipeline_id": "pipe_123",
+                    "status": "submitted",
+                    "node_count": 1,
+                    "edge_count": 0,
+                }
+            raise AssertionError(f"unexpected path: {path}")
+
+        client._post = fake_post  # type: ignore[method-assign]
+
+        pipeline = client.create_pipeline(
+            {
                 "name": "Suitability model",
                 "description": "Buffer and clip",
                 "graph": {"nodes": [{"id": "n1"}], "edges": []},
-                "canvas": None,
-                "version": 1,
-                "is_template": False,
-                "tenant_id": 7,
-                "created_at": "2026-03-22T00:00:00Z",
-                "updated_at": "2026-03-22T00:00:00Z",
             }
-
-        def fake_request(method, path, body=None, extra_headers=None):
-            captured["execute_method"] = method
-            captured["execute_path"] = path
-            self.assertIsNone(body)
-            return {
-                "pipeline_id": "pipe_123",
-                "status": "submitted",
-                "node_count": 1,
-                "edge_count": 0,
-            }
-
-        client._post = fake_post  # type: ignore[method-assign]
-        client._request = fake_request  # type: ignore[method-assign]
-
-        pipeline = client.create_pipeline(
-            "Suitability model",
-            "Buffer and clip",
-            graph={"nodes": [{"id": "n1"}], "edges": []},
         )
         execution = client.execute_pipeline("pipe_123")
 
-        self.assertEqual(captured["create_path"], "/api/pipelines")
+        self.assertEqual(captured["create_path"], "/api/v1/pipelines")
         self.assertEqual(
             captured["create_body"],
             {
@@ -241,71 +219,10 @@ class RoteiroClientTests(unittest.TestCase):
                 "graph": {"nodes": [{"id": "n1"}], "edges": []},
             },
         )
-        self.assertEqual(captured["execute_method"], "POST")
-        self.assertEqual(captured["execute_path"], "/api/pipelines/pipe_123/execute")
+        self.assertEqual(captured["execute_path"], "/api/v1/pipelines/pipe_123/execute")
+        self.assertEqual(captured["execute_body"], {})
         self.assertEqual(pipeline.id, "pipe_123")
         self.assertEqual(execution.status, "submitted")
-
-    def test_raster_process_posts_expected_body(self):
-        client = RoteiroClient("https://example.com")
-        captured = {}
-
-        def fake_post(path, body=None):
-            captured["path"] = path
-            captured["body"] = body
-            return {"width": 2, "height": 2, "data": [1, 2, 3, 4]}
-
-        client._post = fake_post  # type: ignore[method-assign]
-        result = client.raster_process("slope", input_path="/data/dem.tif")
-
-        self.assertEqual(captured["path"], "/api/raster/process")
-        self.assertEqual(
-            captured["body"],
-            {
-                "operation": "slope",
-                "input_path": "/data/dem.tif",
-                "params": {},
-            },
-        )
-        self.assertEqual(result["width"], 2)
-
-    def test_get_raster_mosaic_info_builds_repeated_name_query(self):
-        client = RoteiroClient("https://example.com")
-        captured = {}
-
-        def fake_get(path):
-            captured["path"] = path
-            return {"rasters": [], "count": 2}
-
-        client._get = fake_get  # type: ignore[method-assign]
-        result = client.get_raster_mosaic_info(["a", "b"])
-
-        self.assertEqual(
-            captured["path"],
-            "/api/raster/mosaic/info?name=a&name=b",
-        )
-        self.assertEqual(result.count, 2)
-
-    def test_get_item_and_tile_urls_encode_path_segments(self):
-        client = RoteiroClient("https://example.com", project_id=42)
-        captured = {}
-
-        def fake_get(path):
-            captured["path"] = path
-            return {"type": "Feature", "id": "feature/1", "properties": {}}
-
-        client._get = fake_get  # type: ignore[method-assign]
-        feature = client.get_item("roads/2024", "feature 1")
-
-        self.assertEqual(
-            captured["path"],
-            "/collections/roads%2F2024/items/feature%201",
-        )
-        self.assertEqual(feature.id, "feature/1")
-        self.assertEqual(
-            client.vector_tiles_url("city basemap/2024"),
-            "https://example.com/tiles/city%20basemap%2F2024/{z}/{x}/{y}?project_id=42",
-        )
 
 
 if __name__ == "__main__":

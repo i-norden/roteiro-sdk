@@ -3,43 +3,32 @@ import { RoteiroClient } from '../src/client';
 import { RoteiroGeneratedApi } from '../src/generated';
 
 describe('RoteiroGeneratedApi', () => {
-  it('encodes path parameters for generated endpoints', async () => {
+  it('encodes path parameters for current generated endpoints', async () => {
     const fetchMock = vi.fn(async (url: string, init?: RequestInit) => {
-      expect(new URL(url).pathname).toBe('/datasets/roads%2F2024%20q1');
-      expect(init?.method).toBe('DELETE');
-      return new Response(null, { status: 204 });
+      expect(new URL(url).pathname).toBe('/api/v1/bodies/moon%2Fcustom');
+      expect(init?.method).toBe('GET');
+      return new Response('{}', { status: 200, headers: { 'Content-Type': 'application/json' } });
     });
 
-    const client = new RoteiroClient({
-      baseUrl: 'https://example.com',
-      fetch: fetchMock as typeof globalThis.fetch,
-    });
-
+    const client = new RoteiroClient({ baseUrl: 'https://example.com', fetch: fetchMock as typeof globalThis.fetch });
     const api = new RoteiroGeneratedApi(client);
-    await api.deletedataset({ name: 'roads/2024 q1' });
 
+    await api.autoGetApiBodiesSlug({ slug: 'moon/custom' });
     expect(fetchMock).toHaveBeenCalledTimes(1);
   });
 
-  it('uses operationId-derived sync helpers for sync upload', async () => {
+  it('serializes JSON bodies for generated endpoints', async () => {
     const fetchMock = vi.fn(async (url: string, init?: RequestInit) => {
-      expect(new URL(url).pathname).toBe('/api/sync/upload');
+      expect(new URL(url).pathname).toBe('/api/v1/bodies');
       expect(init?.method).toBe('POST');
-      expect(init?.body).toBe(JSON.stringify({ collection_id: 'roads', changes: [] }));
-      return new Response('{}', {
-        status: 200,
-        headers: { 'Content-Type': 'application/json' }
-      });
+      expect(init?.body).toBe(JSON.stringify({ slug: 'ceres' }));
+      return new Response('{}', { status: 200, headers: { 'Content-Type': 'application/json' } });
     });
 
-    const client = new RoteiroClient({
-      baseUrl: 'https://example.com',
-      fetch: fetchMock as typeof globalThis.fetch,
-    });
-
+    const client = new RoteiroClient({ baseUrl: 'https://example.com', fetch: fetchMock as typeof globalThis.fetch });
     const api = new RoteiroGeneratedApi(client);
-    await api.syncupload({ body: { collection_id: 'roads', changes: [] } });
 
+    await api.autoPostApiBodies({ body: { slug: 'ceres' } });
     expect(fetchMock).toHaveBeenCalledTimes(1);
   });
 });
